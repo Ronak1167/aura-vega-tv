@@ -66,4 +66,5 @@ export type RootStackParamList = {
   Ambient: undefined;
   Consensus: undefined;
   Settings: undefined;
+  VideoPlayer: { item: MediaItem };
 };

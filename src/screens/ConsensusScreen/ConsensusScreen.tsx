@@ -11,6 +11,7 @@ import { colors, spacing, tvSafeLayout } from '../../styles/tokens';
 interface ConsensusScreenProps {
   navigation: {
     goBack: () => void;
+    navigate: (screen: string, params?: Record<string, unknown>) => void;
   };
 }
 
@@ -127,9 +128,9 @@ export const ConsensusScreen: React.FC<ConsensusScreenProps> = ({ navigation }) 
         <WinnerModal
           winner={state.winner}
           visible={state.isVotingComplete && !!state.winner}
-          onWatchNow={() => {
-            reset();
-            navigation.goBack();
+          onWatchNow={(item: MediaItem) => {
+            // Navigate to full-screen video player with the winning item
+            navigation.navigate('VideoPlayer', { item });
           }}
           onReset={reset}
         />

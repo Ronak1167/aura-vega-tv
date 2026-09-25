@@ -8,3 +8,5 @@ archive/
 *.vpkg
 .kepler/
 .vega/
+build/
+dist_bundle_test.js

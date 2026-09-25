@@ -14,21 +14,34 @@ target = "1.2"
 "com.amazon.vega.input.remote" = { version = "*" }
 
 [wants]
-# Media playback services
+# ── Core media playback services (react_native_for_vega_media_player.md) ──────
 "com.amazon.media.server" = { version = "*" }
+"com.amazon.mediabuffer.service" = { version = "*" }
+"com.amazon.mediatransform.service" = { version = "*" }
+"com.amazon.mediametrics.service" = { version = "*" }
+"com.amazon.gipc.uuid.*" = { version = "*" }
+
+# ── Audio ─────────────────────────────────────────────────────────────────────
+"com.amazon.audio.stream" = { version = "*" }
+"com.amazon.audio.control" = { version = "*" }
+"com.amazon.audio.output" = { version = "*" }
+
+# ── Network (for weather API and media streaming) ─────────────────────────────
+"com.amazon.network.access" = { version = "*" }
+
+# ── Accessibility: captions (vega_a11y_caption_settings.md) ─────────────────
+"com.amazon.devconf.privilege.accessibility" = { version = "*" }
+"com.amazon.a11y.audio_description" = { version = "*" }
+
+# ── DRM (optional — for future secure content) ────────────────────────────────
 "com.amazon.drm.key" = { version = "*" }
 "com.amazon.drm.crypto" = { version = "*" }
-# Audio
-"com.amazon.audio.output" = { version = "*" }
-# Network (for weather API and media streaming)
-"com.amazon.network.access" = { version = "*" }
-# Accessibility
-"com.amazon.a11y.captions" = { version = "*" }
-"com.amazon.a11y.audio_description" = { version = "*" }
 
 [offers]
 # Headless background service (REQUIRED by Vega OS for content personalization)
 "com.auravega.tv.headless" = { version = "1.0" }
+# IPC UUID service (required by media pipeline)
+"com.amazon.gipc.uuid.*" = { version = "*" }
 
 [app]
 icon = "@image/app-icon"
