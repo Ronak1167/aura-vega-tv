@@ -1,0 +1,45 @@
+# Linux Build Harness for Amazon Vega OS Developer Tools (VDT)
+# Solves Windows cross-platform limitation by containerizing POSIX build environment
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV NODE_VERSION=20.18.0
+
+# Install Linux system dependencies required by Vega Toolchain
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    unzip \
+    build-essential \
+    python3 \
+    python3-pip \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js LTS
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
+
+WORKDIR /app
+
+# Copy package manifests
+COPY package*.json ./
+RUN npm install
+
+# Copy application source
+COPY . .
+
+# Build production distribution
+RUN npm run build
+
+# Simulate .vpkg package compilation for Vega OS
+RUN mkdir -p /app/build-vega && \
+    tar -czf /app/build-vega/aura-vega-tv.vpkg -C /app/dist . && \
+    echo "Vega OS Package aura-vega-tv.vpkg created successfully."
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev", "--", "--host"]

@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/ambientcanvas.tsx","./src/components/couchconsensus.tsx","./src/components/doorbellpip.tsx","./src/components/glancebar.tsx","./src/components/vegafrictionmodal.tsx","./src/engine/remote-keys.ts","./src/engine/sound-effects.ts","./src/engine/spatial-focus.ts","./src/engine/usefocusable.ts"],"version":"5.9.3"}

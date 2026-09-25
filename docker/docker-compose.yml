@@ -1,0 +1,13 @@
+services:
+  aura-vega:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.vega
+    container_name: aura-vega-tv-harness
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../src:/app/src
+    environment:
+      - NODE_ENV=development
+      - VEGA_TARGET=firetv_1080p
