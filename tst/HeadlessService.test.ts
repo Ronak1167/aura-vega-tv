@@ -35,6 +35,10 @@ describe('Vega Headless Service Lifecycle', () => {
       expect.stringContaining('[HeadlessService] Synced personalized media recommendations'),
     );
 
+    const service = ContentPersonalizationHeadlessService.getInstance();
+    expect(service.getCachedRecommendations().length).toBeGreaterThan(0);
+    expect(service.getLastSyncTimestamp()).not.toBeNull();
+
     onStopService();
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining('[HeadlessService] Stopped background content synchronization'),

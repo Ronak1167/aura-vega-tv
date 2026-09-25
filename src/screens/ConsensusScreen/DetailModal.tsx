@@ -10,6 +10,7 @@ interface DetailModalProps {
   onClose: () => void;
   onShortlist: (item: MediaItem) => void;
   onSkip: (item: MediaItem) => void;
+  onWatchNow?: (item: MediaItem) => void;
 }
 
 export const DetailModal: React.FC<DetailModalProps> = ({
@@ -18,6 +19,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   onClose,
   onShortlist,
   onSkip,
+  onWatchNow,
 }) => {
   if (!item || !visible) return null;
 
@@ -86,6 +88,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               >
                 <Text style={styles.skipBtnText}>✕ Pass / Skip</Text>
               </FocusableCard>
+
+              {onWatchNow && (
+                <FocusableCard
+                  onPress={() => onWatchNow(item)}
+                  style={styles.watchBtn}
+                  accentColor={colors.accentAmber}
+                >
+                  <Text style={styles.watchBtnText}>▶ Watch Film</Text>
+                </FocusableCard>
+              )}
 
               <FocusableCard
                 onPress={onClose}
@@ -208,6 +220,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: colors.statusAlert,
+  },
+  watchBtn: {
+    paddingHorizontal: 22,
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 153, 0, 0.2)',
+    marginRight: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.accentAmber,
+  },
+  watchBtnText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.accentAmber,
   },
   closeBtn: {
     paddingHorizontal: 20,

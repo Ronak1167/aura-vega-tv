@@ -6,6 +6,7 @@ import { colors, spacing, typography } from '../../styles/tokens';
 
 interface MediaCardProps {
   item: MediaItem;
+  matchPercentage?: number;
   onPress: () => void;
   onShortlist?: () => void;
   onSkip?: () => void;
@@ -14,6 +15,7 @@ interface MediaCardProps {
 
 export const MediaCard: React.FC<MediaCardProps> = ({
   item,
+  matchPercentage,
   onPress,
   hasTVPreferredFocus,
 }) => {
@@ -35,16 +37,30 @@ export const MediaCard: React.FC<MediaCardProps> = ({
         {/* Gradient overlay */}
         <View style={styles.gradientOverlay} />
 
-        {/* Platform Badge */}
+        {/* Platform Badge (Top Left) */}
         <View style={styles.platformBadge}>
           <Text style={styles.platformText}>{item.streamingPlatform}</Text>
         </View>
 
+        {/* Match Percentage Badge (Top Right) */}
+        {matchPercentage !== undefined && (
+          <View style={styles.matchBadge}>
+            <Text style={styles.matchText}>{matchPercentage}% MATCH</Text>
+          </View>
+        )}
+
         {/* Card Metadata */}
         <View style={styles.infoArea}>
+          {item.mood ? (
+            <Text style={styles.moodLabel} numberOfLines={1}>
+              {item.mood.toUpperCase()}
+            </Text>
+          ) : null}
+
           <Text style={styles.title} numberOfLines={1}>
             {item.title}
           </Text>
+
           <View style={styles.metaRow}>
             <Text style={styles.metaText}>{item.year}</Text>
             <Text style={styles.metaDot}>•</Text>
@@ -104,9 +120,32 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.accentAmber,
   },
+  matchBadge: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
+    backgroundColor: 'rgba(0, 229, 255, 0.25)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.accentCyan,
+  },
+  matchText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: colors.accentCyan,
+    letterSpacing: 0.5,
+  },
   infoArea: {
     padding: spacing.md,
-    backgroundColor: 'rgba(20, 26, 41, 0.92)',
+  },
+  moodLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.accentCyan,
+    letterSpacing: 0.8,
+    marginBottom: 2,
   },
   title: {
     fontSize: 20,
@@ -120,11 +159,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   metaText: {
-    fontSize: 13,
+    fontSize: 14,
     color: colors.textSecondary,
   },
   metaDot: {
-    fontSize: 13,
+    fontSize: 14,
     color: colors.textMuted,
     marginHorizontal: 6,
   },
@@ -133,14 +172,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scoreBadgeImdb: {
-    backgroundColor: '#332800',
+    backgroundColor: 'rgba(255, 193, 7, 0.2)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
     marginRight: 8,
   },
   scoreBadgeRt: {
-    backgroundColor: '#330D14',
+    backgroundColor: 'rgba(255, 82, 82, 0.2)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,

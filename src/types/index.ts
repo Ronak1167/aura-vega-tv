@@ -8,7 +8,8 @@ export interface MediaItem {
   title: string;
   year: number;
   rating: string;
-  runtime: string;
+  runtime: string; // e.g., "2h 49m"
+  runtimeMinutes?: number; // Parsed runtime in minutes (e.g., 169)
   imdbScore: number;
   rottenTomatoes: number;
   mood: string;
@@ -28,6 +29,45 @@ export interface VotingParticipant {
   name: string;
   avatarColor: string;
   hasVoted: boolean;
+  preferredGenres?: string[];
+  preferredMoods?: string[];
+  dislikedGenres?: string[];
+}
+
+export interface ViewingContext {
+  timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night';
+  weatherCondition: string;
+  temperature: number;
+  targetMaxRuntimeMinutes?: number;
+  sessionMood?: string;
+}
+
+export interface ScoreBreakdown {
+  affinityScore: number;       // 0-100 (Weight: 0.35)
+  qualityScore: number;        // 0-100 (Weight: 0.25)
+  contextScore: number;        // 0-100 (Weight: 0.25)
+  runtimeScore: number;        // 0-100 (Weight: 0.15)
+  penalty: number;             // Direct reduction (e.g. dislikes)
+  totalScore: number;          // 0-100 clamped
+  isVetoed: boolean;
+}
+
+export interface CandidateEvaluation {
+  item: MediaItem;
+  breakdown: ScoreBreakdown;
+  matchPercentage: number;
+  rank: number;
+  positiveFactors: string[];
+  negativeFactors: string[];
+  summaryReason: string;
+}
+
+export interface RecommendationResult {
+  winner: CandidateEvaluation;
+  shortlistRankings: CandidateEvaluation[];
+  evaluatedCandidatesCount: number;
+  generatedAt: string;
+  contextSummary: string;
 }
 
 export interface ConsensusState {
@@ -38,6 +78,8 @@ export interface ConsensusState {
   activeMood: string;
   participants: VotingParticipant[];
   isVotingComplete: boolean;
+  recommendation: RecommendationResult | null;
+  evaluations: Map<string, CandidateEvaluation>;
 }
 
 export interface WeatherTelemetry {

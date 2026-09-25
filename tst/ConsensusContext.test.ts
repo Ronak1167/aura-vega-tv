@@ -95,7 +95,9 @@ describe('ConsensusContext - Co-Viewing Decision Engine Reducer', () => {
     expect(state.shortlist).toHaveLength(3);
     expect(state.isVotingComplete).toBe(true);
     expect(state.winner).not.toBeNull();
-    expect(state.winner?.id).toBe('test-1');
+    expect(state.recommendation).not.toBeNull();
+    expect(state.recommendation?.winner.item.id).toBe(state.winner?.id);
+    expect(state.recommendation?.winner.matchPercentage).toBeGreaterThanOrEqual(70);
   });
 
   it('should properly reset state back to initial values on RESET_VOTING', () => {

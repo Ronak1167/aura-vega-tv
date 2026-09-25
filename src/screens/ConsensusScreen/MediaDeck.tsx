@@ -34,6 +34,7 @@ const CARD_SPACING = 16; // itemPadding on each side
 // ─────────────────────────────────────────────────────────────────────────────
 interface MediaDeckProps {
   items: MediaItem[];
+  matchMap?: Record<string, number>;
   onSelectItem: (item: MediaItem) => void;
   onShortlist?: (item: MediaItem) => void;
   onSkip?: (item: MediaItem) => void;
@@ -44,12 +45,13 @@ interface MediaDeckProps {
 // ─────────────────────────────────────────────────────────────────────────────
 export const MediaDeck: React.FC<MediaDeckProps> = ({
   items,
+  matchMap,
   onSelectItem,
   onShortlist,
   onSkip,
 }) => {
   /**
-   * dataAdapter — implements CarouselItemDataAdapter<MediaItem>
+   * dataAdapter — implements CarouselItemDataAdapter<MediaItem, string>
    * Must be stable (useMemo) so Carousel doesn't remount on every render.
    */
   const dataAdapter = useMemo<CarouselItemDataAdapter<MediaItem, string>>(
@@ -69,12 +71,13 @@ export const MediaDeck: React.FC<MediaDeckProps> = ({
     ({ item }: CarouselRenderInfo<MediaItem>) => (
       <MediaCard
         item={item}
+        matchPercentage={matchMap ? matchMap[item.id] : undefined}
         onPress={() => onSelectItem(item)}
         onShortlist={() => onShortlist?.(item)}
         onSkip={() => onSkip?.(item)}
       />
     ),
-    [onSelectItem, onShortlist, onSkip],
+    [onSelectItem, onShortlist, onSkip, matchMap],
   );
 
   return (
