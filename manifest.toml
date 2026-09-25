@@ -1,0 +1,46 @@
+[package]
+id = "com.auravega.tv"
+version = "1.0.0"
+display_name = "Aura Vega TV"
+description = "Living room ambient hub and co-viewing decision engine for Fire TV"
+
+[os.version]
+min = "1.2"
+target = "1.2"
+
+[needs]
+# Core display and input
+"com.amazon.vega.display" = { version = "*" }
+"com.amazon.vega.input.remote" = { version = "*" }
+
+[wants]
+# Media playback services
+"com.amazon.media.server" = { version = "*" }
+"com.amazon.drm.key" = { version = "*" }
+"com.amazon.drm.crypto" = { version = "*" }
+# Audio
+"com.amazon.audio.output" = { version = "*" }
+# Network (for weather API and media streaming)
+"com.amazon.network.access" = { version = "*" }
+# Accessibility
+"com.amazon.a11y.captions" = { version = "*" }
+"com.amazon.a11y.audio_description" = { version = "*" }
+
+[offers]
+# Headless background service (REQUIRED by Vega OS for content personalization)
+"com.auravega.tv.headless" = { version = "1.0" }
+
+[app]
+icon = "@image/app-icon"
+entry = "index.js"
+headless_entry = "service.js"
+
+[[components.interactive]]
+name = "main"
+entry = "index.js"
+runtime-module = "/com.amazon.kepler.runtime.react_native_kepler_4@IReactNativeKepler_0"
+
+[[components.service]]
+name = "headless"
+entry = "service.js"
+runtime-module = "/com.amazon.kepler.runtime.react_native_kepler_headless_4@IReactNativeKeplerHeadless_0"
