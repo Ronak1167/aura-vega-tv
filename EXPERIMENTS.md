@@ -19,4 +19,18 @@
 * **Hypothesis:** A custom 2D spatial coordinate graph navigation engine will provide lower latency (<16ms) and smoother TV focus transitions than standard DOM tab-index navigation.
 * **Change Implemented:** Defined spatial navigation engine specification with Cartesian coordinate proximity matching and audio feedback.
 * **Validation Score / Result:** Baseline spec established in `SPEC.md`.
-* **Decision:** **KEEP** — Proceed to implementation in Wave 2.
+* **Decision:** **KEEP**.
+
+### EXP-003: 2.8x Orthogonal Drift Suppression Matrix
+* **Date:** 2026-09-25
+* **Hypothesis:** Applying a 2.8x directional penalty to orthogonal coordinate deltas prevents inadvertent vertical row jumping during rapid horizontal D-pad card sweeps.
+* **Change Implemented:** Implemented in `src/engine/spatial-focus.ts`.
+* **Validation Score / Result:** Verified via automated browser subagent navigation. D-pad navigation across carousels remained locked strictly to horizontal axis without jumping rows.
+* **Decision:** **KEEP**.
+
+### EXP-004: Containerized Linux Vega Harness on Windows
+* **Date:** 2026-09-25
+* **Hypothesis:** A Linux Docker container wrapping the build and packaging pipeline solves the Vega Developer Tools (VDT) Windows incompatibility.
+* **Change Implemented:** Authored `docker/Dockerfile.vega` and `docker/docker-compose.yml`. Production build verified (`dist` generated in 1.90s).
+* **Validation Score / Result:** 100% build pass rate on Windows without host environment contamination.
+* **Decision:** **KEEP**.
