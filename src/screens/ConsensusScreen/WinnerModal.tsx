@@ -10,6 +10,7 @@ interface WinnerModalProps {
   visible: boolean;
   onWatchNow: (item: MediaItem) => void;
   onReset: () => void;
+  onDismiss?: () => void;
 }
 
 export const WinnerModal: React.FC<WinnerModalProps> = ({
@@ -18,6 +19,7 @@ export const WinnerModal: React.FC<WinnerModalProps> = ({
   visible,
   onWatchNow,
   onReset,
+  onDismiss,
 }) => {
   if (!winner || !visible) return null;
 
@@ -130,6 +132,16 @@ export const WinnerModal: React.FC<WinnerModalProps> = ({
             >
               <Text style={styles.watchNowText}>▶ Watch Now ({winner.streamingPlatform})</Text>
             </FocusableCard>
+
+            {onDismiss && (
+              <FocusableCard
+                onPress={onDismiss}
+                style={styles.dismissBtn}
+                accentColor={colors.accentCyan}
+              >
+                <Text style={styles.dismissText}>← Keep Browsing</Text>
+              </FocusableCard>
+            )}
 
             <FocusableCard
               onPress={onReset}
@@ -348,6 +360,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     color: '#000000',
+  },
+  dismissBtn: {
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 14,
+    marginRight: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.3)',
+  },
+  dismissText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.accentCyan,
   },
   resetBtn: {
     backgroundColor: 'rgba(255, 255, 255, 0.08)',

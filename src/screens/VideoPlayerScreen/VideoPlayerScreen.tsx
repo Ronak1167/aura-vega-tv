@@ -35,6 +35,7 @@ import { KeplerVideoSurfaceView } from '@amazon-devices/react-native-w3cmedia';
 // VideoPlayer lives in the headless sub-path — not the default export
 import { VideoPlayer } from '@amazon-devices/react-native-w3cmedia/dist/headless';
 import { CaptionOverlay } from '../../components/CaptionOverlay';
+import { FocusableCard } from '../../components/FocusableCard';
 import { colors } from '../../styles/tokens';
 import { MediaItem } from '../../types';
 
@@ -155,6 +156,25 @@ export const VideoPlayerScreen: React.FC<VideoPlayerScreenProps> = ({
     navigation.goBack();
   }, [navigation]);
 
+  const handleRetry = useCallback(async () => {
+    setError(null);
+    const player = videoRef.current;
+    if (player && surfaceHandleRef.current) {
+      try {
+        const src =
+          item.trailerUrl ??
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+        player.src = src;
+        await player.play();
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        setError(`Failed to restart playback: ${msg}`);
+      }
+    } else if (surfaceHandleRef.current) {
+      await onSurfaceViewCreated(surfaceHandleRef.current);
+    }
+  }, [item, onSurfaceViewCreated]);
+
   // Back-button hardware handler
   React.useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -193,10 +213,26 @@ export const VideoPlayerScreen: React.FC<VideoPlayerScreenProps> = ({
       {/* Error state */}
       {error && (
         <View style={styles.errorOverlay}>
+          <Text style={styles.errorIcon}>⚠️</Text>
+          <Text style={styles.errorTitle}>Playback Interrupted</Text>
           <Text style={styles.errorText}>{error}</Text>
-          <Pressable style={styles.exitBtn} onPress={handleExit}>
-            <Text style={styles.exitBtnText}>← Back</Text>
-          </Pressable>
+          <View style={styles.errorActions}>
+            <FocusableCard
+              style={styles.retryBtn}
+              onPress={handleRetry}
+              accentColor={colors.accentCyan}
+              hasTVPreferredFocus
+            >
+              <Text style={styles.retryBtnText}>🔄 Retry Playback</Text>
+            </FocusableCard>
+            <FocusableCard
+              style={styles.exitBtnCard}
+              onPress={handleExit}
+              accentColor={colors.textSecondary}
+            >
+              <Text style={styles.exitBtnText}>← Return to Consensus</Text>
+            </FocusableCard>
+          </View>
         </View>
       )}
 
@@ -205,9 +241,9 @@ export const VideoPlayerScreen: React.FC<VideoPlayerScreenProps> = ({
         <SafeAreaView style={styles.controlsContainer}>
           {/* Title bar */}
           <View style={styles.titleBar}>
-            <Pressable style={styles.exitBtn} onPress={handleExit}>
+            <FocusableCard style={styles.exitBtnCard} onPress={handleExit} accentColor={colors.accentCyan}>
               <Text style={styles.exitBtnText}>← Back</Text>
-            </Pressable>
+            </FocusableCard>
             <Text style={styles.titleText} numberOfLines={1}>
               {item.title}
             </Text>
@@ -215,22 +251,24 @@ export const VideoPlayerScreen: React.FC<VideoPlayerScreenProps> = ({
 
           {/* Bottom controls */}
           <View style={styles.controlRow}>
-            <Pressable style={styles.controlBtn} onPress={handleSeekBack}>
+            <FocusableCard style={styles.controlCard} onPress={handleSeekBack} accentColor={colors.accentCyan}>
               <Text style={styles.controlIcon}>⏪ 10s</Text>
-            </Pressable>
+            </FocusableCard>
 
-            <Pressable
-              style={styles.playPauseBtn}
+            <FocusableCard
+              style={styles.playPauseCard}
               onPress={handlePlayPause}
-              hasTVPreferredFocus>
+              hasTVPreferredFocus
+              accentColor={colors.accentAmber}
+            >
               <Text style={styles.playPauseIcon}>
                 {isPlaying ? '⏸' : '▶'}
               </Text>
-            </Pressable>
+            </FocusableCard>
 
-            <Pressable style={styles.controlBtn} onPress={handleSeekForward}>
+            <FocusableCard style={styles.controlCard} onPress={handleSeekForward} accentColor={colors.accentCyan}>
               <Text style={styles.controlIcon}>10s ⏩</Text>
-            </Pressable>
+            </FocusableCard>
           </View>
 
           {/* Progress bar */}
@@ -262,16 +300,57 @@ const styles = StyleSheet.create({
   },
   errorOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.9)',
+    backgroundColor: 'rgba(5, 7, 12, 0.94)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 40,
+    zIndex: 10,
+  },
+  errorIcon: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  errorTitle: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: colors.textPrimary,
+    marginBottom: 8,
   },
   errorText: {
-    fontSize: 24,
-    color: colors.statusAlert,
+    fontSize: 18,
+    color: colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 28,
+    maxWidth: 600,
+  },
+  errorActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  retryBtn: {
+    backgroundColor: colors.accentCyan,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginRight: 16,
+  },
+  retryBtnText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.bgDeep,
+  },
+  exitBtnCard: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  exitBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
   },
   controlsContainer: {
     position: 'absolute',
@@ -301,21 +380,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 16,
   },
-  controlBtn: {
-    padding: 16,
-    marginHorizontal: 24,
+  controlCard: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    marginHorizontal: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 12,
   },
   controlIcon: {
     fontSize: 18,
     color: colors.textSecondary,
   },
-  playPauseBtn: {
+  playPauseCard: {
     width: 72,
     height: 72,
     borderRadius: 36,
     backgroundColor: colors.accentCyan,
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: 16,
   },
   playPauseIcon: {
     fontSize: 32,
@@ -343,18 +426,5 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: colors.accentCyan,
     borderRadius: 2,
-  },
-  exitBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  exitBtnText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textPrimary,
   },
 });

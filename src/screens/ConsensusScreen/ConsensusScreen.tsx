@@ -31,6 +31,7 @@ export const ConsensusScreen: React.FC<ConsensusScreenProps> = ({ navigation }) 
 
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isWinnerDismissed, setIsWinnerDismissed] = useState(false);
 
   const moods = ['All', 'Sci-Fi', 'Blockbuster', 'Drama', 'Comedy', 'Oscar Winner'];
 
@@ -148,7 +149,10 @@ export const ConsensusScreen: React.FC<ConsensusScreenProps> = ({ navigation }) 
 
           <View style={styles.consensusActions}>
             <FocusableCard
-              onPress={triggerConsensusNow}
+              onPress={() => {
+                setIsWinnerDismissed(false);
+                triggerConsensusNow();
+              }}
               style={styles.triggerConsensusBtn}
               accentColor={colors.accentAmber}
             >
@@ -157,7 +161,10 @@ export const ConsensusScreen: React.FC<ConsensusScreenProps> = ({ navigation }) 
 
             {state.shortlist.length > 0 && (
               <FocusableCard
-                onPress={() => setWinner(state.shortlist[0])}
+                onPress={() => {
+                  setIsWinnerDismissed(false);
+                  setWinner(state.shortlist[0]);
+                }}
                 style={styles.forceConsensusBtn}
                 accentColor={colors.accentCyan}
               >
@@ -200,11 +207,15 @@ export const ConsensusScreen: React.FC<ConsensusScreenProps> = ({ navigation }) 
         <WinnerModal
           winner={state.winner}
           recommendation={state.recommendation}
-          visible={state.isVotingComplete && state.winner !== null}
+          visible={state.isVotingComplete && state.winner !== null && !isWinnerDismissed}
           onWatchNow={(item) => {
             navigation.navigate('VideoPlayer', { item });
           }}
-          onReset={reset}
+          onReset={() => {
+            setIsWinnerDismissed(false);
+            reset();
+          }}
+          onDismiss={() => setIsWinnerDismissed(true)}
         />
       </View>
     </View>

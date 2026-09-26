@@ -15,7 +15,7 @@
  * renderItem still receives CarouselRenderInfo { item, index }
  */
 import React, { useCallback, useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import {
   Carousel,
   CarouselItemDataAdapter,
@@ -23,6 +23,7 @@ import {
 } from '@amazon-devices/vega-carousel';
 import { MediaItem } from '../../types';
 import { MediaCard } from './MediaCard';
+import { colors } from '../../styles/tokens';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants  (must match MediaCard's cardContainer dimensions)
@@ -80,6 +81,15 @@ export const MediaDeck: React.FC<MediaDeckProps> = ({
     [onSelectItem, onShortlist, onSkip, matchMap],
   );
 
+  if (!items || items.length === 0) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyTitle}>No matching titles found</Text>
+        <Text style={styles.emptySubtitle}>Try selecting 'All' or a different mood filter above.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.deckContainer}>
       <Carousel<MediaItem>
@@ -117,5 +127,27 @@ const styles = StyleSheet.create({
   },
   carouselContainer: {
     paddingRight: 80,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 280,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    marginVertical: 12,
+    padding: 24,
+  },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    color: colors.textSecondary,
   },
 });
