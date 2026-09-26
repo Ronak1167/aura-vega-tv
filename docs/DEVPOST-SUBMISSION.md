@@ -106,6 +106,8 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
 
 ## Repository & Open-Source Links
 
-- **Repository**: [https://github.com/ronakjain/aura-vega-tv](https://github.com/ronakjain/aura-vega-tv)
+- **Repository**: [https://github.com/Ronak1167/aura-vega-tv](https://github.com/Ronak1167/aura-vega-tv)
 - **License**: MIT Open Source License
 - **Documentation**: Full architecture, API contracts, design system, and scenario validations available in `/docs`.
+- **Submission Deadline**: October 23, 2026 at 2:00 PM CDT
+- **Demo Video**: *[REQUIRED — Record a ≤3 minute video and paste link here before submitting]*

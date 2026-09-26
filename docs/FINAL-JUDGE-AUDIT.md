@@ -109,7 +109,7 @@ A judge or reviewer can use this document as a cross-reference index. Every clai
 
 | # | Requirement | Status |
 | :- | :--- | :---: |
-| OS.1 | Source code in public GitHub repository | ⚠️ Pending — push before deadline |
+| OS.1 | Source code in public GitHub repository | ✅ [https://github.com/Ronak1167/aura-vega-tv](https://github.com/Ronak1167/aura-vega-tv) — pushed and public |
 | OS.2 | README with setup instructions | ✅ `README.md` |
 | OS.3 | LICENSE file (MIT) | ✅ `LICENSE` |
 | OS.4 | No private API keys in repository | ✅ Security audit passed |

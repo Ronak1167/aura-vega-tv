@@ -1,6 +1,7 @@
 # ✨ Aura Vega TV — Living Room Ambient Hub & Co-Viewing Consensus Engine
 
 [![Hackathon](https://img.shields.io/badge/Amazon%20Developer%20Hackathon-2026-FF9900?style=for-the-badge&logo=amazon)](https://amazonappdev2026.devpost.com)
+[![GitHub](https://img.shields.io/badge/GitHub-Ronak1167%2Faura--vega--tv-181717?style=for-the-badge&logo=github)](https://github.com/Ronak1167/aura-vega-tv)
 [![Target Platform](https://img.shields.io/badge/Platform-Amazon%20Vega%20OS%20SDK%200.24-00F2FE?style=for-the-badge&logo=linux)](https://developer.amazon.com/docs/fire-tv/)
 [![Framework](https://img.shields.io/badge/Framework-React%20Native%200.83%20Kepler-61DAFB?style=for-the-badge&logo=react)](https://reactnative.dev)
 [![Engine](https://img.shields.io/badge/Engine-Static%20Hermes%20v96-764ABC?style=for-the-badge)](https://hermesengine.dev)
