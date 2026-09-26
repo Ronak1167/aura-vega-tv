@@ -27,97 +27,101 @@ Before presenting, confirm the following:
 >
 > "Aura Vega is a living room companion app for Fire TV that eliminates 'what to watch?' — together, in under 60 seconds."
 
-**On screen**: Aura Vega launches. The **Ambient Canvas** — a particle-flow background — pulses gently. The app feels alive, premium, designed for the 10-foot TV experience.
+**On screen**: Aura Vega launches on the **Ambient Screen**. The **Ambient Canvas** — a particle-flow background — pulses gently. The **Glance Bar** at the top displays real-time clock, date, local weather telemetry, and a prominent **'🎬 Start Co-Viewing'** CTA.
 
 ---
 
-### Segment 2 — Setting the Scene (0:30–1:00)
+### Segment 2 — Entering Couch Consensus & Household Setup (0:30–1:00)
 
 **Narrator says:**
-> "First, we tell Aura who's in the room tonight."
+> "First, we jump from our ambient living room hub into Couch Consensus."
 
-**Action**: Navigate to the **Household Viewer tab** using the remote D-pad.
+**Action**: With focus already on **'🎬 Start Co-Viewing'** in the Glance Bar, press **SELECT** on the remote.
 
-- Select **Alex** → Toggle ON (checked)
-- Select **Jordan** → Toggle ON (checked)
-
-**Narrator says:**
-> "Two viewers. Aura now knows both of you are here."
->
-> "Next — what kind of evening is it?"
-
-**Action**: Navigate to the **Context tab**.
-
-- Toggle **Relaxed** mode ON
-- Toggle **Late Evening** timing ON
+The screen transitions to **Couch Consensus**.
 
 **Narrator says:**
-> "Relaxed Friday evening. This context doesn't just sit there — it actively adjusts every recommendation score."
+> "Here on the Couch Consensus screen, we see who's in the room tonight. Alex, Jordan, and Sam are configured household members."
+
+**Action**: Navigate D-pad to the **Voters** row at the top:
+- Select **Alex** → Toggle ON (active)
+- Select **Jordan** → Toggle ON (active)
+- (Sam remains inactive or toggled as desired)
+
+**Narrator says:**
+> "Two viewers active. Aura immediately re-evaluates the entire catalog for both viewers simultaneously."
 
 ---
 
-### Segment 3 — The Core Product (1:00–1:45)
+### Segment 3 — Context & Multi-Factor Scoring (1:00–1:45)
 
 **Narrator says:**
-> "Now watch what happens."
+> "Next — what vibe are we looking for tonight?"
 
-**Action**: Navigate to the **Consensus tab**. The carousel loads.
-
-> "Aura has just run its consensus scoring engine locally, on-device. No cloud call. No AI black box. In under 200 milliseconds."
-
-**Point to the carousel cards**:
-> "Each card shows the title, a score from 0–100, and — this is the key differentiator — **an explanation**."
-
-**Action**: Focus on the **top-scored card** (e.g. *The Shawshank Redemption* or highest scored item). Read its explainability text aloud:
-
-> "'Both viewers enjoy Drama. Rated highly on IMDb. Relaxed evening boost applied. Score: 94.'"
+**Action**: Navigate D-pad to the **Mood Filter** row:
+- Select **Drama** or **Sci-Fi** (or leave on **All** for full catalog consensus)
 
 **Narrator says:**
-> "This is not a black box. Every point in that score is earned by something real. Alex and Jordan's shared genre preferences. The IMDb rating. The context boost for a relaxed evening. It is completely transparent and completely deterministic."
+> "Aura has already run its consensus scoring engine locally on-device. Zero cloud latency. No AI black box. Under 50 milliseconds."
+
+**Point to the horizontal carousel cards**:
+> "Each title in the Media Deck shows its poster, title, tags, and a live composite match score badge."
+
+**Action**: Focus on a candidate card. Press **SELECT** to open the **Detail Modal**.
+
+**Narrator says:**
+> "Opening the detail view shows the complete score breakdown:
+> - Voter Affinity (shared genre preferences)
+> - Critical Acclaim (Rotten Tomatoes & IMDb)
+> - Contextual Alignment (time of day and weather)
+> - Runtime Fit (respects bedtime limits)
+> Every point is earned transparently."
 
 ---
 
-### Segment 4 — Consensus Decision (1:45–2:15)
+### Segment 4 — Consensus Decision & Winner Modal (1:45–2:15)
 
-**Action**: Press SELECT on the top card. The **Winner Modal** appears.
+**Action**: Close the detail view, or press **'⚡ Evaluate Consensus Now'** in the action bar (or shortlist 3 titles).
 
-> "Aura has reached consensus. *[Title]* wins."
+The **Winner Modal** smoothly presents the top consensus pick.
 
-**Point to the winner card**:
-> "Score, full explanation, and a Watch Now button. This is the unanimous pick for tonight."
+**Narrator says:**
+> "Aura delivers the winner: an explainable, unanimous top match. We see the exact summary: 'Unanimous match across all active viewers • Fits late-night 2-hour window • 94% Rotten Tomatoes'."
 
-**Action**: Show the **Watch Now** button.
-> "If we're happy with this, we press Watch Now and the video player opens. If we want to explore more options..."
-
-**Action**: Press the **Keep Browsing** button to dismiss the modal.
-> "We stay in the deck and keep exploring — the session is never lost."
+**Action**: Highlight the options:
+> "We have **🎬 Watch Now** for immediate streaming. And notice the **'Keep Browsing'** button: if we want to explore other options without resetting our session, we can dismiss and continue browsing seamlessly."
 
 ---
 
-### Segment 5 — Filtering & Depth (2:15–2:45)
+### Segment 5 — Filtering & Session Recovery (2:15–2:45)
 
-**Action**: Navigate to the Genre filter buttons above the carousel.
+**Action**: Press **'Keep Browsing'** to dismiss the Winner Modal. The deck remains active.
 
-- Select **Action** genre filter
+**Narrator says:**
+> "Suppose we change our minds and want a lighthearted comedy instead. We select the **Comedy** mood filter."
 
-> "Maybe Alex is in the mood for something with more energy. Filter by Action. The deck updates instantly. Scores re-sort. The engine adapts."
+**Action**: Switch mood to **Comedy**. The deck updates instantly, re-scoring candidates for the active viewers under the comedy constraint.
 
-**Action**: Select a different card from the filtered deck. Press SELECT.
-
-> "New winner. New explanation. Aura never locks you in — it's a conversation."
+**Narrator says:**
+> "The engine adapts in real-time. Aura never locks you into a rigid path — it's an interactive co-viewing conversation."
 
 ---
 
-### Segment 6 — Video Player (2:45–3:00)
+### Segment 6 — Instant Video Playback & Accessibility (2:45–3:00)
 
-**Action**: Press **Watch Now** on a winner card.
+**Action**: Re-open the top match and press **'🎬 Watch Now'**.
 
-The **VideoPlayer** launches. Video plays. Show the OSD controls: Play/Pause, Seek bar, Captions.
+The **VideoPlayerScreen** opens full-screen. The sample stream plays on Vega's native video surface.
 
-> "Full Vega OS video player. Native W3C media surface. Caption support out of the box for accessibility."
+**Point to the OSD controls**:
+- Show **Play / Pause** and **Seek**
+- Show the **Captions toggle** displaying accessibility caption styling via Kepler's A11y TurboModule
+- Show the **'← Back to Consensus'** button
 
-**Narrator closes**:
-> "Aura Vega. Built natively on Vega OS. Powered by explainable deterministic scoring. Designed for the living room. This is what it looks like when your TV actually helps you decide."
+**Action**: Press **'← Back to Consensus'** to return cleanly to the active consensus session.
+
+**Narrator closes:**
+> "Aura Vega TV. Built natively on Amazon Vega OS. Powered by transparent, deterministic scoring. Designed for the living room. This is how streaming on Fire TV should feel."
 
 ---
 
