@@ -17,8 +17,11 @@ class MediaDataService {
 
   public getMediaByMood(mood: string): MediaItem[] {
     if (!mood || mood === 'All') return this.getAllMedia();
+    const target = mood.toLowerCase();
     return this.catalog.filter(
-      (item) => item.mood.toLowerCase().includes(mood.toLowerCase()) || item.tags.some(t => t.toLowerCase() === mood.toLowerCase())
+      (item) =>
+        item.mood.toLowerCase().includes(target) ||
+        item.tags.some((t) => t.toLowerCase().includes(target)),
     );
   }
 

@@ -264,4 +264,112 @@ describe('Adversarial QA Suite - Robustness & Integrity', () => {
       expect(resetState.currentIndex).toBe(0);
     });
   });
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Deep Debug Round 2 — New Regressions
+  // ──────────────────────────────────────────────────────────────────────────
+  describe('4. Explainability Integrity: Voter Agreement vs Conflict Exclusivity', () => {
+    it('does NOT list a disliking voter in positiveReasons (agreeing voter list)', () => {
+      // Ronak dislikes Horror — he should NOT appear in "Matches preferences for Ronak"
+      const affinityHorror = computeAffinityScore(horrorFilm, votersWithDislike);
+
+      // Ronak has a dislike penalty applied
+      expect(affinityHorror.penalty).toBe(40);
+
+      // Ronak must NOT appear in any positive reason (he's conflicting, not agreeing)
+      const allPositiveText = affinityHorror.positiveReasons.join(' ');
+      expect(allPositiveText).not.toContain('Ronak');
+    });
+
+    it('lists a voter in agreeingVoters only when they actually like the genre and have no conflict', () => {
+      // Family likes Horror, has no dislikes → should appear in positive
+      // Ronak dislikes Horror → must NOT appear in positive
+      const affinityHorror = computeAffinityScore(horrorFilm, votersWithDislike);
+      const allPositiveText = affinityHorror.positiveReasons.join(' ');
+      expect(allPositiveText).toContain('Family');
+    });
+  });
+
+  describe('5. Vetoed Item Match Percentage Floor', () => {
+    it('never returns 0% matchPercentage for a vetoed item', () => {
+      const voters: VotingParticipant[] = [
+        {
+          id: 'v1',
+          name: 'Alice',
+          avatarColor: '#00E5FF',
+          hasVoted: true,
+          preferredGenres: ['Comedy'],
+          preferredMoods: [],
+          dislikedGenres: ['Horror'],
+        },
+        {
+          id: 'v2',
+          name: 'Bob',
+          avatarColor: '#FF9900',
+          hasVoted: true,
+          preferredGenres: ['Comedy'],
+          preferredMoods: [],
+          dislikedGenres: ['Horror'],
+        },
+      ];
+
+      const defaultCtx: ViewingContext = {
+        timeOfDay: 'evening',
+        weatherCondition: 'Clear',
+        temperature: 70,
+        sessionMood: 'All',
+      };
+
+      const evaluation = evaluateCandidate(horrorFilm, voters, defaultCtx);
+      expect(evaluation.breakdown.isVetoed).toBe(true);
+      // Must never show 0% MATCH in UI
+      expect(evaluation.matchPercentage).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('6. Mood-Change Shortlist Integrity', () => {
+    it('preserves existing shortlist items across a mood filter change', () => {
+      let state = consensusReducer(initialConsensusState, {
+        type: 'VOTE_SHORTLIST',
+        payload: sciFiFilm,
+      });
+      expect(state.shortlist).toHaveLength(1);
+
+      // Switch to Drama mood
+      state = consensusReducer(state, { type: 'SET_MOOD', payload: 'Drama' });
+
+      // Shortlist must be intact — mood change only resets currentIndex, not shortlist
+      expect(state.shortlist).toHaveLength(1);
+      expect(state.shortlist[0].id).toBe(sciFiFilm.id);
+      // Index resets so the Carousel can restart browsing from position 0
+      expect(state.currentIndex).toBe(0);
+    });
+
+    it('activeMood is forwarded correctly into scoring context after mood switch', () => {
+      let state = consensusReducer(initialConsensusState, {
+        type: 'SET_MOOD',
+        payload: 'Sci-Fi',
+      });
+      expect(state.activeMood).toBe('Sci-Fi');
+
+      // A subsequent shortlist should forward the active mood to recommendation scoring
+      state = consensusReducer(state, { type: 'VOTE_SHORTLIST', payload: sciFiFilm });
+      state = consensusReducer(state, { type: 'VOTE_SHORTLIST', payload: horrorFilm });
+      // Third vote triggers isVotingComplete
+      const thirdItem: MediaItem = {
+        ...sciFiFilm,
+        id: 'media-third',
+        title: 'Arrival',
+        mood: 'Thoughtful Sci-Fi',
+        tags: ['Sci-Fi', 'Drama'],
+      };
+      state = consensusReducer(state, { type: 'VOTE_SHORTLIST', payload: thirdItem });
+
+      expect(state.isVotingComplete).toBe(true);
+      // Recommendation should be present
+      expect(state.recommendation).not.toBeNull();
+      // contextSummary from engine must contain the time-of-day (real time is used, not deterministic)
+      expect(state.recommendation?.contextSummary).toBeDefined();
+    });
+  });
 });

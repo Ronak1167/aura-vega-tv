@@ -150,7 +150,9 @@ export function computeAffinityScore(
       voterScore += 15;
     }
 
-    if (matchedCount > 0 || moodMatched) {
+    // Only count as agreeing if the voter does NOT have a genre conflict —
+    // prevents contradictory explainability ("matches Bob" + "Bob dislikes this").
+    if ((matchedCount > 0 || moodMatched) && !hasDislikedGenre) {
       agreeingVoters.push(voter.name);
     }
 
@@ -321,7 +323,10 @@ export function evaluateCandidate(
     runtime.score * SCORING_WEIGHTS.RUNTIME -
     affinity.penalty;
 
-  const totalScore = affinity.isVetoed ? Math.min(30, Math.max(0, Math.round(rawTotal))) : Math.min(100, Math.max(0, Math.round(rawTotal)));
+  // Vetoed items are capped at 30; minimum is 1 (not 0) to avoid a misleading "0% MATCH" badge.
+  const totalScore = affinity.isVetoed
+    ? Math.min(30, Math.max(1, Math.round(rawTotal)))
+    : Math.min(100, Math.max(0, Math.round(rawTotal)));
 
   const breakdown: ScoreBreakdown = {
     affinityScore: affinity.score,

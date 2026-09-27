@@ -67,10 +67,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             {/* D-Pad Action Buttons */}
             <View style={styles.actionRow}>
               <FocusableCard
-                onPress={() => {
-                  onShortlist(item);
-                  onClose();
-                }}
+                onPress={() => onShortlist(item)}
                 hasTVPreferredFocus={true}
                 style={styles.shortlistBtn}
                 accentColor={colors.statusLive}
@@ -79,10 +76,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               </FocusableCard>
 
               <FocusableCard
-                onPress={() => {
-                  onSkip(item);
-                  onClose();
-                }}
+                onPress={() => onSkip(item)}
                 style={styles.skipBtn}
                 accentColor={colors.statusAlert}
               >

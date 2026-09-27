@@ -14,13 +14,14 @@ describe('MediaDataService - Catalog & Content Personalization', () => {
     expect(item?.title).toContain('Interstellar');
   });
 
-  it('should filter media items by mood and tags', () => {
+  it('should filter media items by mood and tags using substring match', () => {
     const scifi = mediaDataService.getMediaByMood('Sci-Fi');
     expect(scifi.length).toBeGreaterThan(0);
     scifi.forEach((item) => {
+      const target = 'sci-fi';
       const matches =
-        item.mood.toLowerCase().includes('sci-fi') ||
-        item.tags.some((t) => t.toLowerCase() === 'sci-fi');
+        item.mood.toLowerCase().includes(target) ||
+        item.tags.some((t) => t.toLowerCase().includes(target));
       expect(matches).toBe(true);
     });
   });
