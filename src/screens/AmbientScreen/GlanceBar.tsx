@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useWeather } from '../../context/WeatherContext';
 import { useAlert } from '../../context/AlertContext';
@@ -17,8 +17,16 @@ export const GlanceBar: React.FC<GlanceBarProps> = ({
 }) => {
   const { weather, unit } = useWeather();
   const { activeAlert, triggerDoorbellEvent } = useAlert();
-  const timeInfo = formatTime();
-  const dateStr = formatDate();
+  const [timeInfo, setTimeInfo] = useState(() => formatTime());
+  const [dateStr, setDateStr] = useState(() => formatDate());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeInfo(formatTime());
+      setDateStr(formatDate());
+    }, 10000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -40,7 +48,7 @@ export const GlanceBar: React.FC<GlanceBarProps> = ({
         </View>
       </View>
 
-      {/* Right: Actions (Simulate Doorbell, Couch Consensus CTA) */}
+      {/* Right: Actions (Simulate Doorbell, Settings, Couch Consensus CTA) */}
       <View style={styles.rightGroup}>
         {/* Simulate Doorbell Ring Button for testing & demos */}
         <FocusableCard
@@ -52,6 +60,17 @@ export const GlanceBar: React.FC<GlanceBarProps> = ({
             {activeAlert ? '🔔 Doorbell Active' : '🔔 Test Doorbell'}
           </Text>
         </FocusableCard>
+
+        {/* Settings Navigation CTA */}
+        {onOpenSettings && (
+          <FocusableCard
+            onPress={onOpenSettings}
+            style={styles.actionBtn}
+            accentColor={colors.accentCyan}
+          >
+            <Text style={styles.actionBtnText}>⚙ Settings</Text>
+          </FocusableCard>
+        )}
 
         {/* Couch Consensus Entry CTA */}
         <FocusableCard

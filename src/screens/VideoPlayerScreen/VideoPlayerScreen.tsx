@@ -88,12 +88,14 @@ export const VideoPlayerScreen: React.FC<VideoPlayerScreenProps> = ({
         player.addEventListener('play', () => setIsPlaying(true));
         player.addEventListener('pause', () => setIsPlaying(false));
         player.addEventListener('ended', () => setIsPlaying(false));
-        player.addEventListener('durationchange', () =>
-          setDuration(player.duration),
-        );
-        player.addEventListener('timeupdate', () =>
-          setCurrentTime(player.currentTime),
-        );
+        player.addEventListener('durationchange', () => {
+          const dur = player.duration;
+          setDuration(typeof dur === 'number' && !isNaN(dur) ? dur : 0);
+        });
+        player.addEventListener('timeupdate', () => {
+          const cur = player.currentTime;
+          setCurrentTime(typeof cur === 'number' && !isNaN(cur) ? cur : 0);
+        });
         player.addEventListener('error', () =>
           setError('Playback error. Content unavailable.'),
         );
@@ -128,6 +130,26 @@ export const VideoPlayerScreen: React.FC<VideoPlayerScreenProps> = ({
     surfaceHandleRef.current = null;
   }, []);
 
+  // Ensure clean teardown on component unmount
+  React.useEffect(() => {
+    return () => {
+      const player = videoRef.current;
+      if (player) {
+        try {
+          player.pause();
+          if (surfaceHandleRef.current) {
+            player.clearSurfaceHandle(surfaceHandleRef.current);
+          }
+          player.deinitialize();
+        } catch {
+          // Ignore cleanup errors
+        }
+        videoRef.current = null;
+      }
+      surfaceHandleRef.current = null;
+    };
+  }, []);
+
   // ── Playback controls ─────────────────────────────────────────────────────
 
   const handlePlayPause = useCallback(() => {
@@ -143,13 +165,16 @@ export const VideoPlayerScreen: React.FC<VideoPlayerScreenProps> = ({
   const handleSeekBack = useCallback(() => {
     const player = videoRef.current;
     if (!player) { return; }
-    player.currentTime = Math.max(0, player.currentTime - 10);
+    const current = typeof player.currentTime === 'number' && !isNaN(player.currentTime) ? player.currentTime : 0;
+    player.currentTime = Math.max(0, current - 10);
   }, []);
 
   const handleSeekForward = useCallback(() => {
     const player = videoRef.current;
     if (!player) { return; }
-    player.currentTime = Math.min(player.duration, player.currentTime + 10);
+    const current = typeof player.currentTime === 'number' && !isNaN(player.currentTime) ? player.currentTime : 0;
+    const dur = typeof player.duration === 'number' && !isNaN(player.duration) && player.duration > 0 ? player.duration : Infinity;
+    player.currentTime = Math.min(dur, current + 10);
   }, []);
 
   const handleExit = useCallback(() => {

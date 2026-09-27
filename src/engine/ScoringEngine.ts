@@ -67,12 +67,12 @@ export function parseRuntimeMinutes(runtimeStr?: string): number {
  * Blends IMDb (scale 0-10) and Rotten Tomatoes (scale 0-100).
  */
 export function computeQualityScore(item: MediaItem): number {
-  const imdb = item.imdbScore ?? 7.0;
-  const rt = item.rottenTomatoes ?? 75;
+  const rawImdb = typeof item.imdbScore === 'number' && !isNaN(item.imdbScore) ? item.imdbScore : 7.0;
+  const rawRt = typeof item.rottenTomatoes === 'number' && !isNaN(item.rottenTomatoes) ? item.rottenTomatoes : 75;
 
   // Normalized IMDb = imdb * 10
-  const normImdb = Math.min(100, Math.max(0, imdb * 10));
-  const normRt = Math.min(100, Math.max(0, rt));
+  const normImdb = Math.min(100, Math.max(0, rawImdb * 10));
+  const normRt = Math.min(100, Math.max(0, rawRt));
 
   return Math.round(0.5 * normImdb + 0.5 * normRt);
 }
@@ -100,6 +100,10 @@ export function computeAffinityScore(
     };
   }
 
+  // Filter to active voters who have not been toggled inactive
+  const activeParticipants = participants.filter((p) => p.hasVoted !== false);
+  const votersToEvaluate = activeParticipants.length > 0 ? activeParticipants : participants;
+
   const tags = (item.tags || []).map((t) => t.toLowerCase());
   const itemMood = (item.mood || '').toLowerCase();
 
@@ -112,7 +116,7 @@ export function computeAffinityScore(
   const agreeingVoters: string[] = [];
   const conflictingVoters: string[] = [];
 
-  for (const voter of participants) {
+  for (const voter of votersToEvaluate) {
     const preferredGenres = (voter.preferredGenres || ['sci-fi', 'action']).map((g) => g.toLowerCase());
     const preferredMoods = (voter.preferredMoods || []).map((m) => m.toLowerCase());
     const dislikedGenres = (voter.dislikedGenres || []).map((d) => d.toLowerCase());
@@ -153,17 +157,17 @@ export function computeAffinityScore(
     totalVoterSatisfaction += Math.min(100, voterScore);
   }
 
-  const avgAffinity = Math.round(totalVoterSatisfaction / participants.length);
+  const avgAffinity = Math.round(totalVoterSatisfaction / votersToEvaluate.length);
 
   // Summarize group consensus reasons
-  if (agreeingVoters.length === participants.length && participants.length > 1) {
-    positiveReasons.push(`Unanimous match: All ${participants.length} viewers enjoy this genre`);
+  if (agreeingVoters.length === votersToEvaluate.length && votersToEvaluate.length > 1) {
+    positiveReasons.push(`Unanimous match: All ${votersToEvaluate.length} viewers enjoy this genre`);
   } else if (agreeingVoters.length > 0) {
     positiveReasons.push(`Matches preferences for ${agreeingVoters.join(' & ')}`);
   }
 
   // If majority has a conflict, flag as veto
-  if (conflictingVoters.length >= Math.ceil(participants.length / 2) && conflictingVoters.length > 0) {
+  if (conflictingVoters.length >= Math.ceil(votersToEvaluate.length / 2) && conflictingVoters.length > 0) {
     isVetoed = true;
   }
 
@@ -271,7 +275,12 @@ export function computeRuntimeScore(
   score: number;
   reason?: string;
 } {
-  const targetMax = context.targetMaxRuntimeMinutes ?? (context.timeOfDay === 'night' ? 120 : 180);
+  const targetMax =
+    context.targetMaxRuntimeMinutes && context.targetMaxRuntimeMinutes > 0
+      ? context.targetMaxRuntimeMinutes
+      : context.timeOfDay === 'night'
+      ? 120
+      : 180;
 
   if (runtimeMinutes <= targetMax) {
     return {
@@ -337,12 +346,15 @@ export function evaluateCandidate(
     negativeFactors.push(runtime.reason);
   }
 
-  // Generate top summary reason
+  // Generate top summary reason based on active participants
+  const activeVoters = (participants || []).filter((p) => p.hasVoted !== false);
+  const displayVoters = activeVoters.length > 0 ? activeVoters : participants;
+
   let summaryReason = '';
   if (affinity.isVetoed) {
     summaryReason = 'Conflicting preferences among viewers';
   } else if (totalScore >= 88) {
-    summaryReason = `Unanimous Top Match for ${participants.map((p) => p.name).join(' & ')}`;
+    summaryReason = `Unanimous Top Match for ${displayVoters.map((p) => p.name).join(' & ')}`;
   } else if (totalScore >= 75) {
     summaryReason = `Strong High-Rating Choice (${item.mood})`;
   } else {
@@ -390,7 +402,9 @@ export function rankCandidates(
     if (b.breakdown.qualityScore !== a.breakdown.qualityScore) {
       return b.breakdown.qualityScore - a.breakdown.qualityScore;
     }
-    return a.item.title.localeCompare(b.item.title);
+    const titleA = a.item?.title || '';
+    const titleB = b.item?.title || '';
+    return titleA.localeCompare(titleB);
   });
 
   // Assign ranks

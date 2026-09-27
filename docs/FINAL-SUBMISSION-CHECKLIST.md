@@ -17,7 +17,7 @@ All items below were verified by automated tooling during this session. Evidence
 | # | Item | Evidence |
 | :- | :--- | :--- |
 | V01 | **TypeScript** — `tsc --noEmit` exits clean | Exit code 0, 0 type errors across all `src/` and `tst/` files |
-| V02 | **Jest test suite** — 11/11 suites, 55/55 tests pass | Exit code 0, 0.57s run time |
+| V02 | **Jest test suite** — 12/12 suites, 66/66 tests pass | Exit code 0, 0.70s run time (including new Adversarial QA suite) |
 | V03 | **Scoring scenario validation** — 7/7 scenarios | `tst/ScenarioValidation.test.ts` — unanimous, conflict, veto, tie, weather, bedtime, zero-match |
 | V04 | **Metro debug build** — `npm run bundle:debug` | Exit code 0; `Debug/index.bundle`, `Debug/service.bundle` + hermes variants + 29 assets |
 | V05 | **Metro release build** — `npm run bundle:release` | Exit code 0; `Release/index.bundle`, `Release/service.bundle` + hermes variants + 24 assets |

@@ -59,8 +59,15 @@ export const FocusableCard: React.FC<FocusableCardProps> = ({
     onBlur?.();
   };
 
+  const flattened = StyleSheet.flatten(style) || {};
+  const innerFlexStyle: ViewStyle = {};
+  if (flattened.flexDirection) innerFlexStyle.flexDirection = flattened.flexDirection;
+  if (flattened.justifyContent) innerFlexStyle.justifyContent = flattened.justifyContent;
+  if (flattened.alignItems) innerFlexStyle.alignItems = flattened.alignItems;
+
   return (
     <Pressable
+      focusable={true}
       onPress={onPress}
       onFocus={handleFocus}
       onBlur={handleBlur}
@@ -79,6 +86,7 @@ export const FocusableCard: React.FC<FocusableCardProps> = ({
       <Animated.View
         style={[
           styles.innerScaleView,
+          innerFlexStyle,
           { transform: [{ scale: scaleAnim }] },
         ]}
       >

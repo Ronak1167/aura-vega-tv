@@ -87,7 +87,13 @@ export function consensusReducer(
 ): ConsensusState {
   switch (action.type) {
     case 'VOTE_SHORTLIST': {
+      // Prevent duplicate shortlisting of the same item
+      if (state.shortlist.some((item) => item.id === action.payload.id)) {
+        return state;
+      }
+
       const updatedShortlist = [...state.shortlist, action.payload];
+      const updatedSkipped = state.skipped.filter((item) => item.id !== action.payload.id);
       const isComplete = updatedShortlist.length >= 3;
 
       let recommendation: RecommendationResult | null = null;
@@ -106,6 +112,7 @@ export function consensusReducer(
       return {
         ...state,
         shortlist: updatedShortlist,
+        skipped: updatedSkipped,
         currentIndex: state.currentIndex + 1,
         winner,
         recommendation,
@@ -113,6 +120,10 @@ export function consensusReducer(
       };
     }
     case 'VOTE_SKIP': {
+      // Prevent duplicate skips of the same item
+      if (state.skipped.some((item) => item.id === action.payload.id)) {
+        return state;
+      }
       return {
         ...state,
         skipped: [...state.skipped, action.payload],

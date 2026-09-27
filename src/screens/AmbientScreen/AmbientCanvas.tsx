@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { AmbientParticle } from '../../components/AmbientParticle';
 import { getAmbientTheme } from '../../utils/time-of-day';
@@ -7,7 +7,14 @@ import { colors, typography } from '../../styles/tokens';
 
 export const AmbientCanvas: React.FC = () => {
   const theme = useMemo(() => getAmbientTheme(), []);
-  const timeInfo = formatTime();
+  const [timeInfo, setTimeInfo] = useState(() => formatTime());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeInfo(formatTime());
+    }, 10000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Generate deterministic floating particles
   const particles = useMemo(() => {

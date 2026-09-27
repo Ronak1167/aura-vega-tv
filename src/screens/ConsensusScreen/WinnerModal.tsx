@@ -33,7 +33,12 @@ export const WinnerModal: React.FC<WinnerModalProps> = ({
   const breakdown = evaluation?.breakdown;
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onDismiss ?? onReset}
+    >
       <View style={styles.backdrop}>
         <View style={styles.winnerCard}>
           {/* Confetti / Trophy Banner */}

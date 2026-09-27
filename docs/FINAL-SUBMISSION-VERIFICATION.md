@@ -18,20 +18,25 @@
 | Level | Status | Details |
 | :--- | :---: | :--- |
 | **BUILD VERIFIED** | ✅ VERIFIED | TypeScript, Metro debug, Metro release, Static Hermes bytecode — all pass clean via `@amazon-devices/kepler-cli-platform`. |
-| **TEST VERIFIED** | ✅ VERIFIED | 11 Jest test suites, 55 unit tests, 7 scoring scenario tests — all pass (0 failures). |
+| **TEST VERIFIED** | ✅ VERIFIED | 12 Jest test suites, 66 unit tests, 7 scoring scenario tests, and dedicated Adversarial QA suite — all pass (0 failures). |
 | **SIMULATOR VERIFIED** | ❌ UNVERIFIED | No cross-platform Vega Virtual Device (VVD) exists for Windows. `react-native run-vega` → `error: This command is unimplemented. Please use vega run-app`. Documented in `FRICTION-LOG.md` FL-003. |
 | **PHYSICAL DEVICE VERIFIED** | ❌ UNVERIFIED | Physical Fire TV with Vega OS SDK 0.24 required. No device available in this session. |
 
 ---
 
-## Phase 1 — Repository Audit
+## Phase 1 — Repository Audit & Adversarial QA Repairs
 
-- All documents read and cross-referenced against implementation.
-- **Finding**: `docs/DEMO-SCRIPT.md` described a non-existent "Household Viewer tab" and "Context tab" navigation model that does not match the actual screen architecture (single `ConsensusScreen` with inline voters/mood rows). Fixed during this session.
-- **Finding**: `docs/DEVPOST-SUBMISSION.md` contained placeholder GitHub URL (`ronakjain/aura-vega-tv`). Fixed with real URL.
-- **Finding**: `docs/FINAL-JUDGE-AUDIT.md` OS.1 marked ⚠️ Pending. Updated to ✅ with real repository URL.
-- **No contradictions found between ScoringEngine.ts and documented formula**. Formula weights (0.35/0.25/0.25/0.15) verified in source.
-- **Data honesty confirmed**: Catalog is static JSON (12 items). Weather is simulated. No live API calls in scoring pipeline.
+During adversarial QA analysis, the following hidden issues were uncovered and repaired:
+
+1. **Scoring Engine Inactive Voter Leak**: `computeAffinityScore` previously iterated through all `participants` regardless of `voter.hasVoted`. Inactive voters' genre dislikes were erroneously applying penalties and vetoes. Repaired to filter to active voters (`hasVoted !== false`), with fallback to all participants.
+2. **Consensus Reducer Deduplication**: Shortlisting or skipping an item multiple times appended duplicate entries to `shortlist` and `skipped`. Repaired with strict deduplication guards.
+3. **WinnerModal Fire TV Remote Back Button Trap**: `WinnerModal.tsx` lacked the `onRequestClose` prop on `<Modal>`. When the user pressed Back on the Fire TV remote, the modal could not be dismissed. Repaired by binding `onRequestClose={onDismiss ?? onReset}`.
+4. **VideoPlayer Seek NaN Protection**: Before metadata loads on HTMLMediaElement/W3C player, `player.duration` is `NaN`. Forward seeking resulted in `currentTime = NaN` causing a playback crash. Repaired with NaN guards on duration, currentTime, and event listeners.
+5. **VideoPlayer Unmount Resource Teardown**: Added unmount cleanup hook to ensure native media playback is paused and deinitialized if the screen unmounts before Kepler's surface destruction callback fires.
+6. **FocusableCard D-Pad Focus & Layout Preservation**: Added explicit `focusable={true}` to `Pressable` for TV D-pad accessibility, and preserved flex layout properties (`flexDirection`, `alignItems`, `justifyContent`) in the inner scale view so row layouts (such as voter badges) render horizontally.
+7. **Ambient Screen Clock Real-Time Ticking**: `AmbientCanvas` and `GlanceBar` previously rendered static time values read only once at mount. Added ticking state timers (updating every 10s) to keep the living room clock accurate.
+8. **Settings Screen Reachability**: `GlanceBar` now renders a dedicated `⚙ Settings` focusable button wired to `onOpenSettings`, allowing users to access living room diagnostics and temperature units.
+9. **Case-Insensitive Tag/Mood Matching**: `ConsensusScreen` now uses case-insensitive tag and mood comparison matching `MediaDataService`.
 
 ---
 
@@ -62,6 +67,7 @@ Files Checked: src/ (all .ts and .tsx), tst/ (all test files)
 ### Jest Test Suite
 ```
 Command: npx jest --no-coverage
+PASS tst/AdversarialQA.test.ts
 PASS tst/ScenarioValidation.test.ts
 PASS tst/ScoringEngine.test.ts
 PASS tst/ConsensusContext.test.ts
@@ -74,9 +80,9 @@ PASS tst/manifest.test.ts
 PASS tst/format.test.ts
 PASS tst/FocusEngine.test.ts
 
-Test Suites: 11 passed, 11 total
-Tests:       55 passed, 55 total
-Time:        0.57s
+Test Suites: 12 passed, 12 total
+Tests:       66 passed, 66 total
+Time:        0.70s
 ```
 
 ### Scoring Scenario Coverage
@@ -89,6 +95,9 @@ Time:        0.57s
 | E | Weather context shift (rainy boost) | ✅ Pass |
 | F | Bedtime runtime constraint (1.2× overage penalty) | ✅ Pass |
 | G | Zero-match fallback (neutral baseline 70) | ✅ Pass |
+| QA.1 | Inactive voter toggle eliminates inactive dislike penalties | ✅ Pass |
+| QA.2 | Deduplication prevents duplicate entries in shortlist & skipped | ✅ Pass |
+| QA.3 | Malformed / NaN metadata gracefully handled | ✅ Pass |
 
 ### Metro Debug Build
 ```

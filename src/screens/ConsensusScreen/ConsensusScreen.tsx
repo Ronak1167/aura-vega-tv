@@ -46,9 +46,12 @@ export const ConsensusScreen: React.FC<ConsensusScreenProps> = ({ navigation }) 
 
   const filteredItems = useMemo(() => {
     if (state.activeMood === 'All') return items;
-    return items.filter(
-      (i) => i.tags.includes(state.activeMood) || i.mood.includes(state.activeMood),
-    );
+    const target = state.activeMood.toLowerCase();
+    return items.filter((i) => {
+      const itemMood = (i.mood || '').toLowerCase();
+      const itemTags = (i.tags || []).map((t) => t.toLowerCase());
+      return itemMood.includes(target) || itemTags.some((t) => t.includes(target));
+    });
   }, [items, state.activeMood]);
 
   const handleSelectItem = (item: MediaItem) => {
