@@ -162,17 +162,19 @@ export const ConsensusScreen: React.FC<ConsensusScreenProps> = ({ navigation }) 
               <Text style={styles.triggerConsensusText}>⚡ Evaluate Consensus Now</Text>
             </FocusableCard>
 
-            {state.shortlist.length > 0 && (
+            {(state.winner !== null || state.shortlist.length > 0) && (
               <FocusableCard
                 onPress={() => {
                   setIsWinnerDismissed(false);
-                  setWinner(state.shortlist[0]);
+                  if (!state.winner && state.shortlist.length > 0) {
+                    setWinner(state.shortlist[0]);
+                  }
                 }}
                 style={styles.forceConsensusBtn}
                 accentColor={colors.accentCyan}
               >
                 <Text style={styles.forceConsensusText}>
-                  Top Pick: {state.shortlist[0].title}
+                  Top Pick: {(state.winner || state.shortlist[0]).title}
                 </Text>
               </FocusableCard>
             )}
@@ -212,6 +214,7 @@ export const ConsensusScreen: React.FC<ConsensusScreenProps> = ({ navigation }) 
           recommendation={state.recommendation}
           visible={state.isVotingComplete && state.winner !== null && !isWinnerDismissed}
           onWatchNow={(item) => {
+            setIsWinnerDismissed(true);
             navigation.navigate('VideoPlayer', { item });
           }}
           onReset={() => {

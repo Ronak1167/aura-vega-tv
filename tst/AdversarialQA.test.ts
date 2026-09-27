@@ -226,5 +226,42 @@ describe('Adversarial QA Suite - Robustness & Integrity', () => {
         rankCandidates([itemNoTitle, itemWithTitle], votersWithDislike, defaultContext);
       }).not.toThrow();
     });
+
+    it('boosts items matching active sessionMood during recommendation generation', () => {
+      const moodCtx: ViewingContext = {
+        ...defaultContext,
+        sessionMood: 'Sci-Fi',
+      };
+      const rec = generateConsensusRecommendation(
+        [sciFiFilm, horrorFilm],
+        votersWithDislike,
+        moodCtx,
+      );
+      expect(rec).not.toBeNull();
+      expect(rec?.winner.item.id).toBe('media-scifi');
+      expect(rec?.winner.positiveFactors.some((f) => f.includes('Sci-Fi'))).toBe(true);
+    });
+
+    it('cleans state completely on rapid RESET_VOTING', () => {
+      let state = consensusReducer(initialConsensusState, {
+        type: 'VOTE_SHORTLIST',
+        payload: sciFiFilm,
+      });
+      state = consensusReducer(state, {
+        type: 'VOTE_SKIP',
+        payload: horrorFilm,
+      });
+      state = consensusReducer(state, {
+        type: 'SET_MOOD',
+        payload: 'Drama',
+      });
+      const resetState = consensusReducer(state, { type: 'RESET_VOTING' });
+
+      expect(resetState.shortlist).toHaveLength(0);
+      expect(resetState.skipped).toHaveLength(0);
+      expect(resetState.winner).toBeNull();
+      expect(resetState.activeMood).toBe('All');
+      expect(resetState.currentIndex).toBe(0);
+    });
   });
 });

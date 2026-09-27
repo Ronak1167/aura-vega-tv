@@ -223,7 +223,10 @@ export const ConsensusProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const triggerConsensusNow = () => {
     const candidates = state.shortlist.length > 0 ? state.shortlist : rawItems.slice(0, 5);
-    const rec = generateConsensusRecommendation(candidates, state.participants, currentContext);
+    const rec = generateConsensusRecommendation(candidates, state.participants, {
+      ...currentContext,
+      sessionMood: state.activeMood,
+    });
     if (rec) {
       dispatch({ type: 'SET_RECOMMENDATION', payload: rec });
     }
