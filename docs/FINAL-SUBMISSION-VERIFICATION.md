@@ -18,7 +18,7 @@
 | Level | Status | Details |
 | :--- | :---: | :--- |
 | **BUILD VERIFIED** | ✅ VERIFIED | TypeScript, Metro debug, Metro release, Static Hermes bytecode — all pass clean via `@amazon-devices/kepler-cli-platform`. |
-| **TEST VERIFIED** | ✅ VERIFIED | 12 Jest test suites, 66 unit tests, 7 scoring scenario tests, and dedicated Adversarial QA suite — all pass (0 failures). |
+| **TEST VERIFIED** | ✅ VERIFIED | 12 Jest test suites, 73 unit tests, 7 scoring scenario tests, and dedicated 15-test Adversarial QA suite — all pass (0 failures). |
 | **SIMULATOR VERIFIED** | ❌ UNVERIFIED | No cross-platform Vega Virtual Device (VVD) exists for Windows. `react-native run-vega` → `error: This command is unimplemented. Please use vega run-app`. Documented in `FRICTION-LOG.md` FL-003. |
 | **PHYSICAL DEVICE VERIFIED** | ❌ UNVERIFIED | Physical Fire TV with Vega OS SDK 0.24 required. No device available in this session. |
 
@@ -26,7 +26,7 @@
 
 ## Phase 1 — Repository Audit & Adversarial QA Repairs
 
-During adversarial QA analysis, the following hidden issues were uncovered and repaired:
+During adversarial QA analysis across Rounds 1 and 2, 14 hidden issues were uncovered and repaired (documented in full in `docs/DEEP-DEBUG-ROUND-2.md`):
 
 1. **Scoring Engine Inactive Voter Leak**: `computeAffinityScore` previously iterated through all `participants` regardless of `voter.hasVoted`. Inactive voters' genre dislikes were erroneously applying penalties and vetoes. Repaired to filter to active voters (`hasVoted !== false`), with fallback to all participants.
 2. **Consensus Reducer Deduplication**: Shortlisting or skipping an item multiple times appended duplicate entries to `shortlist` and `skipped`. Repaired with strict deduplication guards.
@@ -37,6 +37,11 @@ During adversarial QA analysis, the following hidden issues were uncovered and r
 7. **Ambient Screen Clock Real-Time Ticking**: `AmbientCanvas` and `GlanceBar` previously rendered static time values read only once at mount. Added ticking state timers (updating every 10s) to keep the living room clock accurate.
 8. **Settings Screen Reachability**: `GlanceBar` now renders a dedicated `⚙ Settings` focusable button wired to `onOpenSettings`, allowing users to access living room diagnostics and temperature units.
 9. **Case-Insensitive Tag/Mood Matching**: `ConsensusScreen` now uses case-insensitive tag and mood comparison matching `MediaDataService`.
+10. **DetailModal Double-Close Callback**: Shortlist/skip buttons in `DetailModal` called `onShortlist`/`onSkip` followed by redundant `onClose()`. Removed redundant invocation.
+11. **Contradictory Voter State in Scoring Engine**: A voter triggering a genre dislike penalty could simultaneously appear in both `agreeingVoters` and `conflictingVoters`. Fixed by excluding conflicting voters from the agreeing array.
+12. **Veto Match Percentage Floor**: Vetoed items displayed 0% match instead of clamped floor (minimum 1%). Fixed to display at least 1%.
+13. **MediaDataService Mood Filter Alignment**: Aligned `MediaDataService.getMediaByMood` to use substring `.includes()` matching `ConsensusScreen`'s filter logic.
+14. **Video Overlay Suppression**: Prevented `WinnerModal` from popping up while full-screen video playback is active.
 
 ---
 
@@ -81,8 +86,8 @@ PASS tst/format.test.ts
 PASS tst/FocusEngine.test.ts
 
 Test Suites: 12 passed, 12 total
-Tests:       66 passed, 66 total
-Time:        0.70s
+Tests:       73 passed, 73 total
+Time:        0.65s
 ```
 
 ### Scoring Scenario Coverage

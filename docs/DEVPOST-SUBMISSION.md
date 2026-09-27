@@ -60,7 +60,7 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
   - Headless Target: `com.amazon.kepler.runtime.react_native_kepler_headless_4` (`service.js`)
 - **Manifest Architecture**: Strict `manifest.toml` declaring permissions, capabilities, categories, and dual runtime configurations.
 - **Build Pipeline**: Metro v0.83 with Kepler compatibility configuration, emitting standalone JS bundles, source maps, and compiled Static Hermes bytecode.
-- **Test Engineering**: 11 automated Jest test suites with 55 unit tests verifying scoring math across 7 distinct conflict scenarios (unanimous, conflicting, veto, tie, context shift, bedtime window, and zero-match fallback).
+- **Test Engineering**: 12 automated Jest test suites with 73 unit tests verifying scoring math across 7 distinct conflict scenarios (unanimous, conflicting, veto, tie, context shift, bedtime window, and zero-match fallback) and 15 adversarial QA edge-case boundary tests.
 
 ---
 
@@ -91,7 +91,7 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
 ## Accomplishments We're Proud Of
 
 - **100% Deterministic & Honest**: We built a genuine multi-viewer consensus engine with zero fabricated metrics, zero fake AI wrappers, and zero hallucinations.
-- **Rigorous Scenario Testing**: 55 automated tests verifying complex living room dynamics, including majority vetoes, tie-breaking, and late-night bedtime constraints.
+- **Rigorous Scenario Testing**: 73 automated tests verifying complex living room dynamics, including majority vetoes, tie-breaking, and late-night bedtime constraints.
 - **Production-Grade Release Pipeline**: Clean Metro release bundling, Static Hermes bytecode compilation, and zero-warning TypeScript verification.
 
 ---
