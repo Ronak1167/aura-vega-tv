@@ -109,5 +109,18 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
 - **Repository**: [https://github.com/Ronak1167/aura-vega-tv](https://github.com/Ronak1167/aura-vega-tv)
 - **License**: MIT Open Source License
 - **Documentation**: Full architecture, API contracts, design system, and scenario validations available in `/docs`.
-- **Submission Deadline**: October 23, 2026 at 2:00 PM CDT
-- **Demo Video**: *[REQUIRED — Record a ≤3 minute video and paste link here before submitting]*
+- **Submission Deadline**: October 23, 2026 at 12:00 PM PDT / 2:00 PM CDT / 3:00 PM EDT (Oct 24, 2026 at 12:30 AM IST)
+- **Demo Video**: *[REQUIRED — Upload ≤3-minute YouTube or Vimeo public video and paste link here before submitting]*
+
+---
+
+## Open Source Mini-Challenge Required Fields
+
+> These fields are **mandatory** when claiming the Open Source Mini-Challenge prize.
+
+- **Contribution URL**: https://github.com/Ronak1167/aura-vega-tv
+- **Repository URL**: https://github.com/Ronak1167/aura-vega-tv
+- **GitHub Username**: Ronak1167
+- **What I did**: Built Aura Vega TV from scratch during the hackathon window as a new open-source React Native for Vega OS application — a living room ambient hub and co-viewing consensus engine for Fire TV.
+- **How it works**: React Native 0.83 on Vega OS SDK 0.24 (Kepler platform). Dual-target architecture: UI surface (`index.js`) + headless background personalization service (`service.js`). Deterministic multi-factor scoring engine (`src/engine/ScoringEngine.ts`) aggregates preferences, vetoes, ratings, and environmental context into a transparent ranked recommendation. 73 automated tests across 12 test suites.
+- **Why it matters**: Solves the daily 20-minute "what should we watch?" decision fatigue for multi-viewer households. First open-source explainable consensus engine built natively on Amazon's Vega OS SDK.
