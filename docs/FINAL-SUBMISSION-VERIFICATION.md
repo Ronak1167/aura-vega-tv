@@ -86,7 +86,7 @@ PASS tst/format.test.ts
 PASS tst/FocusEngine.test.ts
 
 Test Suites: 12 passed, 12 total
-Tests:       73 passed, 73 total
+Tests:       74 passed, 74 total
 Time:        0.65s
 ```
 

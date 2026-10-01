@@ -42,5 +42,12 @@
     "ts-jest": "^29.2.0",
     "typescript": "^5.8.0"
   },
-  "private": true
+  "private": true,
+  "kepler": {
+    "projectType": "application",
+    "appName": "com.auravega.tv",
+    "targets": [
+      "tv"
+    ]
+  }
 }

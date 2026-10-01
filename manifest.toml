@@ -1,59 +1,127 @@
+schema-version = 1
+
 [package]
-id = "com.auravega.tv"
+title = "Aura Vega TV"
 version = "1.0.0"
-display_name = "Aura Vega TV"
-description = "Living room ambient hub and co-viewing decision engine for Fire TV"
+build_number = 1
+id = "com.auravega.tv"
+icon = "@image/app-icon.png"
 
 [os.version]
 min = "1.2"
 target = "1.2"
 
-[needs]
-# Core display and input
-"com.amazon.vega.display" = { version = "*" }
-"com.amazon.vega.input.remote" = { version = "*" }
-
-[wants]
-# ── Core media playback services (react_native_for_vega_media_player.md) ──────
-"com.amazon.media.server" = { version = "*" }
-"com.amazon.mediabuffer.service" = { version = "*" }
-"com.amazon.mediatransform.service" = { version = "*" }
-"com.amazon.mediametrics.service" = { version = "*" }
-"com.amazon.gipc.uuid.*" = { version = "*" }
-
-# ── Audio ─────────────────────────────────────────────────────────────────────
-"com.amazon.audio.stream" = { version = "*" }
-"com.amazon.audio.control" = { version = "*" }
-"com.amazon.audio.output" = { version = "*" }
-
-# ── Network (for weather API and media streaming) ─────────────────────────────
-"com.amazon.network.access" = { version = "*" }
-
-# ── Accessibility: captions (vega_a11y_caption_settings.md) ─────────────────
-"com.amazon.devconf.privilege.accessibility" = { version = "*" }
-"com.amazon.a11y.audio_description" = { version = "*" }
-
-# ── DRM (optional — for future secure content) ────────────────────────────────
-"com.amazon.drm.key" = { version = "*" }
-"com.amazon.drm.crypto" = { version = "*" }
-
-[offers]
-# Headless background service (REQUIRED by Vega OS for content personalization)
-"com.auravega.tv.headless" = { version = "1.0" }
-# IPC UUID service (required by media pipeline)
-"com.amazon.gipc.uuid.*" = { version = "*" }
-
-[app]
-icon = "@image/app-icon"
-entry = "index.js"
-headless_entry = "service.js"
-
+[components]
 [[components.interactive]]
-name = "main"
-entry = "index.js"
+id = "com.auravega.tv.main"
 runtime-module = "/com.amazon.kepler.runtime.react_native_kepler_4@IReactNativeKepler_0"
+categories = ["com.amazon.category.main", "com.amazon.category.kepler.media"]
+launch-type = "singleton"
 
 [[components.service]]
-name = "headless"
-entry = "service.js"
-runtime-module = "/com.amazon.kepler.runtime.react_native_kepler_headless_4@IReactNativeKeplerHeadless_0"
+id = "com.auravega.tv.service"
+runtime-module = "/com.amazon.kepler.runtime.react_native_kepler_4@IReactNativeKepler_0"
+launch-type = "singleton"
+
+[processes]
+[[processes.group]]
+id = "main_and_service"
+component-ids = ["com.auravega.tv.main", "com.auravega.tv.service"]
+
+[wants]
+[[wants.service]]
+id = "com.amazon.inputmethod.service"
+[[wants.service]]
+id = "com.amazon.inputd.service"
+[[wants.service]]
+id = "com.amazon.network.service"
+[[wants.service]]
+id = "com.amazon.mediametrics.service"
+[[wants.service]]
+id = "com.amazon.media.server"
+[[wants.service]]
+id = "com.amazon.gipc.uuid.*"
+[[wants.service]]
+id = "com.amazon.media.playersession.service"
+[[wants.service]]
+id = "com.amazon.mediabuffer.service"
+[[wants.service]]
+id = "com.amazon.mediatransform.service"
+[[wants.service]]
+id = "com.amazon.drm.key"
+[[wants.service]]
+id = "com.amazon.drm.crypto"
+[[wants.service]]
+id = "com.amazon.audio.stream"
+[[wants.service]]
+id = "com.amazon.audio.control"
+[[wants.service]]
+id = "com.amazon.audio.system"
+[[wants.privilege]]
+id = "com.amazon.devconf.privilege.accessibility"
+
+[needs]
+[[needs.privilege]]
+id = "com.amazon.network.privilege.net-info"
+[[needs.module]]
+id = "/com.amazon.vega.os@IVega_1_2"
+
+[[needs.module]]
+id = "/com.amazon.kepler.kepler_media_controls_1@IKeplerMediaControls_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.keplermediadescriptor_1@IKeplermediadescriptor_1"
+
+[[needs.module]]
+id = "/com.amazon.kepler.gesture_handler_4@IGestureHandler_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.keplerscript_4@IKeplerScript_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.reanimated_4@IReanimated_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.safe_area_context_8@ISafeAreaContext_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.screens_3@IScreens_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.w3cmedia_2@IW3cmedia_3"
+
+[[needs.module]]
+id = "/com.amazon.kepler.worklets_1@IWorklets_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.navigation__core_8@INavigation__Core_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.navigation__elements_8@INavigation__Elements_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.navigation__native_8@INavigation__Native_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.navigation__routers_8@INavigation__Routers_0"
+
+[[needs.module]]
+id = "/com.amazon.kepler.navigation__stack_8@INavigation__Stack_0"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[application]
+relaunch_policy = "none"
+preserve_state = true
