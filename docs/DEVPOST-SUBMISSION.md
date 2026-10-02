@@ -109,8 +109,14 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
 - **Repository**: [https://github.com/Ronak1167/aura-vega-tv](https://github.com/Ronak1167/aura-vega-tv)
 - **License**: MIT Open Source License
 - **Documentation**: Full architecture, API contracts, design system, and scenario validations available in `/docs`.
-- **Submission Deadline**: October 23, 2026 at 12:00 PM PDT / 2:00 PM CDT / 3:00 PM EDT (Oct 24, 2026 at 12:30 AM IST)
-- **Demo Video**: *[REQUIRED — Upload ≤3-minute YouTube or Vimeo public video and paste link here before submitting]*
+- **Demo Video (Local Artifact)**: `docs/demo-video/aura-vega-tv-demo.mp4`
+  - **Resolution**: 1920x1080 (1080p Full HD, 30 fps)
+  - **Duration**: 00:00:38.57 (well within the ≤3-minute ceiling)
+  - **Codec**: H.264 / AVC (High Profile, Level 4.0, yuv420p) with FastStart metadata for instant streaming
+  - **File Size**: 6.86 MB (7,193,817 bytes)
+  - **SHA-256**: `570745D8C4265AE4E2211FD1EC3E187DDBEE06C16327D647B6AD76329DD4C2FB`
+  - **Visual Thumbnails**: `docs/demo-video/thumbnails/` (Ambient Mode, Couch Consensus, Multi-Factor Scoring Modal, Video Player with Closed Captions)
+  - **Devpost Submission Link**: *Upload this file (`docs/demo-video/aura-vega-tv-demo.mp4`) directly to YouTube or Vimeo and paste the public link into the Devpost submission form under "Video Demo Link".*
 
 ---
 
