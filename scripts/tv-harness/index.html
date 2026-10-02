@@ -35,14 +35,18 @@
       user-select: none;
     }
 
-    body {
-      width: 1920px;
-      height: 1080px;
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
-      background-color: var(--bg-deep);
+      background-color: #05070D;
       font-family: 'Outfit', sans-serif;
       color: var(--text-primary);
-      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     /* 10-foot TV Safe Container: 80px horizontal, 60px vertical */
@@ -51,6 +55,10 @@
       height: 1080px;
       position: relative;
       overflow: hidden;
+      flex-shrink: 0;
+      transform-origin: center center;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+      border-radius: 8px;
     }
 
     /* Screen Layering */
@@ -1211,8 +1219,30 @@
           </div>
         </div>
       </div>
+  </div>
+
+  <!-- Interactive Floating Fire TV Virtual Remote -->
+  <div id="virtual-remote" style="position: fixed; bottom: 20px; right: 20px; width: 144px; background: rgba(13, 17, 28, 0.94); backdrop-filter: blur(16px); border: 1px solid rgba(0, 229, 255, 0.35); border-radius: 28px; padding: 16px 12px; box-shadow: 0 12px 48px rgba(0,0,0,0.85), 0 0 24px rgba(0, 229, 255, 0.2); z-index: 99999; display: flex; flex-direction: column; align-items: center; gap: 10px; font-family: 'Outfit', sans-serif;">
+    <div style="font-size: 11px; font-weight: 800; color: #00E5FF; text-transform: uppercase; letter-spacing: 1.2px; text-align: center;">Fire TV Remote</div>
+    
+    <!-- D-Pad -->
+    <div style="position: relative; width: 108px; height: 108px; background: #1B2338; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12); display: flex; justify-content: center; align-items: center; box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);">
+      <button onclick="moveFocus('ArrowUp')" title="Up (▲)" style="position: absolute; top: 4px; left: 36px; width: 36px; height: 26px; background: none; border: none; color: #fff; font-size: 14px; cursor: pointer; border-radius: 6px;">▲</button>
+      <button onclick="moveFocus('ArrowDown')" title="Down (▼)" style="position: absolute; bottom: 4px; left: 36px; width: 36px; height: 26px; background: none; border: none; color: #fff; font-size: 14px; cursor: pointer; border-radius: 6px;">▼</button>
+      <button onclick="moveFocus('ArrowLeft')" title="Left (◄)" style="position: absolute; left: 4px; top: 36px; width: 26px; height: 36px; background: none; border: none; color: #fff; font-size: 14px; cursor: pointer; border-radius: 6px;">◄</button>
+      <button onclick="moveFocus('ArrowRight')" title="Right (►)" style="position: absolute; right: 4px; top: 36px; width: 26px; height: 36px; background: none; border: none; color: #fff; font-size: 14px; cursor: pointer; border-radius: 6px;">►</button>
+      <button onclick="triggerSelect()" title="Select (OK)" style="width: 44px; height: 44px; background: #00E5FF; border: none; border-radius: 50%; color: #05070D; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 0 14px rgba(0,229,255,0.7); display: flex; align-items: center; justify-content: center;">OK</button>
     </div>
 
+    <!-- Actions Row -->
+    <div style="display: flex; gap: 8px; width: 100%; justify-content: center;">
+      <button onclick="handleBack()" title="Back (ESC)" style="flex: 1; height: 32px; background: #232C45; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer;">↩ Back</button>
+      <button onclick="navigateTo('ambient')" title="Home" style="flex: 1; height: 32px; background: #232C45; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer;">⌂ Home</button>
+    </div>
+
+    <div style="font-size: 10px; color: #8F9EB8; text-align: center; line-height: 1.3;">
+      Arrow Keys or Click<br><span style="color: #00E5FF;">[ENTER]</span> Select
+    </div>
   </div>
 
   <script>
@@ -1291,19 +1321,127 @@
     }
 
     // =========================================================
-    // KEYBOARD REMOTE CONTROL (10-FOOT D-PAD MAPPING)
+    // RESPONSIVE AUTO-SCALING FOR ANY SCREEN / MONITOR
     // =========================================================
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' || e.key === 'Backspace') {
-        if (document.getElementById('modal-winner').classList.contains('open')) {
-          closeWinnerModal();
-        } else if (document.getElementById('modal-detail').classList.contains('open')) {
-          closeDetailModal();
-        } else if (currentScreen === 'player') {
-          navigateTo('ambient');
-        } else if (currentScreen === 'consensus') {
-          navigateTo('ambient');
+    function fitToScreen() {
+      const padW = window.innerWidth - 30;
+      const padH = window.innerHeight - 30;
+      const scale = Math.min(padW / 1920, padH / 1080);
+      const vp = document.querySelector('.tv-viewport');
+      if (vp) {
+        vp.style.transform = `scale(${scale})`;
+      }
+    }
+    window.addEventListener('resize', fitToScreen);
+    window.addEventListener('DOMContentLoaded', fitToScreen);
+    setTimeout(fitToScreen, 100);
+
+    // =========================================================
+    // 2D SPATIAL D-PAD REMOTE NAVIGATION & COMMANDS
+    // =========================================================
+    function getVisibleFocusables() {
+      if (document.getElementById('modal-winner').classList.contains('open')) {
+        return Array.from(document.querySelectorAll('#modal-winner .focusable'));
+      }
+      if (document.getElementById('modal-detail').classList.contains('open')) {
+        return Array.from(document.querySelectorAll('#modal-detail .focusable'));
+      }
+      const activeScreen = document.querySelector('.screen.active');
+      if (activeScreen) {
+        return Array.from(activeScreen.querySelectorAll('.focusable')).filter(el => {
+          const rect = el.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0;
+        });
+      }
+      return [];
+    }
+
+    function moveFocus(direction) {
+      const focusables = getVisibleFocusables();
+      if (!focusables.length) return;
+      const current = document.activeElement;
+      if (!current || !focusables.includes(current)) {
+        focusables[0].focus();
+        return;
+      }
+      const curRect = current.getBoundingClientRect();
+      const curCenter = { x: curRect.left + curRect.width / 2, y: curRect.top + curRect.height / 2 };
+
+      let bestEl = null;
+      let bestDist = Infinity;
+
+      for (const el of focusables) {
+        if (el === current) continue;
+        const rect = el.getBoundingClientRect();
+        const center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        const dx = center.x - curCenter.x;
+        const dy = center.y - curCenter.y;
+
+        let valid = false;
+        let primaryDist = 0;
+        let secondaryDist = 0;
+
+        if (direction === 'ArrowRight' && dx > 15) {
+          valid = true;
+          primaryDist = dx;
+          secondaryDist = Math.abs(dy);
+        } else if (direction === 'ArrowLeft' && dx < -15) {
+          valid = true;
+          primaryDist = -dx;
+          secondaryDist = Math.abs(dy);
+        } else if (direction === 'ArrowDown' && dy > 15) {
+          valid = true;
+          primaryDist = dy;
+          secondaryDist = Math.abs(dx);
+        } else if (direction === 'ArrowUp' && dy < -15) {
+          valid = true;
+          primaryDist = -dy;
+          secondaryDist = Math.abs(dx);
         }
+
+        if (valid) {
+          // Weight perpendicular distance 2.5x to preserve horizontal / vertical lanes
+          const score = primaryDist + secondaryDist * 2.5;
+          if (score < bestDist) {
+            bestDist = score;
+            bestEl = el;
+          }
+        }
+      }
+
+      if (bestEl) {
+        bestEl.focus();
+      }
+    }
+
+    function triggerSelect() {
+      if (document.activeElement && typeof document.activeElement.click === 'function') {
+        document.activeElement.click();
+      }
+    }
+
+    function handleBack() {
+      if (document.getElementById('modal-winner').classList.contains('open')) {
+        closeWinnerModal();
+      } else if (document.getElementById('modal-detail').classList.contains('open')) {
+        closeDetailModal();
+      } else if (currentScreen === 'player') {
+        navigateTo('ambient');
+      } else if (currentScreen === 'consensus') {
+        navigateTo('ambient');
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        moveFocus(e.key);
+        e.preventDefault();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        triggerSelect();
+        e.preventDefault();
+      } else if (e.key === 'Escape' || e.key === 'Backspace') {
+        handleBack();
+        e.preventDefault();
       }
     });
 
