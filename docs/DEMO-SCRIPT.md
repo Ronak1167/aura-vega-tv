@@ -11,9 +11,9 @@
 
 Before presenting, confirm the following:
 - [ ] App is installed and launched on Fire TV / Vega OS device
-- [ ] Metro bundler OR pre-built release APK is running
+- [ ] Metro bundler OR pre-built release VPkg (.vpkg) package is deployed
 - [ ] TV is on, sound is on, and the ambient canvas is visible
-- [ ] Active viewers are reset to default (no viewers selected)
+- [ ] Active viewers are ready (default: Ronak and Family)
 - [ ] Catalog is at its initial unfiltered state
 
 ---
@@ -23,7 +23,7 @@ Before presenting, confirm the following:
 ### Segment 1 — The Problem (0:00–0:30)
 
 **Narrator says:**
-> "We've all been there. It's Friday night. You and your partner sit down on the couch. You open Netflix, you scroll for 20 minutes, and you end up watching nothing. That's decision fatigue — and it happens in 73% of households regularly."
+> "We've all been there. It's Friday night. You and your family sit down on the couch. You open your streaming apps, you scroll for 20 minutes, and you end up watching nothing. That's decision fatigue — and it happens in 73% of households regularly."
 >
 > "Aura Vega is a living room companion app for Fire TV that eliminates 'what to watch?' — together, in under 60 seconds."
 
@@ -41,15 +41,14 @@ Before presenting, confirm the following:
 The screen transitions to **Couch Consensus**.
 
 **Narrator says:**
-> "Here on the Couch Consensus screen, we see who's in the room tonight. Alex, Jordan, and Sam are configured household members."
+> "Here on the Couch Consensus screen, we see who's in the room tonight. Ronak and Family are configured household members."
 
 **Action**: Navigate D-pad to the **Voters** row at the top:
-- Select **Alex** → Toggle ON (active)
-- Select **Jordan** → Toggle ON (active)
-- (Sam remains inactive or toggled as desired)
+- Select **Ronak** → Toggle ON (active)
+- Select **Family** → Toggle ON (active)
 
 **Narrator says:**
-> "Two viewers active. Aura immediately re-evaluates the entire catalog for both viewers simultaneously."
+> "Both viewers active. Aura immediately re-evaluates the entire catalog for both viewers simultaneously."
 
 ---
 

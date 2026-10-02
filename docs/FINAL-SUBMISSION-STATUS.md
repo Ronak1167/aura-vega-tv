@@ -3,10 +3,10 @@
 **Application**: Aura Vega TV (`com.auravega.tv`)  
 **Hackathon**: Build, Ship, Shape: Amazon Developer Hackathon 2026  
 **Primary Track**: Fire TV — Amazon Vega OS  
-**Mini-Challenge**: Open Source Mini-Challenge  
+**Mini-Challenge**: None (Not Claimed — primary repo alone does not qualify for additional Open Source mini-challenge)  
 **Repository**: [https://github.com/Ronak1167/aura-vega-tv](https://github.com/Ronak1167/aura-vega-tv)  
 **Submission Deadline**: October 23, 2026 at 2:00 PM CDT (= 12:00 PM PDT = 3:00 PM EDT = Oct 24, 2026 12:30 AM IST)  
-**Last Updated**: 2026-09-29T00:20:00+05:30
+**Last Updated**: 2026-10-02T12:05:00+05:30
 
 > **Deadline cross-reference**: ISO `2026-10-23T15:00:00-04:00` (EDT) verified directly from
 > live Devpost HTML (`data-iso-date` attribute). Displayed on Devpost as "Oct 23, 2026 @ 12:00pm PDT".
@@ -83,9 +83,9 @@ fails with `'C:\Users\Ronak' is not recognized`. Fixed by patching `dist/src/uti
 | **R5** | GitHub repo contains all source code and assets | ✅ DONE |
 | **R6** | Demo video ≤ 3 minutes, YouTube or Vimeo, public, English | ❌ PENDING (human-only) |
 | **R7** | Product feedback on tools/APIs/SDKs used | ✅ DONE (`PRODUCT-FEEDBACK.md`, `FRICTION-LOG.md`) |
-| **R8** | Track and mini-challenge declaration | ✅ DONE (Fire TV + Open Source) |
+| **R8** | Track and mini-challenge declaration | ✅ DONE (Primary Track: Fire TV; Mini-Challenge: None) |
 | **R9** | Pre-existing project? Document what changed during window | ✅ DONE (`docs/DEVPOST-SUBMISSION.md` challenges section) |
-| **R10** | Open Source Mini-Challenge: new repo with open-source license + GitHub URL + description | ✅ DONE (this repo is the new project) |
+| **R10** | Open Source Mini-Challenge: new repo with open-source license + GitHub URL + description | N/A (Not Claiming Mini-Challenge: primary repo alone does not qualify per rules) |
 | **R11** | Feature requests (optional, increases engagement score) | ✅ DONE (`FEATURE-REQUESTS.md`) |
 | **R12** | Friction log (optional, up to +10% judging bonus) | ✅ DONE (`FRICTION-LOG.md`) |
 | **R13** | Amazon GitHub reviewer access (optional for public repos) | N/A (repo is public) |
@@ -122,5 +122,5 @@ fails with `'C:\Users\Ronak' is not recognized`. Fixed by patching `dist/src/uti
    - URL: [amazonappdev2026.devpost.com](https://amazonappdev2026.devpost.com)
    - Log in → click "Submit Project" → paste content from `docs/DEVPOST-SUBMISSION.md`.
    - Fill in the demo video link from step 2.
-   - Select: **Primary Track: Fire TV**, **Mini-Challenge: Open Source**.
+   - Select: **Primary Track: Fire TV**, **Mini-Challenge: None**.
    - Deadline: **October 23, 2026 at 12:00 PM PDT / 2:00 PM CDT / 3:00 PM EDT**.

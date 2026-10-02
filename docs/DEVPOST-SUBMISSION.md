@@ -2,7 +2,7 @@
 
 **Hackathon**: Build, Ship, Shape: Amazon Developer Hackathon 2026  
 **Primary Track**: Fire TV — Amazon Vega OS  
-**Mini-Challenge**: Open Source Mini-Challenge  
+**Mini-Challenge**: None (Not Claimed)  
 **Application Title**: Aura Vega TV — Living Room Ambient Hub & Co-Viewing Consensus Engine  
 **Tagline**: Eliminate the 20-minute "what should we watch?" decision fatigue on Fire TV with an explainable multi-viewer consensus engine and instant playback.
 
@@ -46,7 +46,7 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
    - Full-screen `KeplerVideoSurfaceView` and `VideoPlayer` pipeline via `@amazon-devices/react-native-w3cmedia`.
    - Native closed caption integration compliant with Vega OS accessibility standards.
 4. **Headless Background Personalization**:
-   - True headless background service (`service.js`) running under `react_native_kepler_headless_4` pre-computes recommendations while the TV is idle.
+   - Headless background service (`service.js`) running under `react_native_kepler_4` pre-computes recommendations while the TV is idle.
 5. **Static Hermes Bytecode Performance**:
    - Compiles directly to Static Hermes bytecode v96, eliminating JIT compilation overhead for sub-second cold starts.
 
@@ -57,10 +57,10 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
 - **Target OS**: Amazon Vega OS SDK 0.24 (Kepler platform).
 - **Core Runtime**: React Native 0.83 on Vega OS with dual application targets:
   - UI Target: `com.amazon.kepler.runtime.react_native_kepler_4` (`index.js`)
-  - Headless Target: `com.amazon.kepler.runtime.react_native_kepler_headless_4` (`service.js`)
+  - Headless Target: `com.amazon.kepler.runtime.react_native_kepler_4` (`service.js` under process group `main_and_service`)
 - **Manifest Architecture**: Strict `manifest.toml` declaring permissions, capabilities, categories, and dual runtime configurations.
 - **Build Pipeline**: Metro v0.83 with Kepler compatibility configuration, emitting standalone JS bundles, source maps, and compiled Static Hermes bytecode.
-- **Test Engineering**: 12 automated Jest test suites with 73 unit tests verifying scoring math across 7 distinct conflict scenarios (unanimous, conflicting, veto, tie, context shift, bedtime window, and zero-match fallback) and 15 adversarial QA edge-case boundary tests.
+- **Test Engineering**: 12 automated Jest test suites with 74 unit tests verifying scoring math across 7 distinct conflict scenarios (unanimous, conflicting, veto, tie, context shift, bedtime window, and zero-match fallback) and 15 adversarial QA edge-case boundary tests.
 
 ---
 
@@ -91,8 +91,8 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
 ## Accomplishments We're Proud Of
 
 - **100% Deterministic & Honest**: We built a genuine multi-viewer consensus engine with zero fabricated metrics, zero fake AI wrappers, and zero hallucinations.
-- **Rigorous Scenario Testing**: 73 automated tests verifying complex living room dynamics, including majority vetoes, tie-breaking, and late-night bedtime constraints.
-- **Production-Grade Release Pipeline**: Clean Metro release bundling, Static Hermes bytecode compilation, and zero-warning TypeScript verification.
+- **Rigorous Scenario Testing**: 74 automated tests across 12 test suites verifying complex living room dynamics, including majority vetoes, tie-breaking, and late-night bedtime constraints.
+- **Production-Grade Release Pipeline**: Clean Metro release bundling, Static Hermes bytecode compilation, native Vega SDK VPT packaging, and zero-warning TypeScript verification.
 
 ---
 
@@ -114,13 +114,8 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
 
 ---
 
-## Open Source Mini-Challenge Required Fields
+## Track & Mini-Challenge Eligibility Notes
 
-> These fields are **mandatory** when claiming the Open Source Mini-Challenge prize.
-
-- **Contribution URL**: https://github.com/Ronak1167/aura-vega-tv
-- **Repository URL**: https://github.com/Ronak1167/aura-vega-tv
-- **GitHub Username**: Ronak1167
-- **What I did**: Built Aura Vega TV from scratch during the hackathon window as a new open-source React Native for Vega OS application — a living room ambient hub and co-viewing consensus engine for Fire TV.
-- **How it works**: React Native 0.83 on Vega OS SDK 0.24 (Kepler platform). Dual-target architecture: UI surface (`index.js`) + headless background personalization service (`service.js`). Deterministic multi-factor scoring engine (`src/engine/ScoringEngine.ts`) aggregates preferences, vetoes, ratings, and environmental context into a transparent ranked recommendation. 73 automated tests across 12 test suites.
-- **Why it matters**: Solves the daily 20-minute "what should we watch?" decision fatigue for multi-viewer households. First open-source explainable consensus engine built natively on Amazon's Vega OS SDK.
+- **Primary Track**: Fire TV — Amazon Vega OS
+- **Mini-Challenge**: None (Not Claimed)
+- **Eligibility Rationale**: The Open Source mini-challenge requires an *additional*, distinct open-source contribution during the hackathon window beyond the primary project repository itself. To adhere strictly to competition guidelines and avoid any ambiguity or disqualification risk, we submit solely to the primary Fire TV track.

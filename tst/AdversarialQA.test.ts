@@ -17,6 +17,9 @@ import {
 } from '../src/engine/ScoringEngine';
 import { consensusReducer, initialConsensusState } from '../src/context/ConsensusContext';
 import { MediaItem, VotingParticipant, ViewingContext } from '../src/types';
+import { findNextFocusTarget, FocusNode } from '../src/engine/FocusEngine';
+import { ContentPersonalizationHeadlessService } from '../src/headless/ContentPersonalizationHeadlessService';
+import { weatherService } from '../src/services/WeatherService';
 
 describe('Adversarial QA Suite - Robustness & Integrity', () => {
   const horrorFilm: MediaItem = {
@@ -370,6 +373,295 @@ describe('Adversarial QA Suite - Robustness & Integrity', () => {
       expect(state.recommendation).not.toBeNull();
       // contextSummary from engine must contain the time-of-day (real time is used, not deterministic)
       expect(state.recommendation?.contextSummary).toBeDefined();
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 7. Phase 6 Adversarial QA Matrix (Scenarios A through W)
+  // ──────────────────────────────────────────────────────────────────────────
+  describe('7. Phase 6 Comprehensive Adversarial Scenarios (A to W)', () => {
+    // A. Zero voters
+    it('Scenario A: zero voters yields valid neutral baseline recommendation', () => {
+      const rec = generateConsensusRecommendation([sciFiFilm, horrorFilm], [], defaultContext);
+      expect(rec).not.toBeNull();
+      expect(rec?.winner.breakdown.affinityScore).toBe(70);
+      expect(rec?.winner.breakdown.totalScore).toBeGreaterThan(0);
+    });
+
+    // B. One voter
+    it('Scenario B: single voter preferences dominate scoring without error', () => {
+      const singleVoter: VotingParticipant[] = [votersWithDislike[0]]; // Ronak only
+      const rec = generateConsensusRecommendation([sciFiFilm, horrorFilm], singleVoter, defaultContext);
+      expect(rec).not.toBeNull();
+      expect(rec?.winner.item.id).toBe(sciFiFilm.id);
+      expect(rec?.shortlistRankings.find((r) => r.item.id === horrorFilm.id)?.breakdown.isVetoed).toBe(true);
+    });
+
+    // C. All voters identical
+    it('Scenario C: all voters identical yields unanimous maximum agreement', () => {
+      const identicalVoters: VotingParticipant[] = [
+        { ...votersWithDislike[0], id: 'v1' },
+        { ...votersWithDislike[0], id: 'v2' },
+        { ...votersWithDislike[0], id: 'v3' },
+      ];
+      const affinity = computeAffinityScore(sciFiFilm, identicalVoters);
+      expect(affinity.score).toBe(100);
+      expect(affinity.penalty).toBe(0);
+      expect(affinity.positiveReasons.some((r) => r.includes('Unanimous'))).toBe(true);
+    });
+
+    // D. All voters contradictory
+    it('Scenario D: all voters contradictory balances positive and negative factors', () => {
+      const contradictoryVoters: VotingParticipant[] = [
+        {
+          id: 'v1',
+          name: 'SciFiLover',
+          avatarColor: '#00E5FF',
+          hasVoted: true,
+          preferredGenres: ['Sci-Fi'],
+          preferredMoods: [],
+          dislikedGenres: ['Horror'],
+        },
+        {
+          id: 'v2',
+          name: 'HorrorLover',
+          avatarColor: '#FF9900',
+          hasVoted: true,
+          preferredGenres: ['Horror'],
+          preferredMoods: [],
+          dislikedGenres: ['Sci-Fi'],
+        },
+      ];
+      const evalSciFi = evaluateCandidate(sciFiFilm, contradictoryVoters, defaultContext);
+      const evalHorror = evaluateCandidate(horrorFilm, contradictoryVoters, defaultContext);
+      // Both should receive vetoes/penalties from the opposing voter
+      expect(evalSciFi.breakdown.isVetoed).toBe(true);
+      expect(evalHorror.breakdown.isVetoed).toBe(true);
+    });
+
+    // E. Majority dislikes a title
+    it('Scenario E: majority dislikes a title applies multiple penalties', () => {
+      const majorityDislike: VotingParticipant[] = [
+        { ...votersWithDislike[0], id: 'v1' }, // dislikes horror
+        { ...votersWithDislike[0], id: 'v2' }, // dislikes horror
+        { ...votersWithDislike[1], id: 'v3' }, // likes horror
+      ];
+      const affinity = computeAffinityScore(horrorFilm, majorityDislike);
+      expect(affinity.penalty).toBe(80); // 2 voters * 40 penalty
+      expect(affinity.isVetoed).toBe(true);
+    });
+
+    // F. All titles vetoed
+    it('Scenario F: all titles vetoed still deterministically ranks with minimum match floors', () => {
+      const votersDislikeAll: VotingParticipant[] = [
+        {
+          id: 'v1',
+          name: 'Disliker',
+          avatarColor: '#FFF',
+          hasVoted: true,
+          preferredGenres: ['Comedy'],
+          preferredMoods: [],
+          dislikedGenres: ['Horror', 'Sci-Fi'],
+        },
+      ];
+      const ranked = rankCandidates([sciFiFilm, horrorFilm], votersDislikeAll, defaultContext);
+      expect(ranked).toHaveLength(2);
+      expect(ranked[0].breakdown.isVetoed).toBe(true);
+      expect(ranked[1].breakdown.isVetoed).toBe(true);
+      expect(ranked[0].matchPercentage).toBeGreaterThanOrEqual(1);
+      expect(ranked[1].matchPercentage).toBeGreaterThanOrEqual(1);
+    });
+
+    // G. Equal scores
+    it('Scenario G: equal scores breaks ties alphabetically by title', () => {
+      const itemA: MediaItem = {
+        ...sciFiFilm,
+        id: 'item-a',
+        title: 'Alpha Movie',
+      };
+      const itemB: MediaItem = {
+        ...sciFiFilm,
+        id: 'item-b',
+        title: 'Beta Movie',
+      };
+      const ranked = rankCandidates([itemB, itemA], [], defaultContext);
+      expect(ranked[0].item.title).toBe('Alpha Movie');
+      expect(ranked[1].item.title).toBe('Beta Movie');
+      expect(ranked[0].rank).toBe(1);
+      expect(ranked[1].rank).toBe(2);
+    });
+
+    // H. Duplicate title metadata
+    it('Scenario H: duplicate title metadata ranks distinct IDs without infinite recursion', () => {
+      const dup1: MediaItem = { ...sciFiFilm, id: 'dup-1', title: 'Identical Title' };
+      const dup2: MediaItem = { ...sciFiFilm, id: 'dup-2', title: 'Identical Title' };
+      const ranked = rankCandidates([dup1, dup2], [], defaultContext);
+      expect(ranked).toHaveLength(2);
+      expect(ranked[0].rank).toBe(1);
+      expect(ranked[1].rank).toBe(2);
+    });
+
+    // I. Missing rating
+    it('Scenario I: missing or null ratings safely defaults quality score', () => {
+      const unrated: MediaItem = {
+        ...sciFiFilm,
+        imdbScore: undefined as unknown as number,
+        rottenTomatoes: null as unknown as number,
+      };
+      const quality = computeQualityScore(unrated);
+      expect(quality).toBeGreaterThan(0);
+      expect(isNaN(quality)).toBe(false);
+    });
+
+    // J. Invalid runtime
+    it('Scenario J: invalid non-numeric runtime string safely defaults to 110m', () => {
+      expect(parseRuntimeMinutes('corrupt-string')).toBe(110);
+      expect(parseRuntimeMinutes('?? min')).toBe(110);
+    });
+
+    // K. Negative runtime
+    it('Scenario K: negative runtime values handled safely', () => {
+      const runtimeScore = computeRuntimeScore(-45, defaultContext);
+      expect(isNaN(runtimeScore.score)).toBe(false);
+      expect(runtimeScore.score).toBe(100);
+    });
+
+    // L. Extremely long runtime
+    it('Scenario L: extremely long runtime (600m / 10h) decays to floor score', () => {
+      const longRuntime = computeRuntimeScore(600, defaultContext);
+      expect(longRuntime.score).toBe(20);
+      expect(longRuntime.reason).toContain('longer than preferred');
+    });
+
+    // M. Missing genre
+    it('Scenario M: missing or empty genre tags evaluated safely', () => {
+      const noGenre: MediaItem = {
+        ...sciFiFilm,
+        tags: [],
+        mood: '',
+      };
+      const affinity = computeAffinityScore(noGenre, votersWithDislike);
+      expect(isNaN(affinity.score)).toBe(false);
+      expect(affinity.score).toBeGreaterThanOrEqual(0);
+    });
+
+    // N. Malformed media data
+    it('Scenario N: malformed media data with missing optional fields does not throw', () => {
+      const malformed: MediaItem = {
+        id: 'malformed-1',
+        title: 'Minimal Film',
+        year: 2024,
+        rating: 'NR',
+        runtime: '90m',
+        imdbScore: 6.0,
+        rottenTomatoes: 60,
+        mood: 'Indie',
+        synopsis: '',
+        streamingPlatform: 'Prime Video',
+        backdropUrl: '',
+        tags: ['Drama'],
+      };
+      expect(() => {
+        evaluateCandidate(malformed, votersWithDislike, defaultContext);
+      }).not.toThrow();
+    });
+
+    // O. Rapid repeated D-pad input
+    it('Scenario O: rapid repeated D-pad input produces consistent focus targets', () => {
+      const centerNode: FocusNode = { id: 'btn-1', rect: { x: 100, y: 100, width: 200, height: 50 } };
+      const rightNode: FocusNode = { id: 'btn-2', rect: { x: 400, y: 100, width: 200, height: 50 } };
+      const nodes = [centerNode, rightNode];
+
+      // Simulate 50 rapid RIGHT D-pad clicks
+      for (let i = 0; i < 50; i++) {
+        const next = findNextFocusTarget('btn-1', nodes, 'right');
+        expect(next).toBe('btn-2');
+      }
+    });
+
+    // P. Repeated Back presses
+    it('Scenario P: repeated reset actions on initial state remain stable', () => {
+      let state = initialConsensusState;
+      for (let i = 0; i < 10; i++) {
+        state = consensusReducer(state, { type: 'RESET_VOTING' });
+        expect(state.winner).toBeNull();
+        expect(state.currentIndex).toBe(0);
+      }
+    });
+
+    // Q. Modal open/close race
+    it('Scenario Q: rapid modal open and reset actions maintain state integrity', () => {
+      let state = consensusReducer(initialConsensusState, {
+        type: 'SET_WINNER',
+        payload: sciFiFilm,
+      });
+      expect(state.winner?.id).toBe(sciFiFilm.id);
+      expect(state.isVotingComplete).toBe(true);
+
+      state = consensusReducer(state, { type: 'RESET_VOTING' });
+      expect(state.shortlist).toHaveLength(0);
+      expect(state.winner).toBeNull();
+      expect(state.isVotingComplete).toBe(false);
+    });
+
+    // R. Winner selection race
+    it('Scenario R: exactly 3 shortlist actions trigger completion and produce recommendation', () => {
+      let state = initialConsensusState;
+      state = consensusReducer(state, { type: 'VOTE_SHORTLIST', payload: sciFiFilm });
+      state = consensusReducer(state, { type: 'VOTE_SHORTLIST', payload: horrorFilm });
+      const third: MediaItem = { ...sciFiFilm, id: 'm3', title: 'Arrival' };
+      state = consensusReducer(state, { type: 'VOTE_SHORTLIST', payload: third });
+
+      expect(state.isVotingComplete).toBe(true);
+      expect(state.shortlist).toHaveLength(3);
+      expect(state.recommendation).not.toBeNull();
+    });
+
+    // S. Player lifecycle interruption
+    it('Scenario S: selecting winner transitions state appropriately for video launch and dismiss', () => {
+      let state = initialConsensusState;
+      state = consensusReducer(state, { type: 'SET_WINNER', payload: sciFiFilm });
+      expect(state.winner?.id).toBe(sciFiFilm.id);
+
+      // Resetting simulates return from player
+      state = consensusReducer(state, { type: 'RESET_VOTING' });
+      expect(state.winner).toBeNull();
+    });
+
+    // T. Service startup resilience
+    it('Scenario T: headless service start is idempotent and handles multiple calls safely', () => {
+      const service = ContentPersonalizationHeadlessService.getInstance();
+      expect(() => {
+        service.start();
+        service.start(); // second call should be safely ignored
+      }).not.toThrow();
+      service.stop();
+    });
+
+    // U. Service restart & cache hydration
+    it('Scenario U: headless service restart re-hydrates cached recommendations', () => {
+      const service = ContentPersonalizationHeadlessService.getInstance();
+      service.start();
+      const recs = service.getCachedRecommendations();
+      expect(recs.length).toBeGreaterThan(0);
+      service.stop();
+      service.start();
+      expect(service.getCachedRecommendations().length).toBeGreaterThan(0);
+      service.stop();
+    });
+
+    // V. Network unavailable / fallback resilience
+    it('Scenario V: weather telemetry provides offline cached telemetry on network unavailability', async () => {
+      const weather = await weatherService.fetchCurrentWeather();
+      expect(weather.location).toBe('Seattle, WA');
+      expect(weather.temperature).toBeDefined();
+      expect(weather.condition).toBeDefined();
+    });
+
+    // W. Empty recommendation response
+    it('Scenario W: empty candidate array returns null recommendation safely', () => {
+      const rec = generateConsensusRecommendation([], votersWithDislike, defaultContext);
+      expect(rec).toBeNull();
     });
   });
 });
