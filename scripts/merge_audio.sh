@@ -29,3 +29,8 @@ ffmpeg -y -f concat -safe 0 -i "$DIR/concat_list.txt" -c:a pcm_s16le "$OUT"
 
 echo "Full audio narration assembled at: $OUT"
 ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$OUT"
+
+MP3_OUT="/mnt/c/Users/Ronak Jain/aura-vega-tv/scripts/full_narration.mp3"
+echo "Exporting universally playable MP3: $MP3_OUT"
+ffmpeg -y -i "$OUT" -c:a libmp3lame -b:a 192k "$MP3_OUT"
+echo "Done! Both WAV and MP3 are ready for playback."
