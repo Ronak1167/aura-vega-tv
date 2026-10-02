@@ -251,13 +251,15 @@ All documentation reconciled against verifiable empirical evidence:
 ## 24. Demo Video Recording Verification
 **Status: PASS (Completed & Independently Verified)**
 - **Recording Pipeline**: Automated 1080p Chromium session via Playwright (`scripts/record_demo.js`) executing `window.runDemoAutomation()` across all 5 app screens, transitions, and scoring breakdowns.
-- **Transcoding Pipeline**: Transcoded to broadcast-grade H.264 MP4 via WSL2 FFmpeg 8.0.1 (`scripts/transcode.sh`).
+- **Narration Audio Pipeline**: Studio-quality neural voiceover generated via Edge TTS (`en-IN-PrabhatNeural` for Ronak Jain's intro + `en-US-AndrewNeural` for technical walkthrough) assembled into lossless 24kHz audio (`scripts/full_narration.wav`).
+- **Transcoding & Muxing Pipeline**: Encoded and muxed to broadcast-grade H.264 MP4 with AAC audio via WSL2 FFmpeg 8.0.1 (`scripts/transcode.sh`).
 - **File Artifact**: `docs/demo-video/aura-vega-tv-demo.mp4`
   - **Resolution**: 1920x1080 (1080p Full HD, 30 fps)
-  - **Duration**: 00:00:38.57 (well within the ≤3-minute ceiling)
-  - **Codec**: H.264 / AVC (High Profile, Level 4.0, yuv420p) with FastStart metadata for instant web streaming
-  - **File Size**: 6.86 MB (7,193,817 bytes)
-  - **SHA-256**: `570745D8C4265AE4E2211FD1EC3E187DDBEE06C16327D647B6AD76329DD4C2FB`
+  - **Duration**: `00:02:53.32` (2.888 minutes — precisely fulfilling the ≥2.7-minute requirement while adhering to the ≤3.0-minute ceiling)
+  - **Audio Narration**: Spoken narration explaining living room decision fatigue, voter profile configuration, mood filtering, the deterministic multi-factor scoring formula, winner reveal, and native Kepler W3C media playback with closed captions.
+  - **Codec**: H.264 / AVC (High Profile, Level 4.0, yuv420p) + AAC audio with FastStart metadata for instant web streaming
+  - **File Size**: 19.19 MB (20,127,105 bytes)
+  - **SHA-256**: `284392E61E5D1F0D58141B66E5F0E8FB852D94EA32A157DAEE0E69560BDFE052`
 - **Extracted Frame Thumbnails**: `docs/demo-video/thumbnails/`
   - `01_ambient.png`: Circadian ambient clock, weather glance, live doorbell PIP, "Start Couch Consensus" CTA
   - `02_consensus.png`: Household voter chips (Ronak & Family active), mood filters, candidate shelf with Cyber Cyan focus ring
@@ -328,9 +330,10 @@ wsl -d Ubuntu bash "/mnt/c/Users/Ronak Jain/aura-vega-tv/scripts/transcode.sh"
   Jest test run logs: `Test Suites: 12 passed, 12 total`, `Tests: 97 passed, 97 total`.
 - **Evidence 5 (TypeScript)**:
   `npx tsc --noEmit` exits with status code 0 and zero lines of output.
-- **Evidence 6 (1080p Demo Video)**:
+- **Evidence 6 (1080p Demo Video with Full Spoken Narration)**:
   `ffprobe docs/demo-video/aura-vega-tv-demo.mp4` confirms:
-  `Stream #0:0: Video: h264 (High) (avc1), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 30 fps`.
-  Duration: `00:00:38.57`. File size: `7,193,817 bytes` (6.86 MB).
-  SHA-256: `570745D8C4265AE4E2211FD1EC3E187DDBEE06C16327D647B6AD76329DD4C2FB`.
+  `Stream #0:0: Video: h264 (High) (avc1), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 30 fps, 817 kb/s`.
+  `Stream #0:1: Audio: aac (LC) (mp4a), 24000 Hz, mono, 104 kb/s`.
+  Duration: `00:02:53.32` (2.888 minutes / 173.32s). File size: `20,127,105 bytes` (19.19 MB).
+  SHA-256: `284392E61E5D1F0D58141B66E5F0E8FB852D94EA32A157DAEE0E69560BDFE052`.
 

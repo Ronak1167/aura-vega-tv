@@ -36,7 +36,8 @@ async function record() {
   await page.goto(harnessPath, { waitUntil: 'networkidle' });
   await page.waitForTimeout(2000);
 
-  console.log('Executing runDemoAutomation()...');
+  page.setDefaultTimeout(300000);
+  console.log('Executing 2.8-minute runDemoAutomation()...');
   await page.evaluate(async () => {
     return await window.runDemoAutomation();
   });
