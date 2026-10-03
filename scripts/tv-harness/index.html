@@ -320,6 +320,34 @@
     .tb-text h5 { font-size: 14px; font-weight: 800; color: #fff; }
     .tb-text p { font-size: 12px; color: var(--t3); margin-top: 2px; line-height: 1.45; }
 
+    /* AMBIENT INTELLIGENCE & HEALTH OVERLAY STACK */
+    .amb-intelligence-stack { width: 920px; display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .amb-ticker-card { background: rgba(15, 20, 32, 0.85); backdrop-filter: blur(24px); border: 1.5px solid rgba(0, 212, 255, 0.3); border-radius: 20px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; }
+    .amb-ticker-card:hover, .amb-ticker-card.focused { border-color: var(--alexa); transform: translateY(-3px); box-shadow: 0 10px 30px var(--alexa-g); }
+    .atc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .atc-badge { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: var(--alexa); display: flex; align-items: center; gap: 6px; }
+    .atc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--alexa); box-shadow: 0 0 8px var(--alexa); animation: healthPulse 1.2s infinite; }
+    .atc-match { font-size: 12.5px; color: var(--t2); }
+    .atc-narrative { font-size: 14px; color: #fff; line-height: 1.45; font-weight: 500; }
+    .atc-tags { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+    .atc-pill { background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; color: var(--alexa); }
+    .atc-pill.motion { background: rgba(255, 153, 0, 0.1); border-color: rgba(255, 153, 0, 0.35); color: var(--fire-amber); }
+    .amb-health-card { background: rgba(15, 20, 32, 0.85); backdrop-filter: blur(24px); border: 1.5px solid rgba(0, 230, 118, 0.3); border-radius: 20px; padding: 14px 24px; cursor: pointer; transition: all 0.2s; }
+    .amb-health-card:hover, .amb-health-card.focused { border-color: var(--jade); transform: translateY(-3px); box-shadow: 0 10px 30px var(--jade-g); }
+    .ahc-top { display: flex; justify-content: space-between; align-items: center; }
+    .ahc-title { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: var(--jade); display: flex; align-items: center; gap: 6px; }
+    .ahc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 8px var(--jade); }
+    .ahc-score { display: flex; align-items: baseline; }
+    .score-num { font-size: 20px; font-weight: 900; color: var(--jade); }
+    .score-den { font-size: 11px; color: var(--t4); margin-left: 2px; }
+    .ahc-summary { display: flex; justify-content: space-between; font-size: 12px; color: var(--t2); margin-top: 6px; }
+    .ahc-matrix { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+    .ahc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .ahc-svc { font-size: 11.5px; color: var(--t2); display: flex; align-items: center; gap: 6px; }
+    .svc-dot.live { width: 5px; height: 5px; border-radius: 50%; background: var(--jade); }
+    .ahc-lat { font-family: 'Roboto Mono', monospace; font-size: 10px; color: var(--t4); margin-left: auto; }
+    .ahc-telemetry-note { font-size: 10.5px; color: var(--fire-amber); margin-top: 8px; }
+
 
   </style>
 </head>
@@ -702,8 +730,8 @@
     <div class="arch-wrapper">
       <div class="arch-headline">
         <div>
-          <h2>8-Microservice Distributed Cloud Architecture</h2>
-          <p>Production Infrastructure · Supabase + Appwrite + AWS CloudFront + Google Gemini 2.5 + OpenTelemetry · Vega OS</p>
+          <h2>16-Microservice Autonomous Distributed Cloud Architecture</h2>
+          <p>Production Infrastructure · Xano + Supabase + Runway Gen-4 + Higgsfield Kling + Spline 3D + Gemini 2.5 + Appwrite + CloudFront · Vega OS</p>
         </div>
         <button class="btn-outline foc" onclick="go('home')">← Back to Fire TV</button>
       </div>
@@ -720,14 +748,14 @@
           <div class="kpi-trend" style="color:var(--jade)">Healthy</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-val">97/97</div>
-          <div class="kpi-label">Jest Test Suites Passed</div>
+          <div class="kpi-val">22/22</div>
+          <div class="kpi-label">Jest Suites (166 Tests)</div>
           <div class="kpi-trend" style="color:var(--jade)">100% ✓</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-val">99.9%</div>
-          <div class="kpi-label">Uptime (30-day rolling)</div>
-          <div class="kpi-trend" style="color:var(--jade)">SLA Met</div>
+          <div class="kpi-val">98/100</div>
+          <div class="kpi-label">Vega OS Health Score</div>
+          <div class="kpi-trend" style="color:var(--jade)">Self-Healing</div>
         </div>
       </div>
 
@@ -810,6 +838,94 @@
           <div class="svc-metrics-duo">
             <div class="metric-pill"><div class="metric-num">34</div><div class="metric-label">Alerts Sent</div></div>
             <div class="metric-pill"><div class="metric-num">100%</div><div class="metric-label">Delivered</div></div>
+          </div>
+        </div>
+
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🤖</div>
+          <div class="svc-title-text">Autonomous AI Engine</div>
+          <div class="svc-tech-stack">4-Agent Consensus Pipeline · Curator · Critic · Analyst · Synthesizer</div>
+          <div class="svc-live-status">Operational · Consensus Ready</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">4 Agents</div><div class="metric-label">Pipeline</div></div>
+            <div class="metric-pill"><div class="metric-num">42ms</div><div class="metric-label">Consensus</div></div>
+          </div>
+        </div>
+
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🎥</div>
+          <div class="svc-title-text">Generative Motion</div>
+          <div class="svc-tech-stack">Runway Gen-4 Turbo · Higgsfield Kling v3.0 · Ambient Video Synthesis</div>
+          <div class="svc-live-status">Active · Studio Ready</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">2 Models</div><div class="metric-label">Engines</div></div>
+            <div class="metric-pill"><div class="metric-num">1080p</div><div class="metric-label">Motion</div></div>
+          </div>
+        </div>
+
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🔮</div>
+          <div class="svc-title-text">Spline 3D Spatial</div>
+          <div class="svc-tech-stack">Interactive WebGL Canvas · Consensus Orb · Circadian Lighting Vector</div>
+          <div class="svc-live-status">Operational · 60fps WebGL</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">60fps</div><div class="metric-label">Frame Rate</div></div>
+            <div class="metric-pill"><div class="metric-num">3D Orb</div><div class="metric-label">Telemetry</div></div>
+          </div>
+        </div>
+
+        <div class="svc-tile">
+          <div class="svc-icon-badge">☁️</div>
+          <div class="svc-title-text">Xano Cloud Backend</div>
+          <div class="svc-tech-stack">Offline-First Cache · /health_snapshots Telemetry · Voting Ledgers</div>
+          <div class="svc-live-status">Connected · Resilient Sync</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">0 Loss</div><div class="metric-label">Buffer</div></div>
+            <div class="metric-pill"><div class="metric-num">&lt;10ms</div><div class="metric-label">Sync Latency</div></div>
+          </div>
+        </div>
+
+        <div class="svc-tile">
+          <div class="svc-icon-badge">📝</div>
+          <div class="svc-title-text">Adaptive Caption Engine</div>
+          <div class="svc-tech-stack">Per-Viewer Personalization · Pause/Rewind Learning · HUD Avoidance</div>
+          <div class="svc-live-status">Active · Zero Latency</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">Auto-Fit</div><div class="metric-label">Dynamic</div></div>
+            <div class="metric-pill"><div class="metric-num">0ms</div><div class="metric-label">On-Device</div></div>
+          </div>
+        </div>
+
+        <div class="svc-tile">
+          <div class="svc-icon-badge">⚡</div>
+          <div class="svc-title-text">Predictive Prefetch</div>
+          <div class="svc-tech-stack">Multi-Signal CDN Pre-Warm · Trend Velocity · Instant-Start Playback</div>
+          <div class="svc-live-status">Pre-Warmed · Buffer Free</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">100%</div><div class="metric-label">Hit Rate</div></div>
+            <div class="metric-pill"><div class="metric-num">215ms</div><div class="metric-label">Saved</div></div>
+          </div>
+        </div>
+
+        <div class="svc-tile">
+          <div class="svc-icon-badge">📈</div>
+          <div class="svc-title-text">Insight Reporter</div>
+          <div class="svc-tech-stack">Household Trend Mining · Genre/Mood Velocity · Narrative AI Ticker</div>
+          <div class="svc-live-status">Streaming Insights</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">Real-Time</div><div class="metric-label">Signals</div></div>
+            <div class="metric-pill"><div class="metric-num">5min</div><div class="metric-label">Cycle</div></div>
+          </div>
+        </div>
+
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🛡️</div>
+          <div class="svc-title-text">Vega OS Health Monitor</div>
+          <div class="svc-tech-stack">Self-Healing Protocols · Automated Recovery · Composite Telemetry HUD</div>
+          <div class="svc-live-status">Healthy · Score 98/100</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">98/100</div><div class="metric-label">Score</div></div>
+            <div class="metric-pill"><div class="metric-num">Self-Heal</div><div class="metric-label">Active</div></div>
           </div>
         </div>
       </div>
@@ -898,7 +1014,50 @@
           👨‍👩‍👧‍👦 Household: 4 Members Present (Ronak, Priya, Meera, Sam)<br>
           🔥 Ronak Jain · Fire TV Omni 65"
         </div>
+      <!-- Autonomous Insight Ticker & Vega OS Health HUD -->
+      <div class="amb-intelligence-stack">
+        <div class="amb-ticker-card foc" onclick="go('cons')">
+          <div class="atc-top">
+            <div class="atc-badge"><span class="atc-dot"></span>VEGA AI INTELLIGENCE</div>
+            <div class="atc-match">Next Match: <strong>Dune: Awakening</strong> (94%)</div>
+          </div>
+          <div class="atc-narrative">
+            Cosmic & mind-bending sci-fi is surging across the household. Consensus suggests Dune: Awakening for evening viewing.
+          </div>
+          <div class="atc-tags">
+            <span class="atc-pill">🔥 Sci-Fi (+14%)</span>
+            <span class="atc-pill">📊 Prime Video</span>
+            <span class="atc-pill motion">🎨 Runway Gen-4: Starlit cosmic nebula...</span>
+          </div>
+        </div>
+
+        <div class="amb-health-card foc" onclick="toggleHealthMatrix()">
+          <div class="ahc-top">
+            <div class="ahc-title"><span class="ahc-dot"></span>VEGA OS HEALTH</div>
+            <div class="ahc-score"><span class="score-num">98</span><span class="score-den">/100</span></div>
+          </div>
+          <div class="ahc-summary">
+            <span>Status: <strong style="color:var(--jade)">HEALTHY</strong></span>
+            <span>CDN Hit Rate: <strong style="color:var(--alexa)">100%</strong></span>
+            <span style="color:var(--t4)">Click to Inspect Services</span>
+          </div>
+          <div class="ahc-matrix" id="ahc-matrix" style="display:none">
+            <div class="ahc-grid">
+              <div class="ahc-svc"><span class="svc-dot live"></span>APIGateway <span class="ahc-lat">7ms</span></div>
+              <div class="ahc-svc"><span class="svc-dot live"></span>Supabase <span class="ahc-lat">15ms</span></div>
+              <div class="ahc-svc"><span class="svc-dot live"></span>XanoBackend <span class="ahc-lat">9ms</span></div>
+              <div class="ahc-svc"><span class="svc-dot live"></span>MediaCDN <span class="ahc-lat">2ms</span></div>
+              <div class="ahc-svc"><span class="svc-dot live"></span>GenerativeMotion <span class="ahc-lat">34ms</span></div>
+              <div class="ahc-svc"><span class="svc-dot live"></span>SplineSpatial <span class="ahc-lat">16ms</span></div>
+              <div class="ahc-svc"><span class="svc-dot live"></span>ScoringEngine <span class="ahc-lat">3ms</span></div>
+              <div class="ahc-svc"><span class="svc-dot live"></span>AutonomousAI <span class="ahc-lat">42ms</span></div>
+              <div class="ahc-svc"><span class="svc-dot live"></span>PredictivePrefetch <span class="ahc-lat">0ms</span></div>
+            </div>
+            <div class="ahc-telemetry-note">☁️ Telemetry stream synced with Xano /health_snapshots · Zero Loss</div>
+          </div>
+        </div>
       </div>
+
       <button class="amb-resume-btn foc" onclick="go('home')">Press Any Remote Button to Resume</button>
     </div>
   </div>
@@ -1359,6 +1518,14 @@ function toggleRemoteHud() {
   r.classList.toggle('expanded');
 }
 window.toggleRemoteHud = toggleRemoteHud;
+
+function toggleHealthMatrix() {
+  const m = document.getElementById('ahc-matrix');
+  if (m) {
+    m.style.display = m.style.display === 'none' ? 'block' : 'none';
+  }
+}
+window.toggleHealthMatrix = toggleHealthMatrix;
 
 function remoteKey(key) {
   const m = { ArrowUp: 'rmt-up', ArrowDown: 'rmt-down', ArrowLeft: 'rmt-left', ArrowRight: 'rmt-right', Enter: 'rmt-sel', Escape: 'rmt-back' };
