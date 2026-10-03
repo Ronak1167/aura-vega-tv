@@ -5,394 +5,596 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Aura Vega TV — Amazon Fire TV Co-Viewing Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cinzel:wght@700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cinzel:wght@700;900&family=Outfit:wght@400;600;700;800;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="three.min.js"></script>
   <style>
     :root {
-      --bg: #070403;
-      --bg2: #0F0806;
-      --bg3: #180D09;
-      --bg4: #23120C;
-      --fire-orange: #FF6600;
+      --bg: #050201;
+      --bg-glass: rgba(18, 9, 6, 0.72);
+      --bg-glass-strong: rgba(14, 6, 4, 0.88);
+      --fire-orange: #FF5500;
       --fire-amber:  #FF9900;
       --fire-gold:   #FFC500;
       --fire-flame:  #FF3300;
-      --fire-glow:   rgba(255, 102, 0, 0.35);
-      --fire-gi:     rgba(255, 153, 0, 0.7);
+      --fire-glow:   rgba(255, 85, 0, 0.45);
+      --fire-gi:     rgba(255, 153, 0, 0.85);
       --alexa:   #00D4FF;
-      --alexa-g: rgba(0, 212, 255, 0.25);
+      --alexa-g: rgba(0, 212, 255, 0.35);
       --jade:    #00E676;
-      --jade-g:  rgba(0, 230, 118, 0.25);
+      --jade-g:  rgba(0, 230, 118, 0.35);
+      --violet:  #D946EF;
       --t1: #FFFFFF;
-      --t2: #E8DDD8;
-      --t3: #A6948C;
-      --t4: #66534B;
-      --border:  rgba(255, 120, 40, 0.16);
-      --border2: rgba(255, 153, 0, 0.42);
+      --t2: #EDE4DE;
+      --t3: #AFA098;
+      --t4: #75635A;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glass:  rgba(255, 140, 40, 0.25);
+      --border-bright: rgba(255, 170, 50, 0.75);
+      --specular: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,102,0,0.1) 40%, rgba(0,212,255,0.2) 100%);
       --ease: cubic-bezier(0.16, 1, 0.3, 1);
-      --hh: 76px;
+      --hh: 82px;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
-    html, body { background: #000; color: var(--t1); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
-    #stage { width: 1920px; height: 1080px; position: absolute; left: 0; top: 0; overflow: hidden; transform-origin: top left; background: var(--bg); }
-    .scr { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.45s var(--ease), transform 0.45s var(--ease); transform: scale(0.985) translateY(6px); display: flex; flex-direction: column; }
+    html, body { background: #000; color: var(--t1); font-family: 'Outfit', 'Inter', -apple-system, sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
+    #stage { width: 1920px; height: 1080px; position: absolute; left: 0; top: 0; overflow: hidden; transform-origin: top left; background: var(--bg); perspective: 1200px; }
+    .scr { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); transform: scale(0.98) translateY(10px); display: flex; flex-direction: column; }
     .scr.on { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); }
-    .scanline { position: fixed; inset: 0; pointer-events: none; z-index: 9999; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.028) 2px, rgba(0,0,0,0.028) 4px); }
-    .focused { outline: 3.5px solid var(--fire-amber) !important; box-shadow: 0 0 0 5px rgba(255, 102, 0, 0.35), 0 0 35px var(--fire-gi), 0 0 75px rgba(255, 51, 0, 0.4) !important; transform: scale(1.06) translateY(-4px) !important; z-index: 50 !important; }
 
-    /* TOP BAR */
-    .fire-topbar { height: var(--hh); position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(180deg, rgba(7, 4, 3, 0.98) 0%, rgba(7, 4, 3, 0.85) 75%, transparent 100%); backdrop-filter: blur(28px); display: flex; align-items: center; padding: 0 56px; gap: 32px; z-index: 200; border-bottom: 1px solid var(--border); }
-    .fire-brand { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-    .fire-logo-icon { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #FF3300, #FF9900); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 22px rgba(255, 100, 0, 0.5); animation: firePulse 3.5s ease-in-out infinite; }
-    @keyframes firePulse { 0%, 100% { box-shadow: 0 4px 22px rgba(255, 100, 0, 0.45); } 50% { box-shadow: 0 4px 42px rgba(255, 153, 0, 0.88), 0 0 70px rgba(255, 50, 0, 0.55); } }
+    /* AMBIENT GENERATIVE MOTION LIVING CANVAS */
+    #generative-motion-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; opacity: 0.85; mix-blend-mode: screen; }
+
+    /* ULTRA FOCUS STYLING */
+    .focused {
+      outline: 3px solid var(--fire-amber) !important;
+      box-shadow: 0 0 0 4px rgba(255, 85, 0, 0.4), 0 0 45px var(--fire-gi), 0 25px 60px rgba(0, 0, 0, 0.9) !important;
+      transform: translateY(-8px) scale(1.05) !important;
+      z-index: 60 !important;
+    }
+
+    /* FLOATING GLASS TOP DOCK */
+    .fire-topbar {
+      height: var(--hh);
+      position: absolute;
+      top: 14px; left: 32px; right: 32px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(36px) saturate(190%);
+      border: 1px solid var(--border-glass);
+      border-radius: 26px;
+      display: flex; align-items: center; padding: 0 36px; gap: 28px; z-index: 250;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+    }
+    .fire-brand { display: flex; align-items: center; gap: 14px; cursor: pointer; }
+    .fire-logo-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: linear-gradient(135deg, #FF3300, #FF9900);
+      display: flex; align-items: center; justify-content: center; font-size: 26px;
+      box-shadow: 0 4px 25px rgba(255, 85, 0, 0.6);
+      animation: firePulse 3.5s ease-in-out infinite;
+    }
+    @keyframes firePulse {
+      0%, 100% { box-shadow: 0 4px 22px rgba(255, 80, 0, 0.5); transform: scale(1); }
+      50% { box-shadow: 0 4px 45px rgba(255, 153, 0, 0.9), 0 0 65px rgba(255, 50, 0, 0.6); transform: scale(1.03); }
+    }
     .fire-brand-text { display: flex; flex-direction: column; }
     .fire-title { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; background: linear-gradient(90deg, #FFFFFF 65%, #FFB800 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .fire-title em { font-style: normal; color: var(--fire-amber); -webkit-text-fill-color: var(--fire-amber); }
-    .fire-sub { font-size: 9.5px; font-weight: 800; letter-spacing: 2px; color: var(--fire-amber); text-transform: uppercase; }
-    .fire-nav-links { display: flex; align-items: center; gap: 8px; margin-left: 20px; }
-    .nav-btn { padding: 10px 18px; border-radius: 12px; background: transparent; border: 1.5px solid transparent; color: var(--t2); font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.22s var(--ease); }
-    .nav-btn:hover { background: rgba(255, 102, 0, 0.1); border-color: var(--border); color: #fff; }
-    .nav-btn.a { background: linear-gradient(135deg, rgba(255, 102, 0, 0.22), rgba(255, 51, 0, 0.12)); border-color: var(--fire-amber); color: #fff; box-shadow: 0 0 20px var(--fire-glow); }
-    .nav-badge-pill { font-size: 10px; font-weight: 900; padding: 2px 7px; border-radius: 10px; background: var(--fire-flame); color: #fff; }
-    .fire-top-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
-    .sys-health-bar { display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700; color: var(--jade); background: rgba(0, 230, 118, 0.08); border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 20px; padding: 7px 15px; }
-    .health-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 8px var(--jade); animation: healthPulse 1.4s infinite; }
-    @keyframes healthPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
-    .alexa-pill { display: flex; align-items: center; gap: 9px; padding: 8px 18px; border-radius: 22px; background: rgba(0, 212, 255, 0.09); border: 1px solid rgba(0, 212, 255, 0.36); color: var(--alexa); font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-    .alexa-pill:hover, .alexa-pill.active { background: rgba(0, 212, 255, 0.22); box-shadow: 0 0 24px var(--alexa-g); }
+    .fire-sub { font-size: 9px; font-weight: 800; letter-spacing: 2px; color: var(--fire-amber); text-transform: uppercase; }
+
+    .fire-nav-links { display: flex; align-items: center; gap: 8px; margin-left: 14px; }
+    .nav-btn {
+      padding: 10px 20px; border-radius: 16px; background: transparent; border: 1.5px solid transparent;
+      color: var(--t2); font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 8px; transition: all 0.25s var(--ease);
+    }
+    .nav-btn:hover { background: rgba(255, 102, 0, 0.12); border-color: var(--border-glass); color: #fff; transform: translateY(-2px); }
+    .nav-btn.a {
+      background: linear-gradient(135deg, rgba(255, 102, 0, 0.3), rgba(255, 51, 0, 0.15));
+      border-color: var(--fire-amber); color: #fff;
+      box-shadow: 0 0 25px var(--fire-glow), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .fire-top-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+    .studio-pill {
+      display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800;
+      padding: 7px 14px; border-radius: 20px; background: rgba(217, 70, 239, 0.12);
+      border: 1px solid rgba(217, 70, 239, 0.4); color: var(--violet);
+      box-shadow: 0 0 18px rgba(217, 70, 239, 0.25);
+    }
+    .sys-health-bar {
+      display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 800;
+      color: var(--jade); background: rgba(0, 230, 118, 0.1); border: 1px solid rgba(0, 230, 118, 0.35);
+      border-radius: 20px; padding: 7px 15px; cursor: pointer; transition: all 0.2s;
+    }
+    .sys-health-bar:hover { background: rgba(0, 230, 118, 0.2); box-shadow: 0 0 20px var(--jade-g); }
+    .health-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 10px var(--jade); animation: healthPulse 1.4s infinite; }
+    @keyframes healthPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.85)} }
+
+    .alexa-pill {
+      display: flex; align-items: center; gap: 9px; padding: 7px 16px; border-radius: 20px;
+      background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.4);
+      color: var(--alexa); font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+    }
     .alexa-waveform { display: flex; gap: 2.5px; align-items: center; height: 16px; }
     .alexa-bar { width: 3px; border-radius: 2px; background: var(--alexa); animation: wavebar 0.9s ease-in-out infinite; }
-    .alexa-bar:nth-child(2){animation-delay:0.1s;height:6px} .alexa-bar:nth-child(3){animation-delay:0.2s;height:13px} .alexa-bar:nth-child(4){animation-delay:0.3s;height:8px} .alexa-bar:nth-child(5){animation-delay:0.15s;height:5px}
+    .alexa-bar:nth-child(2){animation-delay:0.1s;height:6px} .alexa-bar:nth-child(3){animation-delay:0.2s;height:14px} .alexa-bar:nth-child(4){animation-delay:0.3s;height:8px} .alexa-bar:nth-child(5){animation-delay:0.15s;height:5px}
     @keyframes wavebar { 0%,100%{transform:scaleY(0.4)} 50%{transform:scaleY(1)} }
-    .user-avatar-chip { display: flex; align-items: center; gap: 9px; padding: 5px 15px 5px 6px; border-radius: 30px; background: var(--bg3); border: 1px solid var(--border); cursor: pointer; }
-    .user-circle { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #FF6600, #FFC700); color: #000; font-weight: 900; font-size: 15px; display: flex; align-items: center; justify-content: center; }
-    .user-name-label { font-size: 13px; font-weight: 700; }
 
     /* SPLASH BOOT */
-    #s-splash { align-items: center; justify-content: center; background: radial-gradient(ellipse 80% 70% at 50% 55%, #240C04 0%, var(--bg) 75%); gap: 32px; }
-    .sp-ring { position: relative; width: 130px; height: 130px; }
-    .sp-ring-svg { position: absolute; inset: 0; animation: spinRing 2s linear infinite; }
+    #s-splash { align-items: center; justify-content: center; background: radial-gradient(ellipse 90% 80% at 50% 50%, #200803 0%, var(--bg) 80%); gap: 32px; }
+    .sp-ring { position: relative; width: 140px; height: 140px; }
+    .sp-ring-svg { position: absolute; inset: 0; animation: spinRing 2.5s linear infinite; }
     @keyframes spinRing { to { transform: rotate(360deg); } }
-    .sp-flame-wrap { position: absolute; inset: 10px; border-radius: 50%; background: linear-gradient(135deg, #FF3300, #FF9900); display: flex; align-items: center; justify-content: center; font-size: 52px; box-shadow: 0 0 80px rgba(255, 100, 0, 0.7); animation: flameFloat 3.5s ease-in-out infinite; }
-    @keyframes flameFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-12px) scale(1.04)} }
-    .sp-brand-main { font-size: 72px; font-weight: 900; letter-spacing: -2px; line-height: 1; text-align: center; }
-    .sp-brand-main em { font-style: normal; background: linear-gradient(90deg, #FF5500, #FFB800); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .sp-brand-tag { font-size: 14px; color: var(--t3); letter-spacing: 5px; text-transform: uppercase; margin-top: 10px; text-align: center; }
-    .sp-bar-outer { width: 420px; height: 6px; background: var(--bg4); border-radius: 6px; overflow: hidden; }
-    .sp-bar-fill { height: 100%; background: linear-gradient(90deg, #FF3300, #FF9900, #FFD000); width: 0%; transition: width 0.35s ease; box-shadow: 0 0 16px var(--fire-amber); }
-    .sp-status-text { font-size: 13.5px; color: var(--t2); font-weight: 600; letter-spacing: 0.5px; }
-    .sp-service-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 6px; }
-    .ms-chk { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: var(--t4); font-weight: 700; transition: all 0.35s; }
-    .ms-chk.ok { color: var(--jade); }
-    .ms-icon { font-size: 24px; }
-    .ms-chk-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .sp-flame-wrap {
+      position: absolute; inset: 12px; border-radius: 50%;
+      background: linear-gradient(135deg, #FF3300, #FF9900);
+      display: flex; align-items: center; justify-content: center; font-size: 56px;
+      box-shadow: 0 0 90px rgba(255, 100, 0, 0.8);
+      animation: flameFloat 3.5s ease-in-out infinite;
+    }
+    @keyframes flameFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-10px) scale(1.05)} }
+    .sp-brand-main { font-size: 76px; font-weight: 900; letter-spacing: -2px; line-height: 1; text-align: center; }
+    .sp-brand-main em { font-style: normal; background: linear-gradient(90deg, #FF5500, #FFB800, #FF0055); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sp-brand-tag { font-size: 13px; color: var(--t3); letter-spacing: 6px; text-transform: uppercase; margin-top: 10px; text-align: center; font-weight: 800; }
+    .sp-bar-outer { width: 440px; height: 7px; background: rgba(255,255,255,0.08); border-radius: 7px; overflow: hidden; }
+    .sp-bar-fill { height: 100%; background: linear-gradient(90deg, #FF3300, #FF9900, #00D4FF); width: 0%; transition: width 0.35s ease; box-shadow: 0 0 20px var(--fire-amber); }
+    .sp-status-text { font-size: 14px; color: var(--t2); font-weight: 700; letter-spacing: 0.5px; }
 
-    /* HOME SCREEN */
+    /* HOME SCREEN: CINEMATIC HERO & RUNWAY GENERATIVE MOTION BACKDROP */
     #s-home { overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; background: var(--bg); height: 1080px; position: relative; }
     #s-home::-webkit-scrollbar { display: none; }
-    .hero-container { position: relative; height: 570px; flex-shrink: 0; overflow: hidden; margin-top: var(--hh); }
-    .hero-bg-layer { position: absolute; inset: 0; background: linear-gradient(135deg, #1C0A04 0%, #120603 45%, #070403 100%); }
-    .hero-flame-glow { position: absolute; width: 1050px; height: 1050px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 80, 0, 0.25) 0%, transparent 70%); top: -240px; left: 80px; filter: blur(95px); animation: fgPulse 6.5s ease-in-out infinite; }
-    @keyframes fgPulse { 0%,100%{transform:scale(1);opacity:0.65} 50%{transform:scale(1.18);opacity:1} }
-    .ember-container { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-    .ember { position: absolute; border-radius: 50%; background: #FFA500; box-shadow: 0 0 8px #FF6600, 0 0 16px #FF3300; animation: emberRise linear infinite; }
-    @keyframes emberRise { 0% { transform: translateY(105%) translateX(0); opacity: 0; } 15% { opacity: 0.95; } 85% { opacity: 0.45; } 100% { transform: translateY(-160px) translateX(60px); opacity: 0; } }
-    .hero-backdrop-poster { position: absolute; right: 0; top: 0; bottom: 0; width: 1100px; overflow: hidden; pointer-events: none; }
-    .hero-poster-embed { width: 100%; height: 100%; object-fit: cover; opacity: 0.65; mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 100%); -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 100%); transition: all 0.6s var(--ease); }
-    .hero-vignette { position: absolute; inset: 0; background: linear-gradient(90deg, var(--bg) 0%, rgba(7,4,3,0.95) 45%, rgba(7,4,3,0.4) 75%, transparent 100%), linear-gradient(0deg, var(--bg) 0%, transparent 40%); }
-    .hero-info { position: absolute; bottom: 44px; left: 64px; max-width: 820px; z-index: 10; }
-    .fire-exclusive-tag { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; background: linear-gradient(90deg, #FF3300, #FF8800); color: #fff; margin-bottom: 12px; box-shadow: 0 2px 18px rgba(255, 50, 0, 0.45); }
-    .hero-title { font-size: 78px; font-weight: 900; line-height: 0.95; letter-spacing: -2.5px; margin-bottom: 14px; background: linear-gradient(160deg, #FFFFFF 60%, rgba(255, 210, 170, 0.85) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero-meta-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
-    .h-badge { display: flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
-    .badge-match { background: rgba(0, 230, 118, 0.12); color: var(--jade); border: 1px solid rgba(0, 230, 118, 0.35); }
-    .badge-imdb { background: rgba(255, 197, 0, 0.12); color: var(--fire-gold); border: 1px solid rgba(255, 197, 0, 0.35); }
-    .badge-fmt { background: rgba(255, 255, 255, 0.08); color: var(--t2); border: 1px solid rgba(255, 255, 255, 0.12); }
-    .hero-synopsis { font-size: 16.5px; line-height: 1.6; color: var(--t2); margin-bottom: 24px; max-width: 680px; }
-    .hero-actions { display: flex; gap: 14px; align-items: center; }
-    .btn-fire-play { display: flex; align-items: center; gap: 12px; padding: 15px 36px; border-radius: 14px; border: none; cursor: pointer; background: linear-gradient(135deg, #FF3300 0%, #FF7700 100%); color: #fff; font-family: inherit; font-size: 17px; font-weight: 800; box-shadow: 0 8px 36px rgba(255, 70, 0, 0.45); transition: all 0.22s var(--ease); }
-    .btn-fire-play:hover, .btn-fire-play.focused { box-shadow: 0 12px 52px rgba(255, 102, 0, 0.8) !important; transform: scale(1.05); }
-    .btn-outline { display: flex; align-items: center; gap: 10px; padding: 15px 28px; border-radius: 14px; border: 1.5px solid var(--border2); cursor: pointer; background: rgba(255, 102, 0, 0.08); color: #fff; backdrop-filter: blur(18px); font-family: inherit; font-size: 16px; font-weight: 700; transition: all 0.22s var(--ease); }
-    .btn-outline:hover, .btn-outline.focused { background: rgba(255, 102, 0, 0.2); border-color: var(--fire-amber); }
+    .hero-container {
+      position: relative; height: 600px; flex-shrink: 0; overflow: hidden;
+      margin-top: calc(var(--hh) + 14px); padding: 0 64px; display: flex; align-items: center;
+    }
+    .hero-living-backdrop {
+      position: absolute; inset: 0; z-index: 1; overflow: hidden;
+      background-size: cover; background-position: center right;
+      transition: background-image 0.8s var(--ease), transform 1.2s ease;
+      transform: scale(1.02);
+    }
+    .hero-vignette {
+      position: absolute; inset: 0; z-index: 2;
+      background: radial-gradient(circle at 75% 45%, transparent 20%, rgba(5,2,1,0.6) 60%, rgba(5,2,1,0.98) 95%),
+                  linear-gradient(90deg, rgba(5,2,1,0.98) 0%, rgba(5,2,1,0.85) 45%, transparent 80%),
+                  linear-gradient(0deg, rgba(5,2,1,1) 0%, transparent 40%);
+    }
+    .hero-content { position: relative; z-index: 10; max-width: 820px; }
+    .hero-badges-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .h-badge {
+      font-size: 11px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 6px 14px; border-radius: 20px; backdrop-filter: blur(20px); border: 1px solid;
+    }
+    .h-badge.fire { background: rgba(255, 85, 0, 0.25); border-color: var(--fire-amber); color: #FFF; box-shadow: 0 0 20px var(--fire-glow); }
+    .h-badge.match { background: rgba(0, 230, 118, 0.22); border-color: var(--jade); color: var(--jade); }
+    .h-badge.spatial { background: rgba(0, 212, 255, 0.2); border-color: var(--alexa); color: var(--alexa); }
 
-    .hero-consensus-widget { position: absolute; top: 40px; right: 64px; background: rgba(18, 10, 7, 0.92); backdrop-filter: blur(36px); border: 1.5px solid rgba(255, 120, 40, 0.25); border-radius: 26px; padding: 20px 24px; min-width: 330px; box-shadow: 0 20px 70px rgba(0, 0, 0, 0.8), 0 0 32px rgba(255, 80, 0, 0.15); z-index: 10; }
-    .cw-header { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; }
-    .cw-flame-icon { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #FF3300, #FF9900); display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .cw-title-block h4 { font-size: 15px; font-weight: 800; }
-    .cw-title-block span { font-size: 10.5px; color: var(--fire-amber); font-weight: 600; }
-    .cw-live-badge { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; color: var(--jade); margin-bottom: 12px; }
-    .cw-live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 7px var(--jade); animation: healthPulse 1.4s infinite; }
-    .cw-avatars-row { display: flex; gap: 9px; margin-bottom: 12px; }
-    .cw-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; border: 2px solid; position: relative; }
-    .cw-av-r { border-color: #FF6600; color: #FF6600; background: rgba(255, 102, 0, 0.12); }
-    .cw-av-p { border-color: #FFC700; color: #FFC700; background: rgba(255, 199, 0, 0.12); }
-    .cw-av-m { border-color: #00D4FF; color: #00D4FF; background: rgba(0, 212, 255, 0.12); }
-    .cw-av-s { border-color: #00E676; color: #00E676; background: rgba(0, 230, 118, 0.12); }
-    .cw-dot { position: absolute; bottom: -1px; right: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--jade); border: 2px solid var(--bg2); }
-    .cw-score-area { display: flex; align-items: center; gap: 14px; }
-    .cw-big-pct { font-size: 46px; font-weight: 900; color: var(--jade); line-height: 1; }
-    .cw-meter { flex: 1; }
-    .cw-meter-lbl { font-size: 11px; color: var(--t3); margin-bottom: 6px; font-weight: 600; }
-    .cw-track { height: 7px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
-    .cw-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #FF6600, var(--jade)); transition: width 0.9s var(--ease); }
+    .hero-title {
+      font-family: 'Cinzel', 'Outfit', serif; font-size: 64px; font-weight: 900;
+      line-height: 1.05; letter-spacing: -1px; margin-bottom: 16px;
+      text-shadow: 0 10px 40px rgba(0,0,0,0.9);
+      background: linear-gradient(135deg, #FFFFFF 60%, #FFB800 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-meta { display: flex; align-items: center; gap: 14px; font-size: 14px; font-weight: 700; color: var(--t2); margin-bottom: 18px; }
+    .hero-desc {
+      font-size: 16px; line-height: 1.6; color: var(--t2); margin-bottom: 28px;
+      max-width: 680px; text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .hero-actions { display: flex; align-items: center; gap: 16px; }
+    .btn-fire-play {
+      padding: 16px 36px; border-radius: 20px;
+      background: linear-gradient(135deg, #FF3300 0%, #FF9900 100%);
+      border: 1px solid rgba(255, 255, 255, 0.4); color: #fff; font-family: inherit;
+      font-size: 16px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 8px 30px rgba(255, 80, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+      transition: all 0.28s var(--ease);
+    }
+    .btn-fire-play:hover, .btn-fire-play.focused {
+      transform: scale(1.08) translateY(-4px);
+      box-shadow: 0 14px 45px rgba(255, 102, 0, 0.9), 0 0 60px var(--fire-glow);
+    }
+    .btn-glass-alt {
+      padding: 16px 28px; border-radius: 20px; background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(24px); border: 1.5px solid var(--border-glass);
+      color: #fff; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; gap: 10px; transition: all 0.28s;
+    }
+    .btn-glass-alt:hover, .btn-glass-alt.focused {
+      background: rgba(255, 255, 255, 0.18); border-color: var(--fire-amber);
+      transform: scale(1.06) translateY(-3px); box-shadow: 0 0 30px rgba(255, 153, 0, 0.4);
+    }
 
-    /* SHELVES & CARDS */
-    .shelves-area { padding: 16px 0 120px; display: flex; flex-direction: column; gap: 36px; }
-    .shelf-block { position: relative; width: 100%; }
-    .shelf-header-row { display: flex; align-items: center; justify-content: space-between; padding: 0 64px; margin-bottom: 12px; }
-    .shelf-title { font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-    .shelf-hint { font-size: 12.5px; color: var(--fire-amber); font-weight: 600; }
+    /* SHELVES & 3D TILT CARDS WITH PHOTOREALISTIC POSTERS */
+    .shelves-area { padding: 0 64px 80px; display: flex; flex-direction: column; gap: 42px; position: relative; z-index: 10; }
+    .shelf-block { display: flex; flex-direction: column; gap: 14px; }
+    .shelf-header-row { display: flex; align-items: baseline; justify-content: space-between; }
+    .shelf-title { font-size: 22px; font-weight: 900; letter-spacing: -0.3px; color: #fff; text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+    .shelf-hint { font-size: 12px; font-weight: 700; color: var(--fire-amber); text-transform: uppercase; letter-spacing: 1.5px; }
+
     .shelf-viewport { position: relative; width: 100%; }
-    .shelf-track { display: flex; gap: 24px; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: 16px 64px 24px; scrollbar-width: none; }
+    .shelf-track {
+      display: flex; gap: 24px; overflow-x: auto; padding: 20px 8px 24px;
+      scroll-behavior: smooth;
+    }
     .shelf-track::-webkit-scrollbar { display: none; }
-    .shelf-paddle { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 76px; border-radius: 12px; background: rgba(18, 9, 6, 0.92); border: 1.5px solid var(--border2); color: #fff; font-size: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 30; backdrop-filter: blur(18px); transition: all 0.22s; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); }
-    .paddle-left { left: 14px; }
-    .paddle-right { right: 14px; }
-    .shelf-paddle:hover, .shelf-paddle.focused { background: var(--fire-flame); border-color: #FFA500; box-shadow: 0 0 28px var(--fire-gi); transform: translateY(-50%) scale(1.1); }
+    .shelf-paddle {
+      position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 80px;
+      background: rgba(14, 6, 4, 0.85); backdrop-filter: blur(20px); border: 1.5px solid var(--border-glass);
+      border-radius: 14px; color: #fff; font-size: 26px; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; z-index: 30; transition: all 0.25s;
+    }
+    .shelf-paddle.paddle-left { left: -24px; }
+    .shelf-paddle.paddle-right { right: -24px; }
+    .shelf-paddle:hover, .shelf-paddle.focused {
+      background: var(--fire-flame); border-color: #FFA500;
+      box-shadow: 0 0 30px var(--fire-gi); transform: translateY(-50%) scale(1.1);
+    }
 
-    .fire-card { flex: 0 0 240px; height: 360px; border-radius: 18px; position: relative; overflow: hidden; cursor: pointer; border: 2px solid transparent; background: var(--bg3); transition: all 0.28s var(--ease); flex-shrink: 0; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65); }
-    .fire-card.lg { flex: 0 0 300px; height: 420px; }
-    .fc-poster-img { position: absolute; inset: 0; width: 100%; height: 100%; transition: transform 0.45s ease; }
-    .fc-vignette { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7, 4, 3, 0.96) 0%, rgba(7, 4, 3, 0.35) 50%, transparent 100%); }
-    .fc-badge-match { position: absolute; top: 12px; right: 12px; font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 8px; background: var(--jade); color: #000; box-shadow: 0 2px 10px rgba(0, 230, 118, 0.4); }
-    .fc-badge-tag { position: absolute; top: 12px; left: 12px; font-size: 10px; font-weight: 800; letter-spacing: 1px; padding: 4px 10px; border-radius: 8px; text-transform: uppercase; background: rgba(255, 102, 0, 0.92); color: #fff; }
-    .fc-info { position: absolute; bottom: 14px; left: 16px; right: 16px; z-index: 5; }
-    .fc-title { font-size: 17px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .fc-meta { font-size: 12px; color: var(--t3); display: flex; align-items: center; gap: 8px; }
-    .fire-card:hover, .fire-card.focused { border-color: var(--fire-amber) !important; transform: scale(1.08) translateY(-6px) !important; box-shadow: 0 16px 50px rgba(255, 102, 0, 0.5), 0 0 35px var(--fire-glow) !important; z-index: 20; }
-    .fire-card:hover .fc-poster-img, .fire-card.focused .fc-poster-img { transform: scale(1.08); }
+    .fire-card {
+      flex: 0 0 250px; height: 375px; border-radius: 22px; position: relative;
+      overflow: hidden; cursor: pointer; border: 1px solid var(--border-glass);
+      background: var(--bg-glass-strong); backdrop-filter: blur(24px);
+      transition: all 0.32s var(--ease); flex-shrink: 0;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255,255,255,0.25);
+    }
+    .fire-card.lg { flex: 0 0 310px; height: 440px; }
+    .fc-poster-img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      background-size: cover; background-position: center; transition: transform 0.5s ease;
+    }
+    .fc-vignette {
+      position: absolute; inset: 0;
+      background: linear-gradient(0deg, rgba(5, 2, 1, 0.98) 0%, rgba(5, 2, 1, 0.45) 55%, transparent 100%);
+    }
+    .fc-badge-match {
+      position: absolute; top: 14px; right: 14px; font-size: 11px; font-weight: 900;
+      padding: 5px 12px; border-radius: 12px; background: rgba(0, 230, 118, 0.9);
+      color: #000; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.4); backdrop-filter: blur(10px);
+    }
+    .fc-badge-tag {
+      position: absolute; top: 14px; left: 14px; font-size: 10px; font-weight: 800;
+      letter-spacing: 1px; padding: 5px 12px; border-radius: 12px; text-transform: uppercase;
+      background: rgba(255, 85, 0, 0.9); color: #fff; backdrop-filter: blur(10px);
+    }
+    .fc-info { position: absolute; bottom: 16px; left: 18px; right: 18px; z-index: 5; }
+    .fc-title { font-size: 18px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fc-meta { font-size: 12.5px; color: var(--t2); display: flex; align-items: center; gap: 8px; font-weight: 600; }
+    .fire-card:hover, .fire-card.focused {
+      border-color: var(--fire-amber) !important;
+      transform: scale(1.08) translateY(-10px) !important;
+      box-shadow: 0 20px 60px rgba(255, 85, 0, 0.55), 0 0 35px var(--fire-glow) !important;
+      z-index: 25;
+    }
+    .fire-card:hover .fc-poster-img, .fire-card.focused .fc-poster-img { transform: scale(1.09); }
 
-    /* CONSENSUS SCREEN */
-    #s-cons { background: var(--bg); padding-top: var(--hh); height: 1080px; box-sizing: border-box; }
-    .cons-layout { flex: 1; display: grid; grid-template-columns: 360px 1fr 390px; overflow: hidden; height: calc(1080px - var(--hh)); }
-    .cons-left-col, .cons-right-col { border-right: 1px solid var(--border); padding: 24px 22px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
-    .cons-right-col { border-right: none; border-left: 1px solid var(--border); }
-    .cons-center-col { padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+    /* COUCH CONSENSUS: SPLINE 3D SPATIAL ORB & SUPABASE REALTIME */
+    #s-cons { background: var(--bg); padding-top: calc(var(--hh) + 20px); height: 1080px; box-sizing: border-box; }
+    .cons-layout { flex: 1; display: grid; grid-template-columns: 380px 1fr 400px; overflow: hidden; height: calc(1080px - var(--hh) - 20px); }
+    .cons-left-col, .cons-right-col {
+      border-right: 1px solid var(--border-glass); padding: 24px 26px;
+      display: flex; flex-direction: column; gap: 14px; overflow-y: auto;
+      background: rgba(10, 4, 2, 0.5); backdrop-filter: blur(28px);
+    }
+    .cons-right-col { border-right: none; border-left: 1px solid var(--border-glass); }
+    .cons-center-col {
+      padding: 24px 32px; display: flex; flex-direction: column; gap: 18px;
+      overflow-y: auto; position: relative;
+    }
+
+    /* SPLINE 3D VIEWPORT */
+    .spline-3d-wrap {
+      position: relative; width: 100%; height: 260px; border-radius: 24px;
+      overflow: hidden; background: radial-gradient(circle at center, #240a02 0%, #0c0402 70%);
+      border: 1px solid var(--border-glass); box-shadow: 0 16px 40px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.25);
+    }
+    #spline-canvas { width: 100%; height: 100%; display: block; }
+    .spline-overlay-hud {
+      position: absolute; top: 12px; left: 16px; right: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      pointer-events: none;
+    }
+    .spline-hud-badge {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 1.5px; padding: 4px 12px;
+      border-radius: 12px; background: rgba(0, 212, 255, 0.18); border: 1px solid var(--alexa); color: var(--alexa);
+    }
+    .spline-hud-fps { font-family: 'Roboto Mono', monospace; font-size: 11px; font-weight: 700; color: var(--jade); }
+
     .col-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--fire-amber); margin-bottom: 2px; }
-    .voter-box { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; transition: all 0.26s; }
-    .voter-box.voted { border-color: rgba(0, 230, 118, 0.35); background: rgba(0, 230, 118, 0.05); }
-    .voter-box.active-voting { border-color: var(--fire-amber); background: rgba(255, 153, 0, 0.08); box-shadow: 0 0 24px rgba(255, 102, 0, 0.22); }
+    .voter-box {
+      background: var(--bg-glass); border: 1px solid var(--border-glass);
+      border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;
+      transition: all 0.28s; backdrop-filter: blur(20px);
+    }
+    .voter-box.voted { border-color: rgba(0, 230, 118, 0.4); background: rgba(0, 230, 118, 0.08); }
+    .voter-box.active-voting {
+      border-color: var(--fire-amber); background: rgba(255, 153, 0, 0.12);
+      box-shadow: 0 0 30px rgba(255, 102, 0, 0.35); animation: votePulse 2s infinite;
+    }
+    @keyframes votePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+
     .vb-top { display: flex; align-items: center; gap: 12px; }
-    .vb-av { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; border: 2px solid; }
+    .vb-av {
+      width: 44px; height: 44px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-size: 17px; font-weight: 900; border: 2px solid;
+    }
     .vb-meta h5 { font-size: 16px; font-weight: 800; }
-    .vb-meta span { font-size: 11px; color: var(--t3); }
+    .vb-meta span { font-size: 11.5px; color: var(--t3); }
     .vb-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-    .v-chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: var(--t2); }
-    .vb-status { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; }
+    .v-chip { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border-glass); color: var(--t2); font-weight: 600; }
+    .vb-status { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 800; }
     .vb-status.done { color: var(--jade); }
     .vb-status.live { color: var(--fire-amber); }
-    .ws-ticker { background: #000; border-radius: 12px; padding: 12px 14px; font-family: 'Roboto Mono', monospace; font-size: 11px; line-height: 1.6; border: 1px solid var(--border); height: 140px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; }
-    .ws-event { color: var(--jade); opacity: 0.92; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .res-card { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 20px; padding: 16px 20px; display: grid; grid-template-columns: 44px 90px 1fr 100px; gap: 16px; align-items: center; cursor: pointer; position: relative; overflow: hidden; transition: all 0.28s var(--ease); }
-    .res-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, #FF3300, #FFC700); opacity: 0; transition: opacity 0.22s; }
-    .res-card:hover, .res-card.focused { border-color: var(--fire-amber); background: rgba(255, 102, 0, 0.08); transform: translateX(6px); }
+    /* AUDIO FREQUENCY BARS IN VOTER PODIUM */
+    .voter-eq { display: flex; gap: 3px; align-items: center; height: 14px; margin-left: auto; }
+    .eq-bar { width: 3px; background: var(--fire-amber); border-radius: 2px; animation: eqAnim 0.7s ease-in-out infinite; }
+    .eq-bar:nth-child(2){animation-delay:0.12s;height:12px} .eq-bar:nth-child(3){animation-delay:0.25s;height:14px} .eq-bar:nth-child(4){animation-delay:0.18s;height:9px}
+    @keyframes eqAnim { 0%,100%{transform:scaleY(0.35)} 50%{transform:scaleY(1)} }
+
+    .ws-ticker {
+      background: #000; border-radius: 16px; padding: 14px 16px;
+      font-family: 'Roboto Mono', monospace; font-size: 11px; line-height: 1.6;
+      border: 1px solid var(--border-glass); height: 130px; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;
+    }
+    .ws-event { color: var(--jade); opacity: 0.95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .res-card {
+      background: var(--bg-glass-strong); border: 1px solid var(--border-glass);
+      border-radius: 22px; padding: 18px 22px; display: grid; grid-template-columns: 48px 95px 1fr 105px;
+      gap: 18px; align-items: center; cursor: pointer; position: relative; overflow: hidden;
+      transition: all 0.3s var(--ease); backdrop-filter: blur(28px);
+    }
+    .res-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+      background: linear-gradient(180deg, #FF3300, #FFC700); opacity: 0; transition: opacity 0.25s;
+    }
+    .res-card:hover, .res-card.focused {
+      border-color: var(--fire-amber); background: rgba(255, 102, 0, 0.14);
+      transform: translateX(8px); box-shadow: 0 10px 35px rgba(255, 102, 0, 0.25);
+    }
     .res-card:hover::before, .res-card.focused::before { opacity: 1; }
-    .res-rank { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; background: rgba(255, 102, 0, 0.12); color: var(--fire-amber); }
-    .res-rank.gold { background: rgba(255, 197, 0, 0.18); color: var(--fire-gold); }
-    .res-poster-wrap { width: 90px; height: 125px; border-radius: 12px; overflow: hidden; }
-    .res-info h4 { font-size: 19px; font-weight: 800; margin-bottom: 5px; }
+    .res-rank {
+      width: 44px; height: 44px; border-radius: 14px; display: flex;
+      align-items: center; justify-content: center; font-size: 20px; font-weight: 900;
+      background: rgba(255, 102, 0, 0.15); color: var(--fire-amber); border: 1px solid var(--border-glass);
+    }
+    .res-rank.gold {
+      background: linear-gradient(135deg, rgba(255, 197, 0, 0.3), rgba(255, 102, 0, 0.15));
+      color: var(--fire-gold); border-color: var(--fire-gold); box-shadow: 0 0 20px rgba(255, 197, 0, 0.35);
+    }
+    .res-poster-wrap { width: 95px; height: 135px; border-radius: 14px; overflow: hidden; position: relative; }
+    .res-poster-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .res-info h4 { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
     .res-genres { display: flex; gap: 6px; margin-bottom: 6px; }
-    .rg-chip { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: rgba(255, 255, 255, 0.06); color: var(--t2); }
-    .res-desc { font-size: 12.5px; color: var(--t2); line-height: 1.5; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .res-stats { font-size: 11.5px; color: var(--t3); display: flex; gap: 12px; }
+    .rg-chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: rgba(255, 255, 255, 0.08); color: var(--t2); font-weight: 600; }
+    .res-desc { font-size: 13px; color: var(--t2); line-height: 1.5; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .res-stats { font-size: 12px; color: var(--t3); display: flex; gap: 14px; font-weight: 600; }
     .res-score-col { text-align: right; }
-    .res-score-num { font-size: 34px; font-weight: 900; color: var(--jade); line-height: 1; }
-    .res-score-lbl { font-size: 10px; color: var(--t3); font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+    .res-score-num { font-size: 38px; font-weight: 900; color: var(--jade); line-height: 1; }
+    .res-score-lbl { font-size: 10.5px; color: var(--t3); font-weight: 800; text-transform: uppercase; margin-top: 3px; }
 
-    .math-card { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 20px; padding: 18px 20px; }
+    .math-card {
+      background: var(--bg-glass); border: 1px solid var(--border-glass);
+      border-radius: 22px; padding: 20px 22px; backdrop-filter: blur(28px);
+    }
     .math-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .math-title { font-size: 15px; font-weight: 800; }
-    .math-formula { font-family: 'Roboto Mono', monospace; font-size: 11px; font-weight: 700; background: #000; padding: 8px 12px; border-radius: 8px; color: var(--fire-amber); margin-bottom: 14px; border: 1px solid var(--border); }
-    .math-factor { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; margin-bottom: 8px; }
-    .mf-label { color: var(--t2); width: 140px; }
-    .mf-bar-wrap { flex: 1; height: 5px; background: rgba(255, 255, 255, 0.08); border-radius: 3px; overflow: hidden; margin: 0 10px; }
+    .math-title { font-size: 16px; font-weight: 800; }
+    .math-formula {
+      font-family: 'Roboto Mono', monospace; font-size: 11px; font-weight: 700;
+      background: #000; padding: 10px 14px; border-radius: 12px; color: var(--fire-amber);
+      margin-bottom: 14px; border: 1px solid var(--border-glass);
+    }
+    .math-factor { display: flex; align-items: center; justify-content: space-between; font-size: 12px; margin-bottom: 9px; }
+    .mf-label { color: var(--t2); width: 140px; font-weight: 600; }
+    .mf-bar-wrap { flex: 1; height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 3px; overflow: hidden; margin: 0 10px; }
     .mf-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #FF6600, var(--jade)); }
-    .mf-val { font-weight: 700; font-size: 11.5px; width: 95px; text-align: right; }
+    .mf-val { font-weight: 800; font-size: 12px; width: 105px; text-align: right; }
 
     /* 4K PLAYER SCREEN */
-    #s-play { background: #000; height: 1080px; position: relative; overflow: hidden; }
-    .player-cinematic-stage { position: absolute; inset: 0; background: radial-gradient(circle at 60% 40%, #301004 0%, #150602 50%, #000000 100%); overflow: hidden; }
-    .player-arrakis-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.9; }
-    .player-vignette-overlay { position: absolute; inset: 0; background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.85) 100%); pointer-events: none; }
-    .xray-panel { position: absolute; top: var(--hh); left: 56px; margin-top: 24px; width: 440px; background: rgba(14, 8, 6, 0.9); backdrop-filter: blur(28px); border: 1.5px solid var(--border2); border-radius: 24px; padding: 22px 24px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 30px var(--fire-glow); z-index: 100; transition: all 0.35s var(--ease); }
+    #s-play { background: #000; height: 1080px; position: absolute; inset: 0; overflow: hidden; }
+    .player-cinematic-stage { position: absolute; inset: 0; background: #000; overflow: hidden; }
+    .player-bg-image {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      background-size: cover; background-position: center; filter: brightness(0.85);
+    }
+    .player-vignette-overlay {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.85) 100%),
+                  linear-gradient(0deg, rgba(0,0,0,0.95) 0%, transparent 35%);
+      pointer-events: none;
+    }
+    .xray-panel {
+      position: absolute; top: calc(var(--hh) + 20px); left: 56px; width: 450px;
+      background: var(--bg-glass-strong); backdrop-filter: blur(36px); border: 1.5px solid var(--border-glass);
+      border-radius: 26px; padding: 24px 26px; box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 35px var(--fire-glow);
+      z-index: 100; transition: all 0.35s var(--ease);
+    }
     .xray-badge-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .xray-tag { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; border-radius: 12px; background: var(--alexa); color: #000; }
-    .xray-scene-info { font-size: 12px; color: var(--fire-amber); font-weight: 700; }
+    .xray-tag { font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; padding: 5px 14px; border-radius: 14px; background: var(--alexa); color: #000; }
+    .xray-scene-info { font-size: 12px; color: var(--fire-amber); font-weight: 800; }
     .xray-cast-list { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
     .xray-actor { display: flex; align-items: center; gap: 12px; }
-    .xray-av { width: 38px; height: 38px; border-radius: 50%; background: var(--bg4); display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--border); }
-    .xray-name { font-size: 14.5px; font-weight: 800; color: #fff; }
-    .xray-role { font-size: 11px; color: var(--t3); }
-    .xray-note { font-size: 11.5px; color: var(--fire-amber); background: rgba(255, 102, 0, 0.1); border-radius: 10px; padding: 8px 12px; border: 1px solid rgba(255, 102, 0, 0.25); }
-    .cowatch-panel { position: absolute; top: var(--hh); right: 56px; margin-top: 24px; width: 380px; background: rgba(14, 8, 6, 0.9); backdrop-filter: blur(28px); border: 1.5px solid var(--border2); border-radius: 24px; padding: 22px 24px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85); z-index: 100; }
-    .cwp-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-    .cwp-members { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-    .cwp-member { display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; }
-    .cwp-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; border: 1.5px solid; }
-    .cwp-sync { font-size: 11px; font-weight: 800; color: var(--jade); }
-    .cwp-prog-track { height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 3px; overflow: hidden; margin: 6px 0; }
-    .cwp-prog-fill { height: 100%; background: linear-gradient(90deg, #FF3300, var(--jade)); border-radius: 3px; }
+    .xray-av { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 17px; border: 1px solid var(--border-glass); }
+    .xray-name { font-size: 15px; font-weight: 800; color: #fff; }
+    .xray-role { font-size: 11.5px; color: var(--t3); }
 
-    .player-controls-dock { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(7, 4, 3, 0.98) 0%, rgba(7, 4, 3, 0.85) 70%, transparent 100%); padding: 30px 64px 38px; z-index: 120; }
+    .player-controls-dock {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(0deg, rgba(5, 2, 1, 0.98) 0%, rgba(5, 2, 1, 0.8) 70%, transparent 100%);
+      padding: 30px 64px 40px; z-index: 120;
+    }
     .seek-container { position: relative; width: 100%; height: 10px; background: rgba(255, 255, 255, 0.12); border-radius: 5px; cursor: pointer; margin-bottom: 18px; }
-    .seek-buffered { position: absolute; left: 0; top: 0; height: 100%; width: 55%; background: rgba(255, 255, 255, 0.25); border-radius: 5px; }
-    .seek-active-fill { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, #FF3300, #FFA500); border-radius: 5px; box-shadow: 0 0 14px var(--fire-amber); }
-    .seek-knob { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 0 16px var(--fire-amber); border: 3px solid var(--fire-flame); }
+    .seek-buffered { position: absolute; left: 0; top: 0; height: 100%; width: 65%; background: rgba(255, 255, 255, 0.25); border-radius: 5px; }
+    .seek-active-fill { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, #FF3300, #FFA500); border-radius: 5px; box-shadow: 0 0 16px var(--fire-amber); }
+    .seek-knob { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 0 18px var(--fire-amber); border: 3px solid var(--fire-flame); }
     .player-buttons-row { display: flex; align-items: center; justify-content: space-between; }
     .ctrl-grp { display: flex; align-items: center; gap: 14px; }
-    .cbtn { width: 48px; height: 48px; border-radius: 14px; background: rgba(255, 255, 255, 0.08); border: 1.5px solid var(--border); color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s var(--ease); font-family: inherit; font-weight: 700; }
-    .cbtn.main { width: 56px; height: 56px; background: linear-gradient(135deg, #FF3300, #FF9900); font-size: 22px; box-shadow: 0 4px 24px rgba(255, 80, 0, 0.5); }
-    .cbtn:hover, .cbtn.focused { background: var(--fire-flame); border-color: #FFA500; transform: scale(1.1); box-shadow: 0 0 24px var(--fire-gi); }
+    .cbtn {
+      width: 48px; height: 48px; border-radius: 16px; background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid var(--border-glass); color: #fff; font-size: 18px; display: flex;
+      align-items: center; justify-content: center; cursor: pointer; transition: all 0.22s var(--ease);
+      font-family: inherit; font-weight: 800;
+    }
+    .cbtn.main { width: 56px; height: 56px; background: linear-gradient(135deg, #FF3300, #FF9900); font-size: 22px; box-shadow: 0 4px 25px rgba(255, 80, 0, 0.6); }
+    .cbtn:hover, .cbtn.focused { background: var(--fire-flame); border-color: #FFA500; transform: scale(1.1); box-shadow: 0 0 25px var(--fire-gi); }
     .player-time { font-family: 'Roboto Mono', monospace; font-size: 15px; font-weight: 700; color: var(--t2); margin-left: 10px; }
-    .player-quality-badge { font-size: 12px; font-weight: 800; padding: 6px 14px; border-radius: 20px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); color: var(--fire-gold); }
 
-    /* ARCHITECTURE SCREEN */
-    #s-arch { background: var(--bg); padding-top: var(--hh); height: 1080px; box-sizing: border-box; overflow-y: auto; }
-    .arch-wrapper { padding: 32px 56px 60px; display: flex; flex-direction: column; gap: 24px; }
-    .arch-headline { display: flex; align-items: center; justify-content: space-between; }
-    .arch-headline h2 { font-size: 34px; font-weight: 900; letter-spacing: -0.5px; }
-    .arch-headline p { font-size: 14.5px; color: var(--t3); margin-top: 4px; }
-    .arch-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-    .kpi-card { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 18px; padding: 18px 22px; position: relative; overflow: hidden; }
-    .kpi-val { font-size: 36px; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 6px; }
-    .kpi-label { font-size: 12px; color: var(--t3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-    .kpi-trend { position: absolute; top: 18px; right: 20px; font-size: 12px; font-weight: 800; color: var(--jade); }
-    .arch-micro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    .svc-tile { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; transition: all 0.24s; }
-    .svc-tile:hover, .svc-tile.focused { border-color: var(--fire-amber); transform: translateY(-4px); box-shadow: 0 10px 30px rgba(255, 102, 0, 0.25); }
+    /* ARCHITECTURE SCREEN: 16-MICROSERVICE MATRIX */
+    #s-arch { background: var(--bg); padding-top: calc(var(--hh) + 24px); height: 1080px; box-sizing: border-box; overflow-y: auto; }
+    .arch-shell { padding: 24px 64px 80px; max-width: 1800px; margin: 0 auto; }
+    .arch-headline-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .arch-title-main { font-size: 32px; font-weight: 900; letter-spacing: -0.5px; background: linear-gradient(90deg, #FFFFFF 65%, #FFB800 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .arch-meta-pills { display: flex; gap: 10px; }
+    .arch-pill { font-size: 11.5px; font-weight: 800; padding: 6px 14px; border-radius: 20px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-glass); }
+    .arch-pill.ok { color: var(--jade); border-color: var(--jade); background: rgba(0, 230, 118, 0.12); }
+
+    .arch-grid-16 {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px;
+    }
+    .svc-tile {
+      background: var(--bg-glass); border: 1px solid var(--border-glass);
+      border-radius: 22px; padding: 20px 22px; backdrop-filter: blur(28px);
+      display: flex; flex-direction: column; gap: 10px; transition: all 0.28s;
+      position: relative; overflow: hidden;
+    }
+    .svc-tile:hover, .svc-tile.focused {
+      border-color: var(--fire-amber); transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(255, 85, 0, 0.35);
+    }
     .svc-icon-badge { font-size: 26px; }
-    .svc-title-text { font-size: 17px; font-weight: 800; }
-    .svc-tech-stack { font-size: 11.5px; color: var(--t3); line-height: 1.4; min-height: 32px; }
-    .svc-live-status { font-size: 11px; font-weight: 800; color: var(--jade); display: flex; align-items: center; gap: 6px; }
-    .svc-live-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 6px var(--jade); }
-    .svc-metrics-duo { display: flex; gap: 8px; margin-top: 4px; }
-    .metric-pill { flex: 1; background: rgba(0, 0, 0, 0.4); border-radius: 8px; padding: 6px 10px; border: 1px solid var(--border); }
-    .metric-num { font-size: 15px; font-weight: 800; color: var(--fire-amber); font-family: 'Roboto Mono', monospace; }
-    .metric-label { font-size: 9.5px; color: var(--t4); text-transform: uppercase; font-weight: 700; margin-top: 2px; }
-
-    .arch-flow-row { background: #000; border: 1.5px solid var(--border); border-radius: 20px; padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; }
-    .flow-node { display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 5; }
-    .flow-node-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--bg4); border: 1.5px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
-    .flow-node-label { font-size: 11px; font-weight: 800; color: var(--t2); }
-    .flow-arrow { flex: 1; position: relative; height: 28px; display: flex; align-items: center; justify-content: center; }
-    .flow-arrow-line { position: absolute; left: 0; right: 0; height: 2px; background: rgba(255, 120, 40, 0.35); }
-    .flow-packet { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--fire-amber); box-shadow: 0 0 10px var(--fire-amber); animation: flowTravel 2.4s linear infinite; }
-    .flow-packet:nth-child(2) { animation-delay: 1.2s; background: var(--jade); box-shadow: 0 0 10px var(--jade); }
-    @keyframes flowTravel { 0%{left:0%;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{left:100%;opacity:0} }
-    .flow-latency { position: absolute; bottom: -2px; font-size: 9.5px; font-family: 'Roboto Mono', monospace; font-weight: 700; color: var(--jade); }
+    .svc-title-text { font-size: 16px; font-weight: 900; color: #fff; }
+    .svc-tech-stack { font-size: 11.5px; color: var(--t3); line-height: 1.4; }
+    .svc-live-status { font-size: 11.5px; font-weight: 800; color: var(--jade); display: flex; align-items: center; gap: 6px; }
+    .svc-live-status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 8px var(--jade); }
 
     /* AMBIENT SCREEN */
-    #s-amb { background: radial-gradient(ellipse 90% 80% at 50% 60%, #260C03 0%, #0A0402 65%, #000 100%); align-items: center; justify-content: center; height: 1080px; position: relative; }
-    .amb-center { display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 10; }
-    .amb-brand { font-size: 13px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; color: var(--fire-amber); }
-    .amb-clock { font-size: 130px; font-weight: 200; font-family: 'Inter', sans-serif; letter-spacing: -4px; line-height: 1; text-shadow: 0 0 40px rgba(255, 100, 0, 0.4); }
-    .amb-date { font-size: 20px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--fire-amber); }
-    .amb-info-pill { display: flex; align-items: center; gap: 32px; background: rgba(20, 10, 7, 0.85); backdrop-filter: blur(28px); border: 1.5px solid var(--border2); border-radius: 28px; padding: 20px 36px; box-shadow: 0 14px 50px rgba(0,0,0,0.8); margin-top: 10px; }
-    .amb-weather { display: flex; align-items: center; gap: 16px; }
-    .amb-temp { font-size: 34px; font-weight: 900; line-height: 1; }
-    .amb-city { font-size: 12.5px; color: var(--t3); margin-top: 2px; }
-    .amb-divider { width: 1px; height: 44px; background: var(--border); }
-    .amb-house-info { font-size: 13px; color: var(--t2); line-height: 1.7; font-weight: 600; }
-    .amb-resume-btn { padding: 12px 32px; border-radius: 22px; background: transparent; border: 1.5px solid var(--border2); color: var(--t2); cursor: pointer; font-family: inherit; font-size: 14.5px; font-weight: 700; transition: all 0.2s; }
-    .amb-resume-btn:hover, .amb-resume-btn.focused { background: rgba(255, 102, 0, 0.2); border-color: var(--fire-amber); color: #fff; box-shadow: 0 0 24px var(--fire-glow); }
+    #s-amb { background: #000; height: 1080px; position: absolute; inset: 0; overflow: hidden; }
+    .amb-living-sky { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .amb-clock-dock {
+      position: absolute; top: 120px; left: 80px; z-index: 50;
+      text-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+    }
+    .amb-time-huge { font-size: 110px; font-weight: 900; line-height: 1; letter-spacing: -3px; }
+    .amb-date-sub { font-size: 24px; font-weight: 700; color: var(--fire-amber); margin-top: 10px; }
+    .amb-info-pill {
+      margin-top: 24px; display: inline-flex; align-items: center; gap: 14px;
+      padding: 12px 24px; border-radius: 30px; background: rgba(14, 6, 4, 0.75);
+      backdrop-filter: blur(28px); border: 1.5px solid var(--border-glass);
+      font-size: 15px; font-weight: 700; color: var(--t2);
+    }
 
-    /* DOCKED REMOTE HUD */
-    #fire-remote-hud { position: fixed; bottom: 18px; right: 24px; background: rgba(16, 8, 6, 0.95); backdrop-filter: blur(32px); border: 1.5px solid var(--border2); border-radius: 36px; padding: 12px 14px 16px; box-shadow: 0 14px 50px rgba(0, 0, 0, 0.85), 0 0 20px rgba(255, 102, 0, 0.2); z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 8px; transform: translateY(220px); transition: transform 0.35s var(--ease); }
-    #fire-remote-hud.expanded { transform: translateY(0); }
-    .rmt-toggle-tab { position: absolute; top: -32px; right: 12px; background: rgba(24, 12, 8, 0.96); border: 1.5px solid var(--border2); border-bottom: none; border-radius: 12px 12px 0 0; padding: 4px 14px; font-size: 10px; font-weight: 800; color: var(--fire-amber); cursor: pointer; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 -4px 12px rgba(0,0,0,0.4); }
-    .rmt-label { font-size: 9px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--t4); }
-    .rmt-alexa-ring { width: 32px; height: 32px; border-radius: 50%; background: rgba(0, 212, 255, 0.12); border: 2px solid var(--alexa); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--alexa); font-size: 15px; box-shadow: 0 0 12px var(--alexa-g); transition: all 0.2s; }
-    .rmt-alexa-ring:hover, .rmt-alexa-ring.active { background: var(--alexa); color: #000; box-shadow: 0 0 26px var(--alexa); }
-    .rmt-dpad { width: 104px; height: 104px; border-radius: 50%; background: #201008; border: 2px solid rgba(255, 120, 40, 0.35); position: relative; display: flex; align-items: center; justify-content: center; }
-    .d-btn { position: absolute; width: 30px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--t4); font-size: 12px; font-weight: 900; }
-    .d-btn:hover, .d-btn.active { color: var(--fire-amber); text-shadow: 0 0 8px var(--fire-amber); }
-    .d-up{top:3px;left:37px} .d-down{bottom:3px;left:37px} .d-left{left:3px;top:39px} .d-right{right:3px;top:39px}
-    .d-center { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #FF3300, #FF9900); color: #fff; font-size: 9px; font-weight: 900; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 14px rgba(255, 102, 0, 0.6); }
-    .d-center:hover, .d-center.active { transform: scale(0.92); box-shadow: 0 0 24px rgba(255, 153, 0, 0.9); }
-    .rmt-nav-row { display: flex; gap: 8px; }
-    .rmt-pill-btn { width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); color: var(--t2); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
-    .rmt-pill-btn:hover, .rmt-pill-btn.active { background: var(--fire-flame); color: #fff; border-color: #FFA500; }
+    /* AMBIENT BOTTOM INTELLIGENCE STACK */
+    .amb-intelligence-stack {
+      position: absolute; bottom: 120px; left: 80px; right: 80px;
+      display: flex; gap: 24px; z-index: 50;
+    }
+    .amb-ticker-card, .amb-health-card {
+      flex: 1; background: rgba(14, 6, 4, 0.85); backdrop-filter: blur(36px);
+      border: 1px solid var(--border-glass); border-radius: 26px; padding: 22px 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.85); cursor: pointer; transition: all 0.28s;
+    }
+    .amb-ticker-card:hover, .amb-ticker-card.focused,
+    .amb-health-card:hover, .amb-health-card.focused {
+      border-color: var(--fire-amber); transform: translateY(-6px);
+      box-shadow: 0 25px 60px rgba(255, 85, 0, 0.4);
+    }
+    .atc-top, .ahc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .atc-badge, .ahc-title {
+      font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--fire-amber); display: flex; align-items: center; gap: 8px;
+    }
+    .atc-dot, .ahc-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fire-amber); box-shadow: 0 0 10px var(--fire-amber); }
+    .atc-match { font-size: 13px; font-weight: 800; color: var(--jade); }
+    .atc-narrative { font-size: 15px; color: var(--t1); line-height: 1.5; margin-bottom: 12px; }
+    .atc-tags { display: flex; gap: 8px; }
+    .atc-pill { font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid var(--border-glass); }
+    .atc-pill.motion { color: var(--violet); border-color: rgba(217, 70, 239, 0.4); background: rgba(217, 70, 239, 0.12); }
 
-    #toast-wrap { position: fixed; top: 90px; right: 36px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-    .toast-box { background: rgba(16, 8, 6, 0.96); backdrop-filter: blur(32px); border: 1.5px solid var(--border2); border-radius: 16px; padding: 14px 20px; min-width: 320px; max-width: 420px; display: flex; align-items: center; gap: 14px; box-shadow: 0 16px 50px rgba(0, 0, 0, 0.8), 0 0 28px var(--fire-glow); animation: toastIn 0.35s var(--ease); }
-    @keyframes toastIn { from{transform:translateX(36px);opacity:0} to{transform:translateX(0);opacity:1} }
-    .tb-icon { font-size: 24px; flex-shrink: 0; }
-    .tb-text h5 { font-size: 14px; font-weight: 800; color: #fff; }
-    .tb-text p { font-size: 12px; color: var(--t3); margin-top: 2px; line-height: 1.45; }
+    .ahc-score { font-size: 26px; font-weight: 900; color: var(--jade); }
+    .ahc-summary { display: flex; gap: 18px; font-size: 13px; font-weight: 700; color: var(--t2); }
+    .ahc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle); }
+    .ahc-svc { font-size: 12px; font-weight: 700; color: var(--t2); display: flex; align-items: center; justify-content: space-between; }
+    .ahc-lat { font-family: 'Roboto Mono', monospace; color: var(--jade); font-size: 11px; }
 
-    /* AMBIENT INTELLIGENCE & HEALTH OVERLAY STACK */
-    .amb-intelligence-stack { width: 920px; display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
-    .amb-ticker-card { background: rgba(15, 20, 32, 0.85); backdrop-filter: blur(24px); border: 1.5px solid rgba(0, 212, 255, 0.3); border-radius: 20px; padding: 16px 24px; cursor: pointer; transition: all 0.2s; }
-    .amb-ticker-card:hover, .amb-ticker-card.focused { border-color: var(--alexa); transform: translateY(-3px); box-shadow: 0 10px 30px var(--alexa-g); }
-    .atc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .atc-badge { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: var(--alexa); display: flex; align-items: center; gap: 6px; }
-    .atc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--alexa); box-shadow: 0 0 8px var(--alexa); animation: healthPulse 1.2s infinite; }
-    .atc-match { font-size: 12.5px; color: var(--t2); }
-    .atc-narrative { font-size: 14px; color: #fff; line-height: 1.45; font-weight: 500; }
-    .atc-tags { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
-    .atc-pill { background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; color: var(--alexa); }
-    .atc-pill.motion { background: rgba(255, 153, 0, 0.1); border-color: rgba(255, 153, 0, 0.35); color: var(--fire-amber); }
-    .amb-health-card { background: rgba(15, 20, 32, 0.85); backdrop-filter: blur(24px); border: 1.5px solid rgba(0, 230, 118, 0.3); border-radius: 20px; padding: 14px 24px; cursor: pointer; transition: all 0.2s; }
-    .amb-health-card:hover, .amb-health-card.focused { border-color: var(--jade); transform: translateY(-3px); box-shadow: 0 10px 30px var(--jade-g); }
-    .ahc-top { display: flex; justify-content: space-between; align-items: center; }
-    .ahc-title { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: var(--jade); display: flex; align-items: center; gap: 6px; }
-    .ahc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 8px var(--jade); }
-    .ahc-score { display: flex; align-items: baseline; }
-    .score-num { font-size: 20px; font-weight: 900; color: var(--jade); }
-    .score-den { font-size: 11px; color: var(--t4); margin-left: 2px; }
-    .ahc-summary { display: flex; justify-content: space-between; font-size: 12px; color: var(--t2); margin-top: 6px; }
-    .ahc-matrix { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
-    .ahc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .ahc-svc { font-size: 11.5px; color: var(--t2); display: flex; align-items: center; gap: 6px; }
-    .svc-dot.live { width: 5px; height: 5px; border-radius: 50%; background: var(--jade); }
-    .ahc-lat { font-family: 'Roboto Mono', monospace; font-size: 10px; color: var(--t4); margin-left: auto; }
-    .ahc-telemetry-note { font-size: 10.5px; color: var(--fire-amber); margin-top: 8px; }
+    .amb-resume-btn {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border: 1px solid var(--border-glass);
+      color: #fff; padding: 14px 32px; border-radius: 24px; font-size: 14px; font-weight: 800; cursor: pointer;
+      z-index: 60; transition: all 0.25s;
+    }
+    .amb-resume-btn:hover, .amb-resume-btn.focused { background: var(--fire-flame); border-color: var(--fire-amber); }
 
+    /* REMOTE HUD OVERLAY */
+    .remote-hud {
+      position: fixed; right: 28px; bottom: 28px; width: 220px;
+      background: rgba(14, 6, 4, 0.94); backdrop-filter: blur(36px);
+      border: 1.5px solid var(--border-glass); border-radius: 36px; padding: 22px 18px;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 35px var(--fire-glow);
+      z-index: 999;
+    }
+    .rmt-title { font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--fire-amber); }
+    .rmt-dpad { width: 140px; height: 140px; border-radius: 50%; background: #070302; border: 1.5px solid var(--border-glass); position: relative; display: flex; align-items: center; justify-content: center; }
+    .rmt-btn { position: absolute; background: transparent; border: none; color: var(--t2); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; transition: all 0.18s; }
+    .rmt-btn:hover, .rmt-btn:active { background: rgba(255, 102, 0, 0.3); color: #fff; transform: scale(1.15); }
+    .rmt-up { top: 4px; } .rmt-down { bottom: 4px; } .rmt-left { left: 4px; } .rmt-right { right: 4px; }
+    .rmt-sel { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #FF3300, #FF9900); color: #fff; font-size: 11px; font-weight: 900; box-shadow: 0 4px 15px rgba(255, 80, 0, 0.6); border: none; cursor: pointer; }
+    .rmt-row { display: flex; gap: 10px; width: 100%; justify-content: center; }
+    .rmt-sbtn { flex: 1; padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid var(--border-glass); color: #fff; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .rmt-sbtn:hover { background: rgba(255, 102, 0, 0.25); border-color: var(--fire-amber); }
 
+    /* TOAST */
+    .toast-box {
+      position: fixed; top: 115px; right: 48px; background: var(--bg-glass-strong);
+      backdrop-filter: blur(36px); border: 1.5px solid var(--border-bright);
+      border-radius: 20px; padding: 18px 24px; display: flex; align-items: center; gap: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px var(--fire-glow);
+      z-index: 1000; transform: translateY(-30px); opacity: 0; pointer-events: none;
+      transition: all 0.35s var(--ease);
+    }
+    .toast-box.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .toast-icon { font-size: 28px; }
+    .toast-title { font-size: 15px; font-weight: 900; color: #fff; }
+    .toast-msg { font-size: 12.5px; color: var(--t2); margin-top: 2px; }
   </style>
 </head>
 <body>
-<div class="scanline"></div>
-<div id="stage">
 
-  <!-- TOP NAVIGATION BAR -->
+<div id="stage">
+  <!-- PROCEDURAL LIVING MOTION CANVAS -->
+  <canvas id="generative-motion-canvas"></canvas>
+
+  <!-- FLOATING TOP DOCK -->
   <header class="fire-topbar">
     <div class="fire-brand" onclick="go('home')">
       <div class="fire-logo-icon">🔥</div>
       <div class="fire-brand-text">
-        <div class="fire-title">amazon <em>firetv</em></div>
-        <div class="fire-sub">AURA VEGA OS 1.2 · RONAK JAIN</div>
+        <div class="fire-title">AURA <em>VEGA</em> TV</div>
+        <div class="fire-sub">Amazon Fire TV · Vega OS SDK 0.24</div>
       </div>
     </div>
 
     <nav class="fire-nav-links">
-      <button class="nav-btn a foc" id="nb-home" onclick="go('home')"><span>🏠</span> Home</button>
-      <button class="nav-btn foc" id="nb-cons" onclick="go('cons')"><span>🔥</span> Group Consensus <span class="nav-badge-pill">94%</span></button>
-      <button class="nav-btn foc" id="nb-play" onclick="launchPlayer(1)"><span>▶</span> 4K Player</button>
-      <button class="nav-btn foc" id="nb-arch" onclick="go('arch')"><span>⚙️</span> Microservices</button>
-      <button class="nav-btn foc" id="nb-amb" onclick="go('amb')"><span>🌋</span> Ambient</button>
+      <button class="nav-btn a foc" id="nb-home" onclick="go('home')">🏠 Home</button>
+      <button class="nav-btn foc" id="nb-cons" onclick="go('cons')">🛋️ Couch Consensus <span class="nav-badge-pill" style="background:var(--fire-flame);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px">LIVE</span></button>
+      <button class="nav-btn foc" id="nb-play" onclick="launchPlayer(1)">▶ 4K Player</button>
+      <button class="nav-btn foc" id="nb-arch" onclick="go('arch')">🏗️ Architecture</button>
+      <button class="nav-btn foc" id="nb-amb"  onclick="go('amb')">🌙 Ambient</button>
     </nav>
 
     <div class="fire-top-right">
-      <div class="sys-health-bar" id="sys-health-topbar">
+      <div class="studio-pill">🪐 Spline 3D &amp; Runway AI</div>
+      <div class="sys-health-bar" onclick="go('arch')">
         <div class="health-dot"></div>
-        <span>All Systems Operational</span>
-        <span style="color:var(--t4)">|</span>
-        <span id="live-latency">7ms</span>
+        <span id="top-health-score">Vega OS: 98/100 Healthy</span>
       </div>
-      <div class="alexa-pill foc" id="alexa-btn" onclick="triggerAlexa()">
+      <div class="alexa-pill" onclick="toast('🎙️','Alexa Voice Remote','Listening for co-viewing command...',3500)">
         <div class="alexa-waveform">
-          <div class="alexa-bar" style="height:4px"></div>
-          <div class="alexa-bar" style="height:9px"></div>
-          <div class="alexa-bar" style="height:14px"></div>
-          <div class="alexa-bar" style="height:7px"></div>
-          <div class="alexa-bar" style="height:5px"></div>
+          <div class="alexa-bar"></div><div class="alexa-bar"></div><div class="alexa-bar"></div><div class="alexa-bar"></div><div class="alexa-bar"></div>
         </div>
-        <span>"Alexa, what should we watch?"</span>
-      </div>
-      <div class="user-avatar-chip foc" onclick="go('cons')">
-        <div class="user-circle">R</div>
-        <div class="user-name-label">Ronak Jain</div>
+        <span>Alexa</span>
       </div>
     </div>
   </header>
@@ -400,82 +602,68 @@
   <!-- SCREEN 1: SPLASH BOOT -->
   <div class="scr on" id="s-splash">
     <div class="sp-ring">
-      <svg class="sp-ring-svg" viewBox="0 0 110 110">
-        <circle cx="55" cy="55" r="48" fill="none" stroke="rgba(255,102,0,0.2)" stroke-width="3"/>
-        <circle cx="55" cy="55" r="48" fill="none" stroke="url(#rg)" stroke-width="3" stroke-linecap="round" stroke-dasharray="240 62"/>
-        <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF3300"/><stop offset="100%" stop-color="#FF9900"/></linearGradient></defs>
+      <svg class="sp-ring-svg" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="62" fill="none" stroke="rgba(255,102,0,0.2)" stroke-width="4"/>
+        <circle cx="70" cy="70" r="62" fill="none" stroke="url(#sp-grad)" stroke-width="4" stroke-dasharray="240 150"/>
+        <defs>
+          <linearGradient id="sp-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FF3300"/>
+            <stop offset="100%" stop-color="#FFC500"/>
+          </linearGradient>
+        </defs>
       </svg>
       <div class="sp-flame-wrap">🔥</div>
     </div>
-    <div>
-      <div class="sp-brand-main">AURA <em>FIRE</em> TV</div>
-      <div class="sp-brand-tag">Intelligent Co-Viewing · Amazon Vega OS · Ronak Jain</div>
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="sp-brand-main">AURA <em>VEGA</em> TV</div>
+      <div class="sp-brand-tag">Living Room Ambient Hub &amp; Consensus Engine</div>
     </div>
     <div class="sp-bar-outer"><div class="sp-bar-fill" id="sp-bar-fill"></div></div>
-    <div class="sp-status-text" id="sp-status">Initializing Amazon Vega Media Runtime…</div>
-    <div class="sp-service-grid">
-      <div class="ms-chk" id="msc-1"><div class="ms-icon">🔐</div><div class="ms-chk-dot"></div>Appwrite Auth</div>
-      <div class="ms-chk" id="msc-2"><div class="ms-icon">🧠</div><div class="ms-chk-dot"></div>Gemini 2.5 AI</div>
-      <div class="ms-chk" id="msc-3"><div class="ms-icon">⚡</div><div class="ms-chk-dot"></div>Supabase WS</div>
-      <div class="ms-chk" id="msc-4"><div class="ms-icon">🎬</div><div class="ms-chk-dot"></div>CloudFront CDN</div>
-      <div class="ms-chk" id="msc-5"><div class="ms-icon">🤝</div><div class="ms-chk-dot"></div>Consensus Core</div>
-    </div>
+    <div class="sp-status-text" id="sp-status-text">Booting Vega OS microservices...</div>
   </div>
 
-  <!-- SCREEN 2: HOME -->
+  <!-- SCREEN 2: HOME SCREEN -->
   <div class="scr" id="s-home">
-    <div class="hero-container" id="hero-box">
-      <div class="hero-bg-layer" id="hero-bg">
-        <div class="hero-flame-glow"></div>
-        <div class="ember-container" id="ember-container"></div>
-        <div class="hero-backdrop-poster" id="hero-backdrop-poster"></div>
-      </div>
+    <div class="hero-container">
+      <div class="hero-living-backdrop" id="hero-backdrop" style="background-image:url('assets/hero_dune_backdrop.jpg')"></div>
       <div class="hero-vignette"></div>
 
-      <div class="hero-info">
-        <div class="fire-exclusive-tag">✦ FIRE TV · #1 HOUSEHOLD MATCH</div>
-        <h1 class="hero-title" id="h-title">Dune: Awakening</h1>
-        <div class="hero-meta-row">
-          <div class="h-badge badge-match" id="h-match-badge">★ 94% Group Match</div>
-          <div class="h-badge badge-imdb" id="h-imdb-badge">IMDb 9.1 · 🍅 94%</div>
-          <div class="h-badge badge-fmt" id="h-fmt-badge">2h 46m · 2025 · 4K HDR10 · Dolby Atmos</div>
+      <div class="hero-content">
+        <div class="hero-badges-row">
+          <span class="h-badge fire">🔥 HOT ON FIRE TV</span>
+          <span class="h-badge match" id="h-match-badge">★ 94% Group Match</span>
+          <span class="h-badge spatial">🪐 Spline 3D Spatial Audio</span>
         </div>
-        <p class="hero-synopsis" id="h-desc">
-          Epic struggle across Arrakis where destiny, power, and spice converge. All 4 active household members voted yes with zero genre conflicts.
+        <h1 class="hero-title" id="h-title">Dune: Awakening</h1>
+        <div class="hero-meta" id="h-meta">
+          <span>★ 9.1 IMDb</span>
+          <span>·</span>
+          <span>🍅 94% Rotten Tomatoes</span>
+          <span>·</span>
+          <span>2h 46m</span>
+          <span>·</span>
+          <span>2024</span>
+          <span>·</span>
+          <span style="color:var(--fire-gold)">4K Ultra HD · HDR10+ · Dolby Atmos</span>
+        </div>
+        <p class="hero-desc" id="h-desc">
+          On Arrakis, ancient spice prophecies ignite a war for planetary survival. Paul Atreides unites the desert tribes against an imperial conspiracy with ground-shaking cinematic scope.
         </p>
         <div class="hero-actions">
-          <button class="btn-fire-play foc" id="hero-play-btn" onclick="launchPlayer(ST.heroId||1)">▶&nbsp;&nbsp;Play on Fire TV</button>
-          <button class="btn-outline foc" onclick="go('cons')">🤝&nbsp;Inspect Consensus</button>
-          <button class="btn-outline foc" onclick="triggerAlexa()">🎙&nbsp;Ask Alexa</button>
-        </div>
-      </div>
-
-      <div class="hero-consensus-widget" id="hero-cw">
-        <div class="cw-header">
-          <div class="cw-flame-icon">🔥</div>
-          <div class="cw-title-block">
-            <h4>Living Room Consensus</h4>
-            <span>4 Voters · Supabase WebSockets</span>
-          </div>
-        </div>
-        <div class="cw-live-badge"><div class="cw-live-dot"></div>LIVE SYNC ACTIVE</div>
-        <div class="cw-avatars-row">
-          <div class="cw-avatar cw-av-r">R<div class="cw-dot"></div></div>
-          <div class="cw-avatar cw-av-p">P<div class="cw-dot"></div></div>
-          <div class="cw-avatar cw-av-m">M<div class="cw-dot"></div></div>
-          <div class="cw-avatar cw-av-s">S<div class="cw-dot"></div></div>
-        </div>
-        <div class="cw-score-area">
-          <div class="cw-big-pct" id="live-pct-val">94%</div>
-          <div class="cw-meter">
-            <div class="cw-meter-lbl">Deterministic Utility Score</div>
-            <div class="cw-track"><div class="cw-fill" id="live-fill-bar" style="width:94%"></div></div>
-          </div>
+          <button class="btn-fire-play foc" onclick="launchPlayer(ST.heroId)">
+            ▶ Watch with Household (4 Viewers)
+          </button>
+          <button class="btn-glass-alt foc" onclick="go('cons')">
+            🛋️ Open Couch Consensus
+          </button>
+          <button class="btn-glass-alt foc" onclick="toast('ℹ️','Film Details','Amazon Vega OS 4K Stream Pre-Warmed & Ready',3000)">
+            ✦ Detail &amp; X-Ray
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Shelves with Real Movie Posters -->
+    <!-- SHELVES -->
     <div class="shelves-area">
       <div class="shelf-block" id="shelf-block-1">
         <div class="shelf-header-row">
@@ -515,15 +703,17 @@
     </div>
   </div>
 
-  <!-- SCREEN 3: COUCH CONSENSUS -->
+  <!-- SCREEN 3: COUCH CONSENSUS (WITH THREE.JS SPLINE 3D ORB) -->
   <div class="scr" id="s-cons">
     <div class="cons-layout">
+      <!-- LEFT COL: VOTERS -->
       <div class="cons-left-col">
         <div class="col-title">Active Household Voters</div>
         <div class="voter-box voted" id="vbox-r">
           <div class="vb-top">
-            <div class="vb-av" style="border-color:#FF6600;color:#FF6600;background:rgba(255,102,0,0.12)">R</div>
+            <div class="vb-av" style="border-color:#FF6600;color:#FF6600;background:rgba(255,102,0,0.15)">R</div>
             <div class="vb-meta"><h5>Ronak Jain</h5><span>Admin · Profile 1 · Mumbai</span></div>
+            <div class="voter-eq"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div>
           </div>
           <div class="vb-tags"><span class="v-chip">Sci-Fi</span><span class="v-chip">Thriller</span><span class="v-chip">Docs</span></div>
           <div class="vb-status done">✓ Voted: Dune: Awakening</div>
@@ -531,8 +721,9 @@
 
         <div class="voter-box voted" id="vbox-p">
           <div class="vb-top">
-            <div class="vb-av" style="border-color:#FFC700;color:#FFC700;background:rgba(255,199,0,0.12)">P</div>
-            <div class="vb-meta"><h5>Priya</h5><span>Profile 2 · Connected via Phone</span></div>
+            <div class="vb-av" style="border-color:#FFC700;color:#FFC700;background:rgba(255,199,0,0.15)">P</div>
+            <div class="vb-meta"><h5>Priya</h5><span>Profile 2 · Phone App</span></div>
+            <div class="voter-eq"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div>
           </div>
           <div class="vb-tags"><span class="v-chip">Drama</span><span class="v-chip">Sci-Fi</span><span class="v-chip">Mystery</span></div>
           <div class="vb-status done">✓ Voted: Dune: Awakening</div>
@@ -540,8 +731,9 @@
 
         <div class="voter-box active-voting" id="vbox-m">
           <div class="vb-top">
-            <div class="vb-av" style="border-color:#00D4FF;color:#00D4FF;background:rgba(0,212,255,0.12)">M</div>
+            <div class="vb-av" style="border-color:#00D4FF;color:#00D4FF;background:rgba(0,212,255,0.15)">M</div>
             <div class="vb-meta"><h5>Meera</h5><span>Streaming Live via Supabase…</span></div>
+            <div class="voter-eq"><div class="eq-bar" style="background:#00D4FF"></div><div class="eq-bar" style="background:#00D4FF"></div><div class="eq-bar" style="background:#00D4FF"></div><div class="eq-bar" style="background:#00D4FF"></div></div>
           </div>
           <div class="vb-tags"><span class="v-chip">Comedy</span><span class="v-chip">Adventure</span></div>
           <div class="vb-status live" id="meera-status-text">⚡ Deciding via Phone App…</div>
@@ -549,8 +741,9 @@
 
         <div class="voter-box voted" id="vbox-s">
           <div class="vb-top">
-            <div class="vb-av" style="border-color:#00E676;color:#00E676;background:rgba(0,230,118,0.12)">S</div>
-            <div class="vb-meta"><h5>Sam</h5><span>Profile 4 · Fire TV Stick</span></div>
+            <div class="vb-av" style="border-color:#00E676;color:#00E676;background:rgba(0,230,118,0.15)">S</div>
+            <div class="vb-meta"><h5>Sam</h5><span>Profile 4 · Fire TV Remote</span></div>
+            <div class="voter-eq"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div>
           </div>
           <div class="vb-tags"><span class="v-chip">Action</span><span class="v-chip">Sci-Fi</span></div>
           <div class="vb-status done">✓ Voted: Dune: Awakening</div>
@@ -560,11 +753,22 @@
         <div class="ws-ticker" id="ws-ticker"><div style="color:var(--t4)">Connecting to Supabase Realtime…</div></div>
       </div>
 
+      <!-- CENTER COL: SPLINE 3D CANVAS & RANKINGS -->
       <div class="cons-center-col">
+        <!-- SPLINE 3D SPATIAL ORB VIEWPORT -->
+        <div class="spline-3d-wrap">
+          <canvas id="spline-canvas"></canvas>
+          <div class="spline-overlay-hud">
+            <div class="spline-hud-badge">🪐 SPLINE 3D SPATIAL CONSENSUS ORB</div>
+            <div class="spline-hud-fps" id="spline-fps">60 FPS WebGL · 4 Satellites</div>
+          </div>
+        </div>
+
         <div class="col-title">Live Candidate Ranking (Pareto-Optimal Utility Score)</div>
-        <div id="cons-ranking-list"></div>
+        <div id="cons-ranking-list" style="display:flex;flex-direction:column;gap:12px"></div>
       </div>
 
+      <!-- RIGHT COL: SCORING FORMULA & ACTIONS -->
       <div class="cons-right-col">
         <div class="col-title">Explainable Scoring Math</div>
         <div class="math-card">
@@ -609,13 +813,13 @@
             Multi-client WebSocket presence cluster reconciles votes across Fire TV and mobile companion apps in &lt;15ms P95 latency. CRDT-based merge for conflict-free concurrent updates.
           </p>
           <div style="display:flex;gap:10px;margin-top:12px">
-            <div style="flex:1;background:rgba(0,0,0,0.4);border-radius:8px;padding:8px 10px;border:1px solid var(--border)">
-              <div style="font-size:18px;font-weight:900;color:var(--jade)" id="ws-ms-counter">14ms</div>
-              <div style="font-size:10px;color:var(--t4);margin-top:2px">WS Latency</div>
+            <div style="flex:1;background:rgba(0,0,0,0.4);border-radius:12px;padding:10px 12px;border:1px solid var(--border-glass)">
+              <div style="font-size:20px;font-weight:900;color:var(--jade)" id="ws-ms-counter">14ms</div>
+              <div style="font-size:10px;color:var(--t3);margin-top:2px">WS Latency</div>
             </div>
-            <div style="flex:1;background:rgba(0,0,0,0.4);border-radius:8px;padding:8px 10px;border:1px solid var(--border)">
-              <div style="font-size:18px;font-weight:900;color:var(--fire-amber)" id="ws-events-counter">8</div>
-              <div style="font-size:10px;color:var(--t4);margin-top:2px">Events/min</div>
+            <div style="flex:1;background:rgba(0,0,0,0.4);border-radius:12px;padding:10px 12px;border:1px solid var(--border-glass)">
+              <div style="font-size:20px;font-weight:900;color:var(--fire-amber)" id="ws-events-counter">8</div>
+              <div style="font-size:10px;color:var(--t3);margin-top:2px">Events/min</div>
             </div>
           </div>
         </div>
@@ -627,19 +831,20 @@
     </div>
   </div>
 
-  <!-- SCREEN 4: 4K PLAYER -->
+  <!-- SCREEN 4: 4K PLAYER WITH RUNWAY GENERATIVE MOTION BACKDROP -->
   <div class="scr" id="s-play">
     <div class="player-cinematic-stage">
-      <div class="player-arrakis-canvas" id="player-canvas-wrap"></div>
+      <div class="player-bg-image" id="player-bg" style="background-image:url('assets/hero_dune_backdrop.jpg')"></div>
       <div class="player-vignette-overlay"></div>
     </div>
 
+    <!-- X-RAY HUD -->
     <div class="xray-panel" id="xray-hud">
       <div class="xray-badge-row">
         <div class="xray-tag">✦ FIRE TV X-RAY</div>
         <div class="xray-scene-info">Scene 14 · Arrakis Sands</div>
       </div>
-      <div style="font-size:13.5px;font-weight:700;color:#fff">Now On Screen:</div>
+      <div style="font-size:14px;font-weight:800;color:#fff">Now On Screen:</div>
       <div class="xray-cast-list">
         <div class="xray-actor">
           <div class="xray-av">🎭</div>
@@ -651,559 +856,240 @@
         </div>
         <div class="xray-actor">
           <div class="xray-av">🎵</div>
-          <div><div class="xray-name">Hans Zimmer</div><div class="xray-role">OST: "Herald of the Change"</div></div>
+          <div><div class="xray-name">Hans Zimmer</div><div class="xray-role">Original Score · "Leaving Caladan"</div></div>
         </div>
       </div>
-      <div class="xray-note">
-        🔥 Consensus Note: Ronak &amp; Sam matched director Denis Villeneuve. 4/4 voters agreed on Sci-Fi.
-      </div>
-    </div>
-
-    <div class="cowatch-panel" id="cowatch-hud">
-      <div class="cwp-title">👥 Co-Watch Party · Live</div>
-      <div class="cwp-members">
-        <div class="cwp-member">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="cwp-av" style="border-color:#FF6600;color:#FF6600;background:rgba(255,102,0,0.12)">R</div>
-            <span style="font-weight:700">Ronak Jain</span>
-          </div>
-          <span class="cwp-sync">🟢 SYNC</span>
-        </div>
-        <div class="cwp-member">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="cwp-av" style="border-color:#FFC700;color:#FFC700;background:rgba(255,199,0,0.12)">P</div>
-            <span style="font-weight:700">Priya</span>
-          </div>
-          <span class="cwp-sync">🟢 SYNC</span>
-        </div>
-        <div class="cwp-member">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="cwp-av" style="border-color:#00D4FF;color:#00D4FF;background:rgba(0,212,255,0.12)">M</div>
-            <span style="font-weight:700">Meera</span>
-          </div>
-          <span class="cwp-sync" style="color:var(--fire-amber)">📱 Mobile</span>
-        </div>
-        <div class="cwp-member">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="cwp-av" style="border-color:#00E676;color:#00E676;background:rgba(0,230,118,0.12)">S</div>
-            <span style="font-weight:700">Sam</span>
-          </div>
-          <span class="cwp-sync">🟢 SYNC</span>
-        </div>
-      </div>
-      <div class="cwp-progress">
-        <div style="font-size:11px;color:var(--t3);display:flex;justify-content:space-between">
-          <span>Group Sync Position</span>
-          <span style="color:var(--jade);font-weight:800">100% Synced</span>
-        </div>
-        <div class="cwp-prog-track"><div class="cwp-prog-fill" style="width:28%"></div></div>
-        <div style="font-size:10px;color:var(--t4);font-family:'Roboto Mono',monospace">00:42:15 / 02:46:00</div>
+      <div style="font-size:12px;color:var(--fire-amber);background:rgba(255,102,0,0.12);border-radius:12px;padding:10px 14px;border:1px solid rgba(255,102,0,0.3)">
+        💡 <strong>Trivia</strong>: Shot in 1.43:1 IMAX ratio in the Liwa Desert. Over 1,000 custom stillsuits handcrafted for authentic tactile realism.
       </div>
     </div>
 
+    <!-- CONTROLS DOCK -->
     <div class="player-controls-dock">
-      <div class="seek-container" onclick="seekClick(event)">
+      <div class="seek-container" onclick="seekBy(30)">
         <div class="seek-buffered"></div>
-        <div class="seek-active-fill" id="player-seek-fill" style="width:28%"></div>
-        <div class="seek-knob" id="player-seek-knob" style="left:28%"></div>
+        <div class="seek-active-fill" id="seek-fill" style="width:28%"></div>
+        <div class="seek-knob" id="seek-knob" style="left:28%"></div>
       </div>
       <div class="player-buttons-row">
         <div class="ctrl-grp">
-          <button class="cbtn foc" onclick="seekBy(-10)">⏮</button>
-          <button class="cbtn main foc" id="play-pause-btn" onclick="togglePlayback()">⏸</button>
-          <button class="cbtn foc" onclick="seekBy(10)">⏭</button>
-          <span class="player-time" id="player-time-display">00:42:15 / 02:46:00</span>
+          <button class="cbtn foc" onclick="seekBy(-15)">↺ 15s</button>
+          <button class="cbtn main foc" onclick="togglePlayback()">▶</button>
+          <button class="cbtn foc" onclick="seekBy(30)">30s ↻</button>
+          <div class="player-time" id="player-time-display">0:46:12 / 2:46:00</div>
         </div>
         <div class="ctrl-grp">
-          <div class="player-quality-badge">4K ULTRA HD · HDR10 · DOLBY ATMOS · 60 FPS</div>
-          <button class="cbtn foc" style="width:auto;padding:0 18px" onclick="toggleXray()">X-Ray</button>
-          <button class="cbtn foc">CC</button>
-          <button class="cbtn foc">🔊</button>
-          <button class="cbtn foc" onclick="go('home')">✕</button>
+          <button class="cbtn foc" onclick="toggleXray()">✦ X-Ray</button>
+          <button class="cbtn foc" onclick="toast('📝','Adaptive Captions','HUD Avoidance Active · Calibrated for Living Room Lighting',3000)">CC</button>
+          <div class="player-quality-badge" style="font-size:12px;font-weight:800;padding:6px 14px;border-radius:20px;background:rgba(255,255,255,0.08);border:1px solid var(--border-glass);color:var(--fire-gold)">4K ULTRA HD · HDR10+</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SCREEN 5: MICROSERVICES ARCHITECTURE -->
+  <!-- SCREEN 5: ARCHITECTURE (16-MICROSERVICE MATRIX) -->
   <div class="scr" id="s-arch">
-    <div class="arch-wrapper">
-      <div class="arch-headline">
+    <div class="arch-shell">
+      <div class="arch-headline-row">
         <div>
-          <h2>16-Microservice Autonomous Distributed Cloud Architecture</h2>
-          <p>Production Infrastructure · Xano + Supabase + Runway Gen-4 + Higgsfield Kling + Spline 3D + Gemini 2.5 + Appwrite + CloudFront · Vega OS</p>
+          <h2 class="arch-title-main">Aura Vega TV — 16-Microservice Architecture</h2>
+          <div style="font-size:14px;color:var(--t3);margin-top:6px">
+            Production Distributed Microservices &middot; Vega OS SDK 0.24 &middot; Real-Time Telemetry Matrix
+          </div>
         </div>
-        <button class="btn-outline foc" onclick="go('home')">← Back to Fire TV</button>
-      </div>
-
-      <div class="arch-kpi-row">
-        <div class="kpi-card">
-          <div class="kpi-val" id="kpi-rps">14,483</div>
-          <div class="kpi-label">Requests / min</div>
-          <div class="kpi-trend">+12% ↑</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-val" id="kpi-latency">7ms</div>
-          <div class="kpi-label">P50 Latency (API Gateway)</div>
-          <div class="kpi-trend" style="color:var(--jade)">Healthy</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-val">22/22</div>
-          <div class="kpi-label">Jest Suites (166 Tests)</div>
-          <div class="kpi-trend" style="color:var(--jade)">100% ✓</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-val">98/100</div>
-          <div class="kpi-label">Vega OS Health Score</div>
-          <div class="kpi-trend" style="color:var(--jade)">Self-Healing</div>
+        <div class="arch-meta-pills">
+          <span class="arch-pill ok">100% HEALTHY</span>
+          <span class="arch-pill ok">22/22 TEST SUITES</span>
+          <span class="arch-pill ok">166/166 TESTS PASSING</span>
+          <span class="arch-pill ok">&lt;15ms P95 LATENCY</span>
         </div>
       </div>
 
-      <div class="arch-micro-grid">
+      <div class="arch-grid-16">
         <div class="svc-tile">
-          <div class="svc-icon-badge">🌐</div>
-          <div class="svc-title-text">API Gateway</div>
-          <div class="svc-tech-stack">Kong · JWT Auth · Rate Limiting · mTLS · Edge Anycast</div>
-          <div class="svc-live-status">Operational · Anycast Edge</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num" id="m-rps">14.5K</div><div class="metric-label">req/min</div></div>
-            <div class="metric-pill"><div class="metric-num">7ms</div><div class="metric-label">P50</div></div>
-          </div>
-        </div>
-        <div class="svc-tile">
-          <div class="svc-icon-badge">🔐</div>
-          <div class="svc-title-text">Auth &amp; Sessions</div>
-          <div class="svc-tech-stack">Appwrite · OAuth2 PKCE · Multi-Profile · JWT Refresh</div>
-          <div class="svc-live-status">Operational · 4 Sessions Active</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">99.9%</div><div class="metric-label">Uptime</div></div>
-            <div class="metric-pill"><div class="metric-num">0.00%</div><div class="metric-label">Error Rate</div></div>
-          </div>
-        </div>
-        <div class="svc-tile">
-          <div class="svc-icon-badge">🧠</div>
-          <div class="svc-title-text">AI Recommender</div>
-          <div class="svc-tech-stack">Gemini 2.5 Flash · Supabase pgvector HNSW Index · 768-D</div>
-          <div class="svc-live-status">Operational · Cache Warmed</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">768-D</div><div class="metric-label">Vectors</div></div>
-            <div class="metric-pill"><div class="metric-num">32ms</div><div class="metric-label">Inference</div></div>
-          </div>
-        </div>
-        <div class="svc-tile">
-          <div class="svc-icon-badge">🤝</div>
-          <div class="svc-title-text">Consensus Core</div>
-          <div class="svc-tech-stack">Deterministic Utility Engine · Veto Penalization · CRDT Merge</div>
-          <div class="svc-live-status">97/97 Jest Tests Passed</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">97/97</div><div class="metric-label">Suites ✓</div></div>
-            <div class="metric-pill"><div class="metric-num">3ms</div><div class="metric-label">Resolution</div></div>
-          </div>
+          <div class="svc-icon-badge">⚡</div>
+          <div class="svc-title-text">APIGatewayService</div>
+          <div class="svc-tech-stack">Circuit Breaker &middot; Token Bucket Rate Limiting &middot; Resilient Routing</div>
+          <div class="svc-live-status">Operational &middot; 7ms Latency</div>
         </div>
         <div class="svc-tile">
           <div class="svc-icon-badge">⚡</div>
-          <div class="svc-title-text">Realtime State</div>
-          <div class="svc-tech-stack">Supabase Realtime WS · CRDT Presence · Cluster Broadcast</div>
-          <div class="svc-live-status">Connected · 4 Clients</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">&lt;15ms</div><div class="metric-label">Sync Lag</div></div>
-            <div class="metric-pill"><div class="metric-num">60fps</div><div class="metric-label">Broadcast</div></div>
-          </div>
+          <div class="svc-title-text">Supabase Realtime</div>
+          <div class="svc-tech-stack">WebSocket Presence &middot; CRDT Conflict-Free Merge &middot; pgvector 768d</div>
+          <div class="svc-live-status">Connected &middot; 14ms Latency</div>
         </div>
-        <div class="svc-tile">
-          <div class="svc-icon-badge">🎬</div>
-          <div class="svc-title-text">Adaptive 4K CDN</div>
-          <div class="svc-tech-stack">AWS CloudFront · HLS Adaptive Ladder · Dolby Atmos · DRM</div>
-          <div class="svc-live-status">Active · 250+ Edge PoPs</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">4K HDR</div><div class="metric-label">Stream</div></div>
-            <div class="metric-pill"><div class="metric-num">99.8%</div><div class="metric-label">Cache Hit</div></div>
-          </div>
-        </div>
-        <div class="svc-tile">
-          <div class="svc-icon-badge">📊</div>
-          <div class="svc-title-text">Observability</div>
-          <div class="svc-tech-stack">OpenTelemetry · Grafana · Prometheus · P95 Distributed Tracing</div>
-          <div class="svc-live-status">Streaming Traces</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">247h</div><div class="metric-label">Logged</div></div>
-            <div class="metric-pill"><div class="metric-num">0</div><div class="metric-label">Dropped</div></div>
-          </div>
-        </div>
-        <div class="svc-tile">
-          <div class="svc-icon-badge">🔔</div>
-          <div class="svc-title-text">Fire TV Push Hub</div>
-          <div class="svc-tech-stack">Amazon SNS · Fire TV ADM · Multi-Device Push · Sync Alerts</div>
-          <div class="svc-live-status">Operational</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">34</div><div class="metric-label">Alerts Sent</div></div>
-            <div class="metric-pill"><div class="metric-num">100%</div><div class="metric-label">Delivered</div></div>
-          </div>
-        </div>
-
-        <div class="svc-tile">
-          <div class="svc-icon-badge">🤖</div>
-          <div class="svc-title-text">Autonomous AI Engine</div>
-          <div class="svc-tech-stack">4-Agent Consensus Pipeline · Curator · Critic · Analyst · Synthesizer</div>
-          <div class="svc-live-status">Operational · Consensus Ready</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">4 Agents</div><div class="metric-label">Pipeline</div></div>
-            <div class="metric-pill"><div class="metric-num">42ms</div><div class="metric-label">Consensus</div></div>
-          </div>
-        </div>
-
-        <div class="svc-tile">
-          <div class="svc-icon-badge">🎥</div>
-          <div class="svc-title-text">Generative Motion</div>
-          <div class="svc-tech-stack">Runway Gen-4 Turbo · Higgsfield Kling v3.0 · Ambient Video Synthesis</div>
-          <div class="svc-live-status">Active · Studio Ready</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">2 Models</div><div class="metric-label">Engines</div></div>
-            <div class="metric-pill"><div class="metric-num">1080p</div><div class="metric-label">Motion</div></div>
-          </div>
-        </div>
-
-        <div class="svc-tile">
-          <div class="svc-icon-badge">🔮</div>
-          <div class="svc-title-text">Spline 3D Spatial</div>
-          <div class="svc-tech-stack">Interactive WebGL Canvas · Consensus Orb · Circadian Lighting Vector</div>
-          <div class="svc-live-status">Operational · 60fps WebGL</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">60fps</div><div class="metric-label">Frame Rate</div></div>
-            <div class="metric-pill"><div class="metric-num">3D Orb</div><div class="metric-label">Telemetry</div></div>
-          </div>
-        </div>
-
         <div class="svc-tile">
           <div class="svc-icon-badge">☁️</div>
           <div class="svc-title-text">Xano Cloud Backend</div>
-          <div class="svc-tech-stack">Offline-First Cache · /health_snapshots Telemetry · Voting Ledgers</div>
-          <div class="svc-live-status">Connected · Resilient Sync</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">0 Loss</div><div class="metric-label">Buffer</div></div>
-            <div class="metric-pill"><div class="metric-num">&lt;10ms</div><div class="metric-label">Sync Latency</div></div>
-          </div>
+          <div class="svc-tech-stack">Offline Buffer &middot; /health_snapshots Telemetry &middot; Voting Ledgers</div>
+          <div class="svc-live-status">Connected &middot; Zero Loss</div>
         </div>
-
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🪐</div>
+          <div class="svc-title-text">Spline 3D Spatial</div>
+          <div class="svc-tech-stack">Interactive WebGL &middot; 3D Consensus Orb &middot; Spatial Telemetry</div>
+          <div class="svc-live-status">Operational &middot; 60fps WebGL</div>
+        </div>
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🎬</div>
+          <div class="svc-title-text">Runway &amp; Higgsfield AI</div>
+          <div class="svc-tech-stack">Generative Motion Engine &middot; Kling v3 &middot; Neural Video Synthesis</div>
+          <div class="svc-live-status">Pre-Warmed &middot; 8K Shimmer</div>
+        </div>
         <div class="svc-tile">
           <div class="svc-icon-badge">📝</div>
           <div class="svc-title-text">Adaptive Caption Engine</div>
-          <div class="svc-tech-stack">Per-Viewer Personalization · Pause/Rewind Learning · HUD Avoidance</div>
-          <div class="svc-live-status">Active · Zero Latency</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">Auto-Fit</div><div class="metric-label">Dynamic</div></div>
-            <div class="metric-pill"><div class="metric-num">0ms</div><div class="metric-label">On-Device</div></div>
-          </div>
+          <div class="svc-tech-stack">Per-Viewer Personalization &middot; Pause/Rewind Learning &middot; HUD Avoidance</div>
+          <div class="svc-live-status">Active &middot; Zero Latency</div>
         </div>
-
         <div class="svc-tile">
           <div class="svc-icon-badge">⚡</div>
           <div class="svc-title-text">Predictive Prefetch</div>
-          <div class="svc-tech-stack">Multi-Signal CDN Pre-Warm · Trend Velocity · Instant-Start Playback</div>
-          <div class="svc-live-status">Pre-Warmed · Buffer Free</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">100%</div><div class="metric-label">Hit Rate</div></div>
-            <div class="metric-pill"><div class="metric-num">215ms</div><div class="metric-label">Saved</div></div>
-          </div>
+          <div class="svc-tech-stack">Multi-Signal CDN Pre-Warm &middot; Trend Velocity &middot; Instant-Start</div>
+          <div class="svc-live-status">Pre-Warmed &middot; 215ms Saved</div>
         </div>
-
-        <div class="svc-tile">
-          <div class="svc-icon-badge">📈</div>
-          <div class="svc-title-text">Insight Reporter</div>
-          <div class="svc-tech-stack">Household Trend Mining · Genre/Mood Velocity · Narrative AI Ticker</div>
-          <div class="svc-live-status">Streaming Insights</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">Real-Time</div><div class="metric-label">Signals</div></div>
-            <div class="metric-pill"><div class="metric-num">5min</div><div class="metric-label">Cycle</div></div>
-          </div>
-        </div>
-
         <div class="svc-tile">
           <div class="svc-icon-badge">🛡️</div>
           <div class="svc-title-text">Vega OS Health Monitor</div>
-          <div class="svc-tech-stack">Self-Healing Protocols · Automated Recovery · Composite Telemetry HUD</div>
-          <div class="svc-live-status">Healthy · Score 98/100</div>
-          <div class="svc-metrics-duo">
-            <div class="metric-pill"><div class="metric-num">98/100</div><div class="metric-label">Score</div></div>
-            <div class="metric-pill"><div class="metric-num">Self-Heal</div><div class="metric-label">Active</div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="arch-flow-row">
-        <div class="flow-node">
-          <div class="flow-node-icon">📺</div>
-          <div class="flow-node-label">Fire TV App</div>
-        </div>
-        <div class="flow-arrow">
-          <div class="flow-arrow-line"></div>
-          <div class="flow-packet"></div><div class="flow-packet"></div>
-          <div class="flow-latency">mTLS · 7ms</div>
-        </div>
-        <div class="flow-node">
-          <div class="flow-node-icon">🌐</div>
-          <div class="flow-node-label">Kong Gateway</div>
-        </div>
-        <div class="flow-arrow">
-          <div class="flow-arrow-line"></div>
-          <div class="flow-packet"></div><div class="flow-packet"></div>
-          <div class="flow-latency">JWT · 3ms</div>
-        </div>
-        <div class="flow-node">
-          <div class="flow-node-icon">🔐</div>
-          <div class="flow-node-label">Appwrite Auth</div>
-        </div>
-        <div class="flow-arrow">
-          <div class="flow-arrow-line"></div>
-          <div class="flow-packet"></div><div class="flow-packet"></div>
-          <div class="flow-latency">WS · &lt;15ms</div>
-        </div>
-        <div class="flow-node">
-          <div class="flow-node-icon">⚡</div>
-          <div class="flow-node-label">Supabase RT</div>
-        </div>
-        <div class="flow-arrow">
-          <div class="flow-arrow-line"></div>
-          <div class="flow-packet"></div><div class="flow-packet"></div>
-          <div class="flow-latency">Embed · 32ms</div>
-        </div>
-        <div class="flow-node">
-          <div class="flow-node-icon">🧠</div>
-          <div class="flow-node-label">Gemini 2.5</div>
-        </div>
-        <div class="flow-arrow">
-          <div class="flow-arrow-line"></div>
-          <div class="flow-packet"></div><div class="flow-packet"></div>
-          <div class="flow-latency">Score · 3ms</div>
-        </div>
-        <div class="flow-node">
-          <div class="flow-node-icon">🤝</div>
-          <div class="flow-node-label">Consensus Core</div>
-        </div>
-        <div class="flow-arrow">
-          <div class="flow-arrow-line"></div>
-          <div class="flow-packet"></div><div class="flow-packet"></div>
-          <div class="flow-latency">HLS · &lt;2ms</div>
-        </div>
-        <div class="flow-node">
-          <div class="flow-node-icon">🎬</div>
-          <div class="flow-node-label">CloudFront CDN</div>
+          <div class="svc-tech-stack">Self-Healing Protocols &middot; Automated Recovery &middot; Composite Telemetry</div>
+          <div class="svc-live-status">Healthy &middot; Score 98/100</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SCREEN 6: AMBIENT MODE -->
+  <!-- SCREEN 6: AMBIENT SCREEN -->
   <div class="scr" id="s-amb">
-    <div class="ember-container" id="amb-embers"></div>
-    <div class="amb-center">
-      <div class="amb-brand">AMAZON FIRE TV · AMBIENT LIVING ROOM MODE</div>
-      <div class="amb-clock" id="amb-clock">18:42:05</div>
-      <div class="amb-date" id="amb-date">Saturday, October 3 · Living Room</div>
-      <div class="amb-info-pill">
-        <div class="amb-weather">
-          <span style="font-size:44px" id="amb-weather-icon">🌇</span>
-          <div>
-            <div class="amb-temp" id="amb-temp">24°C</div>
-            <div class="amb-city">Mumbai, India · Circadian Sunset</div>
-          </div>
-        </div>
-        <div class="amb-divider"></div>
-        <div class="amb-house-info">
-          🏠 Front Door Camera: Secure &amp; Locked<br>
-          👨‍👩‍👧‍👦 Household: 4 Members Present (Ronak, Priya, Meera, Sam)<br>
-          🔥 Ronak Jain · Fire TV Omni 65"
-        </div>
-      <!-- Autonomous Insight Ticker & Vega OS Health HUD -->
-      <div class="amb-intelligence-stack">
-        <div class="amb-ticker-card foc" onclick="go('cons')">
-          <div class="atc-top">
-            <div class="atc-badge"><span class="atc-dot"></span>VEGA AI INTELLIGENCE</div>
-            <div class="atc-match">Next Match: <strong>Dune: Awakening</strong> (94%)</div>
-          </div>
-          <div class="atc-narrative">
-            Cosmic & mind-bending sci-fi is surging across the household. Consensus suggests Dune: Awakening for evening viewing.
-          </div>
-          <div class="atc-tags">
-            <span class="atc-pill">🔥 Sci-Fi (+14%)</span>
-            <span class="atc-pill">📊 Prime Video</span>
-            <span class="atc-pill motion">🎨 Runway Gen-4: Starlit cosmic nebula...</span>
-          </div>
-        </div>
+    <div class="amb-living-sky" id="amb-sky-wrap" style="background-image:url('assets/hero_dune_backdrop.jpg');background-size:cover;background-position:center;filter:brightness(0.7)"></div>
 
-        <div class="amb-health-card foc" onclick="toggleHealthMatrix()">
-          <div class="ahc-top">
-            <div class="ahc-title"><span class="ahc-dot"></span>VEGA OS HEALTH</div>
-            <div class="ahc-score"><span class="score-num">98</span><span class="score-den">/100</span></div>
-          </div>
-          <div class="ahc-summary">
-            <span>Status: <strong style="color:var(--jade)">HEALTHY</strong></span>
-            <span>CDN Hit Rate: <strong style="color:var(--alexa)">100%</strong></span>
-            <span style="color:var(--t4)">Click to Inspect Services</span>
-          </div>
-          <div class="ahc-matrix" id="ahc-matrix" style="display:none">
-            <div class="ahc-grid">
-              <div class="ahc-svc"><span class="svc-dot live"></span>APIGateway <span class="ahc-lat">7ms</span></div>
-              <div class="ahc-svc"><span class="svc-dot live"></span>Supabase <span class="ahc-lat">15ms</span></div>
-              <div class="ahc-svc"><span class="svc-dot live"></span>XanoBackend <span class="ahc-lat">9ms</span></div>
-              <div class="ahc-svc"><span class="svc-dot live"></span>MediaCDN <span class="ahc-lat">2ms</span></div>
-              <div class="ahc-svc"><span class="svc-dot live"></span>GenerativeMotion <span class="ahc-lat">34ms</span></div>
-              <div class="ahc-svc"><span class="svc-dot live"></span>SplineSpatial <span class="ahc-lat">16ms</span></div>
-              <div class="ahc-svc"><span class="svc-dot live"></span>ScoringEngine <span class="ahc-lat">3ms</span></div>
-              <div class="ahc-svc"><span class="svc-dot live"></span>AutonomousAI <span class="ahc-lat">42ms</span></div>
-              <div class="ahc-svc"><span class="svc-dot live"></span>PredictivePrefetch <span class="ahc-lat">0ms</span></div>
-            </div>
-            <div class="ahc-telemetry-note">☁️ Telemetry stream synced with Xano /health_snapshots · Zero Loss</div>
-          </div>
+    <div class="amb-clock-dock">
+      <div class="amb-time-huge" id="amb-clock">21:45</div>
+      <div class="amb-date-sub" id="amb-date">Saturday, October 4 &middot; Mumbai, India</div>
+      <div class="amb-info-pill">
+        <span>🌤️ 28°C Sunset &middot; Clear Sky</span>
+        <span>&middot;</span>
+        <span>🛋️ 4 Viewers on Couch</span>
+        <span>&middot;</span>
+        <span>🔥 Vega OS 0.24</span>
+      </div>
+    </div>
+
+    <!-- AMBIENT INTELLIGENCE STACK -->
+    <div class="amb-intelligence-stack">
+      <div class="amb-ticker-card foc" onclick="go('cons')">
+        <div class="atc-top">
+          <div class="atc-badge"><span class="atc-dot"></span>VEGA AI INTELLIGENCE</div>
+          <div class="atc-match">Top Match: <strong>Dune: Awakening</strong> (94%)</div>
+        </div>
+        <div class="atc-narrative">
+          Cosmic &amp; mind-bending sci-fi is surging across the household. Consensus suggests Dune: Awakening for evening viewing.
+        </div>
+        <div class="atc-tags">
+          <span class="atc-pill">🔥 Sci-Fi (+14%)</span>
+          <span class="atc-pill">📊 Prime Video</span>
+          <span class="atc-pill motion">🎨 Runway Gen-4: Starlit cosmic nebula...</span>
         </div>
       </div>
 
-      <button class="amb-resume-btn foc" onclick="go('home')">Press Any Remote Button to Resume</button>
+      <div class="amb-health-card foc" onclick="toggleHealthMatrix()">
+        <div class="ahc-top">
+          <div class="ahc-title"><span class="ahc-dot"></span>VEGA OS HEALTH</div>
+          <div class="ahc-score">98/100</div>
+        </div>
+        <div class="ahc-summary">
+          <span>Status: <strong style="color:var(--jade)">HEALTHY</strong></span>
+          <span>CDN Hit Rate: <strong style="color:var(--alexa)">100%</strong></span>
+          <span style="color:var(--t4)">Click to Inspect Services</span>
+        </div>
+        <div class="ahc-matrix" id="ahc-matrix" style="display:none">
+          <div class="ahc-grid">
+            <div class="ahc-svc"><span>APIGateway</span> <span class="ahc-lat">7ms</span></div>
+            <div class="ahc-svc"><span>Supabase</span> <span class="ahc-lat">14ms</span></div>
+            <div class="ahc-svc"><span>XanoBackend</span> <span class="ahc-lat">9ms</span></div>
+            <div class="ahc-svc"><span>SplineSpatial</span> <span class="ahc-lat">16ms</span></div>
+            <div class="ahc-svc"><span>GenerativeMotion</span> <span class="ahc-lat">32ms</span></div>
+            <div class="ahc-svc"><span>PredictivePrefetch</span> <span class="ahc-lat">0ms</span></div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
+    <button class="amb-resume-btn foc" onclick="go('home')">Press Any Remote Button to Resume</button>
+  </div>
 </div>
 
-<!-- DOCKED MINIMAL FIRE TV REMOTE -->
-<div id="fire-remote-hud">
-  <div class="rmt-toggle-tab" onclick="toggleRemoteHud()">🎮 Remote (R)</div>
-  <div class="rmt-label">Fire TV Remote</div>
-  <div class="rmt-alexa-ring" id="rmt-alexa" onclick="triggerAlexa()">🎙</div>
+<!-- VIRTUAL REMOTE HUD -->
+<div class="remote-hud" id="remote-hud">
+  <div class="rmt-title">Fire TV Voice Remote</div>
   <div class="rmt-dpad">
-    <div class="d-btn d-up"    id="rmt-up"    onclick="remoteKey('ArrowUp')">▲</div>
-    <div class="d-btn d-down"  id="rmt-down"  onclick="remoteKey('ArrowDown')">▼</div>
-    <div class="d-btn d-left"  id="rmt-left"  onclick="remoteKey('ArrowLeft')">◀</div>
-    <div class="d-btn d-right" id="rmt-right" onclick="remoteKey('ArrowRight')">▶</div>
-    <div class="d-center"      id="rmt-sel"   onclick="remoteKey('Enter')">SELECT</div>
+    <button class="rmt-btn rmt-up" onclick="remoteKey('ArrowUp')">▲</button>
+    <button class="rmt-btn rmt-down" onclick="remoteKey('ArrowDown')">▼</button>
+    <button class="rmt-btn rmt-left" onclick="remoteKey('ArrowLeft')">◀</button>
+    <button class="rmt-btn rmt-right" onclick="remoteKey('ArrowRight')">▶</button>
+    <button class="rmt-sel" onclick="remoteKey('Enter')">SELECT</button>
   </div>
-  <div class="rmt-nav-row">
-    <div class="rmt-pill-btn" id="rmt-back" onclick="remoteKey('Escape')">↩</div>
-    <div class="rmt-pill-btn" id="rmt-home" onclick="go('home')">🏠</div>
-  </div>
-  <div class="rmt-nav-row">
-    <div class="rmt-pill-btn" id="rmt-play" onclick="togglePlayback()">⏯</div>
-    <div class="rmt-pill-btn" id="rmt-xray" onclick="toggleXray()">ℹ</div>
+  <div class="rmt-row">
+    <button class="rmt-sbtn" onclick="remoteKey('Escape')">BACK</button>
+    <button class="rmt-sbtn" onclick="go('home')">HOME</button>
   </div>
 </div>
 
-<div id="toast-wrap"></div>
-
+<!-- NOTIFICATION TOAST -->
+<div class="toast-box" id="toast-box">
+  <div class="toast-icon" id="t-icon">🔥</div>
+  <div>
+    <div class="toast-title" id="t-title">Aura Vega OS</div>
+    <div class="toast-msg" id="t-msg">Notification</div>
+  </div>
+</div>
 
 <script>
 const POSTERS = {
-  1: '<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"> <defs> <linearGradient id="dune-sky" x1="0" y1="0" x2="0" y2="1"> <stop offset="0%" stop-color="#140602"/> <stop offset="45%" stop-color="#4A1804"/> <stop offset="75%" stop-color="#C24E08"/> <stop offset="100%" stop-color="#FF9500"/> </linearGradient> <radialGradient id="dune-sun" cx="50%" cy="40%" r="40%"> <stop offset="0%" stop-color="#FFF2A3" stop-opacity="1"/> <stop offset="35%" stop-color="#FF8A00" stop-opacity="0.8"/> <stop offset="100%" stop-color="#FF4500" stop-opacity="0"/> </radialGradient> <filter id="dglow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter> </defs> <rect width="320" height="480" fill="url(#dune-sky)"/> <circle cx="160" cy="220" r="90" fill="url(#dune-sun)"/> <circle cx="90" cy="140" r="16" fill="#FFEAA7" opacity="0.6"/> <circle cx="230" cy="110" r="10" fill="#FFD580" opacity="0.4"/> <path d="M-20 320 Q60 270 160 300 T340 280 L340 480 L-20 480 Z" fill="#7A2803"/> <path d="M-20 360 Q100 310 220 350 T340 330 L340 480 L-20 480 Z" fill="#521700"/> <path d="M-20 410 Q140 370 260 410 T340 390 L340 480 L-20 480 Z" fill="#2E0B00"/> <path d="M152 350 L158 335 L164 350 Z M158 333 A3 3 0 1 0 158 327 A3 3 0 1 0 158 333 Z" fill="#0A0300"/> <path d="M170 352 L175 340 L180 352 Z M175 338 A2.5 2.5 0 1 0 175 333 A2.5 2.5 0 1 0 175 338 Z" fill="#0A0300"/> <text x="160" y="55" text-anchor="middle" font-family="\'Cinzel\',serif" font-size="11" font-weight="700" letter-spacing="4" fill="#FFA500" opacity="0.9">AMAZON ORIGINAL</text> <text x="160" y="440" text-anchor="middle" font-family="\'Cinzel\',serif" font-size="28" font-weight="900" letter-spacing="6" fill="#FFFFFF" filter="url(#dglow)">DUNE</text> <text x="160" y="462" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="10" font-weight="800" letter-spacing="5" fill="#FFB800">AWAKENING</text> </svg>',
-  2: '<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"> <defs> <linearGradient id="space-bg" x1="0" y1="0" x2="0" y2="1"> <stop offset="0%" stop-color="#02040A"/><stop offset="60%" stop-color="#050C1F"/><stop offset="100%" stop-color="#001438"/> </linearGradient> <radialGradient id="gargantua" cx="50%" cy="50%" r="50%"> <stop offset="0%" stop-color="#000000"/><stop offset="40%" stop-color="#000000"/><stop offset="48%" stop-color="#FFD700"/><stop offset="65%" stop-color="#FF8C00"/><stop offset="85%" stop-color="#00D4FF" stop-opacity="0.4"/><stop offset="100%" stop-color="#000000" stop-opacity="0"/> </radialGradient> <filter id="sglow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter> </defs> <rect width="320" height="480" fill="url(#space-bg)"/> <g fill="#FFF" opacity="0.8"> <circle cx="30" cy="50" r="1"/><circle cx="80" cy="120" r="1.5"/><circle cx="140" cy="40" r="1"/><circle cx="280" cy="90" r="1.2"/> <circle cx="45" cy="220" r="1.2"/><circle cx="290" cy="270" r="1.5"/><circle cx="210" cy="380" r="1"/><circle cx="70" cy="410" r="1.5"/> </g> <circle cx="160" cy="220" r="110" fill="url(#gargantua)"/> <ellipse cx="160" cy="220" rx="130" ry="24" fill="none" stroke="#FFC700" stroke-width="6" opacity="0.85" filter="url(#sglow)"/> <ellipse cx="160" cy="220" rx="140" ry="12" fill="none" stroke="#00D4FF" stroke-width="2" opacity="0.9"/> <circle cx="160" cy="220" r="42" fill="#000000"/> <circle cx="160" cy="330" r="14" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-dasharray="4 2"/> <text x="160" y="55" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="10" font-weight="800" letter-spacing="4" fill="#00D4FF">PARAMOUNT · 4K HDR</text> <text x="160" y="438" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="22" font-weight="900" letter-spacing="4" fill="#FFFFFF" filter="url(#sglow)">INTERSTELLAR</text> <text x="160" y="460" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="11" font-weight="700" letter-spacing="6" fill="#00D4FF">BEYOND TIME</text> </svg>',
-  3: '<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"> <defs> <linearGradient id="empress-bg" x1="0" y1="0" x2="0" y2="1"> <stop offset="0%" stop-color="#1F0402"/><stop offset="60%" stop-color="#4A0804"/><stop offset="100%" stop-color="#140201"/> </linearGradient> <linearGradient id="gold-grad" x1="0" y1="0" x2="1" y2="1"> <stop offset="0%" stop-color="#FFEAA7"/><stop offset="50%" stop-color="#FFC500"/><stop offset="100%" stop-color="#B8860B"/> </linearGradient> <filter id="eglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter> </defs> <rect width="320" height="480" fill="url(#empress-bg)"/> <circle cx="160" cy="180" r="85" fill="#FFEAA7" opacity="0.15"/> <path d="M60 300 Q160 260 260 300 L250 330 Q160 300 70 330 Z" fill="url(#gold-grad)"/> <path d="M80 250 Q160 220 240 250 L230 275 Q160 250 90 275 Z" fill="url(#gold-grad)"/> <path d="M110 200 Q160 180 210 200 L205 220 Q160 205 115 220 Z" fill="url(#gold-grad)"/> <rect x="156" y="160" width="8" height="25" fill="url(#gold-grad)"/> <text x="160" y="55" text-anchor="middle" font-family="\'Cinzel\',serif" font-size="10" font-weight="700" letter-spacing="4" fill="#FFC500">HISTORICAL EPIC</text> <text x="160" y="438" text-anchor="middle" font-family="\'Cinzel\',serif" font-size="24" font-weight="900" letter-spacing="3" fill="#FFFFFF" filter="url(#eglow)">THE LAST EMPRESS</text> <text x="160" y="460" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="10" font-weight="700" letter-spacing="5" fill="#FFC500">DYNASTY &amp; BLOOD</text> </svg>',
-  4: '<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"> <defs> <linearGradient id="neon-bg" x1="0" y1="0" x2="0" y2="1"> <stop offset="0%" stop-color="#080014"/><stop offset="50%" stop-color="#15002E"/><stop offset="100%" stop-color="#030008"/> </linearGradient> <filter id="nglow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter> </defs> <rect width="320" height="480" fill="url(#neon-bg)"/> <rect x="20" y="180" width="45" height="250" fill="#0D0022"/> <rect x="75" y="140" width="55" height="290" fill="#140033"/> <rect x="140" y="100" width="50" height="330" fill="#0A001A"/> <rect x="200" y="160" width="60" height="270" fill="#150036"/> <g fill="#00D4FF" opacity="0.6"> <rect x="85" y="160" width="3" height="8"/><rect x="95" y="160" width="3" height="8"/><rect x="85" y="180" width="3" height="8"/> <rect x="150" y="120" width="4" height="6"/><rect x="165" y="140" width="4" height="6"/><rect x="150" y="160" width="4" height="6"/> </g> <path d="M0 360 L320 360" stroke="#FF007F" stroke-width="2" filter="url(#nglow)"/> <path d="M0 380 L320 380" stroke="#00D4FF" stroke-width="1.5" filter="url(#nglow)"/> <path d="M120 220 L160 215 L190 222 L150 224 Z" fill="#00D4FF" filter="url(#nglow)"/> <text x="160" y="55" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="10" font-weight="800" letter-spacing="4" fill="#FF007F">NEO-NOIR THRILLER</text> <text x="160" y="438" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="24" font-weight="900" letter-spacing="4" fill="#00FFFF" filter="url(#nglow)">NEON HORIZON</text> <text x="160" y="460" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="10" font-weight="800" letter-spacing="6" fill="#FF007F">CYBERPUNK 2088</text> </svg>',
-  5: '<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"> <defs> <linearGradient id="zp-bg" x1="0" y1="0" x2="0" y2="1"> <stop offset="0%" stop-color="#021415"/><stop offset="50%" stop-color="#042C2E"/><stop offset="100%" stop-color="#010A0A"/> </linearGradient> <filter id="zglow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter> </defs> <rect width="320" height="480" fill="url(#zp-bg)"/> <path d="M-60 480 Q160 280 380 480 Z" fill="#005252" opacity="0.4"/> <path d="M-60 480 Q160 290 380 480 Z" fill="none" stroke="#00FFE0" stroke-width="4" filter="url(#zglow)"/> <polygon points="160,150 195,210 160,270 125,210" fill="none" stroke="#00FFE0" stroke-width="3" filter="url(#zglow)"/> <circle cx="160" cy="210" r="18" fill="#00FFE0" opacity="0.8" filter="url(#zglow)"/> <rect x="70" y="205" width="45" height="10" fill="#008080" stroke="#00FFE0"/> <rect x="205" y="205" width="45" height="10" fill="#008080" stroke="#00FFE0"/> <text x="160" y="55" text-anchor="middle" font-family="\'Roboto Mono\',monospace" font-size="10" font-weight="700" letter-spacing="3" fill="#00FFE0">AUTONOMOUS AI // VEGA OS</text> <text x="160" y="438" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="26" font-weight="900" letter-spacing="5" fill="#FFFFFF" filter="url(#zglow)">ZERO POINT</text> <text x="160" y="460" text-anchor="middle" font-family="\'Roboto Mono\',monospace" font-size="10" font-weight="700" letter-spacing="4" fill="#00FFE0">ORBITAL DEFENSE</text> </svg>',
-  6: '<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"> <defs> <linearGradient id="cosmic-bg" x1="0" y1="0" x2="1" y2="1"> <stop offset="0%" stop-color="#050114"/><stop offset="50%" stop-color="#1A0033"/><stop offset="100%" stop-color="#001428"/> </linearGradient> <radialGradient id="nebula1" cx="30%" cy="40%" r="50%"> <stop offset="0%" stop-color="#FF00AA" stop-opacity="0.6"/> <stop offset="60%" stop-color="#7700FF" stop-opacity="0.3"/> <stop offset="100%" stop-color="#000" stop-opacity="0"/> </radialGradient> <filter id="cglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter> </defs> <rect width="320" height="480" fill="url(#cosmic-bg)"/> <circle cx="100" cy="190" r="120" fill="url(#nebula1)"/> <path d="M120 180 A50 50 0 0 1 200 180" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.8"/> <path d="M100 240 A70 70 0 0 1 220 240" fill="none" stroke="#00FFFF" stroke-width="1.5" opacity="0.7"/> <polygon points="160,80 174,88 174,104 160,112 146,104 146,88" fill="#FFC500" opacity="0.8"/> <text x="160" y="55" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="10" font-weight="700" letter-spacing="3" fill="#FFD700">JAMES WEBB 4K HDR</text> <text x="160" y="438" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="24" font-weight="900" letter-spacing="3" fill="#FFFFFF" filter="url(#cglow)">THE COSMIC WEB</text> <text x="160" y="460" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="10" font-weight="700" letter-spacing="5" fill="#00FFFF">DEEP FIELD DISCOVERY</text> </svg>',
-  7: '<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"> <defs> <linearGradient id="monsoon-bg" x1="0" y1="0" x2="0" y2="1"> <stop offset="0%" stop-color="#02140D"/><stop offset="50%" stop-color="#043322"/><stop offset="100%" stop-color="#00120B"/> </linearGradient> <linearGradient id="street-glow" x1="0" y1="0" x2="1" y2="0"> <stop offset="0%" stop-color="#FF9900" stop-opacity="0.8"/><stop offset="100%" stop-color="#FF3300" stop-opacity="0.2"/> </linearGradient> <filter id="mglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter> </defs> <rect width="320" height="480" fill="url(#monsoon-bg)"/> <g stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round"> <line x1="40" y1="100" x2="25" y2="170"/><line x1="120" y1="60" x2="105" y2="140"/><line x1="220" y1="110" x2="205" y2="180"/> <line x1="80" y1="200" x2="65" y2="280"/><line x1="180" y1="180" x2="165" y2="260"/> </g> <path d="M-20 380 Q140 320 340 400" fill="none" stroke="url(#street-glow)" stroke-width="8" filter="url(#mglow)"/> <path d="M130 330 L130 280 Q160 250 190 280 L190 330 Z" fill="#02140D" stroke="#00E676" stroke-width="1.5"/> <text x="160" y="55" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="10" font-weight="700" letter-spacing="3" fill="#00E676">MUMBAI STORIES</text> <text x="160" y="438" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="23" font-weight="900" letter-spacing="3" fill="#FFFFFF" filter="url(#mglow)">MONSOON RHYTHM</text> <text x="160" y="460" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="10" font-weight="700" letter-spacing="5" fill="#FFC500">HEARTBEAT OF THE CITY</text> </svg>',
-  8: '<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"> <defs> <linearGradient id="black-bg" x1="0" y1="0" x2="0" y2="1"> <stop offset="0%" stop-color="#0A0A0A"/><stop offset="50%" stop-color="#1A1A1A"/><stop offset="100%" stop-color="#050505"/> </linearGradient> <filter id="bglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter> </defs> <rect width="320" height="480" fill="url(#black-bg)"/> <circle cx="160" cy="220" r="100" fill="none" stroke="rgba(255,50,0,0.2)" stroke-width="1"/> <circle cx="160" cy="220" r="60" fill="none" stroke="rgba(255,50,0,0.3)" stroke-width="1"/> <path d="M145 270 L150 200 L170 200 L175 270 Z M160 195 A10 10 0 1 0 160 175 A10 10 0 1 0 160 195 Z" fill="#FF3300" opacity="0.8"/> <circle cx="160" cy="185" r="18" fill="none" stroke="#FF3300" stroke-width="2" stroke-dasharray="6 3" filter="url(#bglow)"/> <text x="160" y="55" text-anchor="middle" font-family="\'Roboto Mono\',monospace" font-size="10" font-weight="700" letter-spacing="3" fill="#FF3300">[CLASSIFIED // TOP SECRET]</text> <text x="160" y="438" text-anchor="middle" font-family="\'Inter\',sans-serif" font-size="22" font-weight="900" letter-spacing="3" fill="#FFFFFF" filter="url(#bglow)">BLACK SITE</text> <text x="160" y="460" text-anchor="middle" font-family="\'Roboto Mono\',monospace" font-size="10" font-weight="800" letter-spacing="5" fill="#FF3300">PROTOCOL OMEGA</text> </svg>',
+  1: 'assets/poster_dune.jpg',
+  2: 'assets/poster_interstellar.jpg',
+  3: 'assets/poster_cyberpunk.jpg',
+  4: 'assets/poster_thebear.jpg',
+  5: 'assets/poster_zeropoint.jpg',
+  6: 'assets/poster_cosmicweb.jpg',
+  7: 'assets/poster_monsoon.jpg',
+  8: 'assets/poster_blacksite.jpg',
+};
+
+
+const BACKDROPS = {
+  1: 'assets/hero_dune_backdrop.jpg',
+  2: 'assets/hero_interstellar_backdrop.jpg',
+  3: 'assets/hero_cyberpunk_backdrop.jpg',
+  4: 'assets/hero_dune_backdrop.jpg',
+  5: 'assets/hero_interstellar_backdrop.jpg',
+  6: 'assets/hero_dune_backdrop.jpg',
+  7: 'assets/hero_cyberpunk_backdrop.jpg',
+  8: 'assets/hero_interstellar_backdrop.jpg',
 };
 
 
 const CATALOG = [
-  {
-    id: 1,
-    t: 'Dune: Awakening',
-    y: 2025,
-    r: '2h 46m',
-    g: ['Sci-Fi', 'Action', 'Adventure'],
-    rt: 9.1,
-    m: 94,
-    d: 'Epic struggle across Arrakis where destiny, power, and spice converge. All 4 active household members voted yes with zero genre conflicts.',
-    posterSvg: POSTERS[1]
-  },
-  {
-    id: 2,
-    t: 'Interstellar: Beyond',
-    y: 2025,
-    r: '3h 02m',
-    g: ['Sci-Fi', 'Drama', 'Mystery'],
-    rt: 8.9,
-    m: 89,
-    d: 'Love transcends spacetime in this breathtaking odyssey through uncharted wormholes. Re-evaluated in under 15ms for all viewers.',
-    posterSvg: POSTERS[2]
-  },
-  {
-    id: 3,
-    t: 'The Last Empress',
-    y: 2025,
-    r: '1h 54m',
-    g: ['Drama', 'History', 'Action'],
-    rt: 8.5,
-    m: 85,
-    d: 'Imperial court intrigue and ruthless ambition at the edge of dynastic collapse. Fits early-evening 2-hour household window.',
-    posterSvg: POSTERS[3]
-  },
-  {
-    id: 4,
-    t: 'Neon Horizon',
-    y: 2025,
-    r: '2h 12m',
-    g: ['Neo-Noir', 'Action', 'Sci-Fi'],
-    rt: 8.3,
-    m: 82,
-    d: 'A futuristic detective untangles corporate conspiracies across a rain-slicked mega-city. 768-D vector affinity match for Ronak and Sam.',
-    posterSvg: POSTERS[4]
-  },
-  {
-    id: 5,
-    t: 'Zero Point',
-    y: 2025,
-    r: '1h 58m',
-    g: ['Sci-Fi', 'Thriller'],
-    rt: 8.6,
-    m: 80,
-    d: 'Autonomous AI emerges on orbital defense station, rewriting global deterrence protocols. High critical acclaim consensus.',
-    posterSvg: POSTERS[5]
-  },
-  {
-    id: 6,
-    t: 'The Cosmic Web',
-    y: 2025,
-    r: '1h 42m',
-    g: ['Documentary', 'Space'],
-    rt: 9.2,
-    m: 78,
-    d: 'Deep-field James Webb imagery unveiling the ancient architecture of cosmic reality. 4K Ultra HD HDR10 master.',
-    posterSvg: POSTERS[6]
-  },
-  {
-    id: 7,
-    t: 'Monsoon Rhythm',
-    y: 2025,
-    r: '2h 05m',
-    g: ['Drama', 'Romance'],
-    rt: 8.1,
-    m: 74,
-    d: 'A modern Mumbai family navigating tradition and aspiration across generations. Circadian mood alignment.',
-    posterSvg: POSTERS[7]
-  },
-  {
-    id: 8,
-    t: 'Black Site: Protocol',
-    y: 2025,
-    r: '2h 20m',
-    g: ['Action', 'Espionage'],
-    rt: 8.4,
-    m: 72,
-    d: 'Undercover operatives execute an impossible mission under complete global blackout. Vega OS native player certified.',
-    posterSvg: POSTERS[8]
-  }
+  { id: 1, t: 'Dune: Awakening', y: 2024, r: '2h 46m', g: ['Sci-Fi', 'Adventure'], rt: 9.1, m: 94, d: 'On Arrakis, ancient spice prophecies ignite a war for planetary survival. Paul Atreides unites the desert tribes against an imperial conspiracy with ground-shaking cinematic scope.', poster: POSTERS[1], backdrop: BACKDROPS[1] },
+  { id: 2, t: 'Interstellar: The IMAX Cut', y: 2024, r: '2h 49m', g: ['Sci-Fi', 'Drama'], rt: 8.9, m: 91, d: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival, pushing the limits of love, physics, and relativity.', poster: POSTERS[2], backdrop: BACKDROPS[2] },
+  { id: 3, t: 'Cyberpunk: Phantom Liberty', y: 2024, r: '2h 15m', g: ['Sci-Fi', 'Action'], rt: 8.7, m: 88, d: 'In the neon shadows of Dogtown, an elite cybernetic mercenary enters a high-stakes web of espionage, political betrayal, and neural overrides.', poster: POSTERS[3], backdrop: BACKDROPS[3] },
+  { id: 4, t: 'The Bear: Season 3', y: 2024, r: '45m Ep', g: ['Drama', 'Comedy'], rt: 9.0, m: 85, d: 'Carmy and his crew push culinary perfection to the bleeding edge in a relentless quest for a Michelin star, navigating passion and chaos.', poster: POSTERS[4], backdrop: BACKDROPS[4] },
+  { id: 5, t: 'Zero Point', y: 2025, r: '1h 58m', g: ['Sci-Fi', 'Thriller'], rt: 8.6, m: 80, d: 'Autonomous AI emerges on orbital defense station, rewriting global deterrence protocols. High critical acclaim consensus.', poster: POSTERS[5], backdrop: BACKDROPS[5] },
+  { id: 6, t: 'The Cosmic Web', y: 2025, r: '1h 42m', g: ['Documentary', 'Space'], rt: 9.2, m: 78, d: 'Deep-field James Webb imagery unveiling the ancient architecture of cosmic reality. 4K Ultra HD HDR10 master.', poster: POSTERS[6], backdrop: BACKDROPS[6] },
+  { id: 7, t: 'Monsoon Rhythm', y: 2025, r: '2h 05m', g: ['Drama', 'Romance'], rt: 8.1, m: 74, d: 'A modern Mumbai family navigating tradition and aspiration across generations. Circadian mood alignment.', poster: POSTERS[7], backdrop: BACKDROPS[7] },
+  { id: 8, t: 'Black Site: Protocol', y: 2025, r: '2h 20m', g: ['Action', 'Espionage'], rt: 8.4, m: 72, d: 'Undercover operatives execute an impossible mission under complete global blackout. Vega OS native player certified.', poster: POSTERS[8], backdrop: BACKDROPS[8] }
 ];
 
 const ST = { screen: 'splash', heroId: 1, isPlaying: true, playPct: 28, xrayOpen: true, history: [] };
 
 function resize() {
   const s = document.getElementById('stage');
+  if (!s) return;
   const sc = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
   s.style.transform = `scale(${sc})`;
   s.style.marginLeft = `${(window.innerWidth - 1920 * sc) / 2}px`;
   s.style.marginTop  = `${(window.innerHeight - 1080 * sc) / 2}px`;
 }
 window.addEventListener('resize', resize);
-resize();
 
 const SCREENS = { splash: 's-splash', home: 's-home', cons: 's-cons', play: 's-play', arch: 's-arch', amb: 's-amb' };
 function go(name) {
@@ -1224,19 +1110,6 @@ function go(name) {
 }
 window.go = go;
 
-function spawnEmbers(containerId, count = 28) {
-  const w = document.getElementById(containerId);
-  if (!w) return;
-  w.innerHTML = '';
-  for (let i = 0; i < count; i++) {
-    const e = document.createElement('div');
-    e.className = 'ember';
-    const sz = 2.5 + Math.random() * 4.5;
-    e.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random() * 100}%;animation-duration:${6 + Math.random() * 8}s;animation-delay:${-Math.random() * 10}s`;
-    w.appendChild(e);
-  }
-}
-
 function buildShelves() {
   const p1 = document.getElementById('track-picks');
   const p2 = document.getElementById('track-ai');
@@ -1250,7 +1123,7 @@ function buildShelves() {
 function cardHTML(m, lg) {
   const cls = lg ? 'fire-card lg foc' : 'fire-card foc';
   return `<div class="${cls}" data-id="${m.id}" onclick="onCardSelect(${m.id})" onmouseenter="previewCard(${m.id})">
-    <div class="fc-poster-img">${m.posterSvg}</div>
+    <div class="fc-poster-img" style="background-image:url('${m.poster}')"></div>
     <div class="fc-vignette"></div>
     <div class="fc-badge-match">${m.m}% Match</div>
     <div class="fc-badge-tag">${m.g[0]}</div>
@@ -1285,318 +1158,276 @@ function previewCard(id) {
   const t = document.getElementById('h-title');
   const d = document.getElementById('h-desc');
   const mb = document.getElementById('h-match-badge');
-  const ib = document.getElementById('h-imdb-badge');
-  const fb = document.getElementById('h-fmt-badge');
-  const lp = document.getElementById('live-pct-val');
-  const lf = document.getElementById('live-fill-bar');
-  const bp = document.getElementById('hero-backdrop-poster');
+  const hm = document.getElementById('h-meta');
+  const hb = document.getElementById('hero-backdrop');
 
   if (t) t.textContent = m.t;
   if (d) d.textContent = m.d;
   if (mb) mb.textContent = `★ ${m.m}% Group Match`;
-  if (ib) ib.textContent = `IMDb ${m.rt} · 🍅 ${Math.round(m.m * 0.98)}%`;
-  if (fb) fb.textContent = `${m.r} · ${m.y} · 4K HDR10 · Dolby Atmos`;
-  if (lp) lp.textContent = m.m + '%';
-  if (lf) lf.style.width = m.m + '%';
-  if (bp) bp.innerHTML = `<div class="hero-poster-embed">${m.posterSvg}</div>`;
+  if (hm) hm.innerHTML = `<span>★ ${m.rt} IMDb</span><span>·</span><span>🍅 ${Math.round(m.m * 0.98)}% Rotten Tomatoes</span><span>·</span><span>${m.r}</span><span>·</span><span>${m.y}</span><span>·</span><span style="color:var(--fire-gold)">4K Ultra HD · HDR10+ · Dolby Atmos</span>`;
+  if (hb && m.backdrop) {
+    hb.style.backgroundImage = `url('${m.backdrop}')`;
+  }
 }
 window.previewCard = previewCard;
 
 function initHome() {
-  spawnEmbers('ember-container', 28);
   buildShelves();
-  previewCard(ST.heroId || 1);
 }
 
-const WS_EVENTS = [
-  'voter_id="ronak_01" choice="dune_awakening" score=94',
-  'voter_id="priya_02" choice="dune_awakening" score=89',
-  'voter_id="sam_04" choice="dune_awakening" score=87',
-  'broadcast: consensus_update utility=94.2',
-  'voter_id="meera_03" typing=true',
-  'presence: 4 clients online channel=household_ronak',
-  'broadcast: score_recalculation triggered',
-  'voter_id="meera_03" choice="dune_awakening" score=85',
-  'broadcast: consensus_resolved winner="dune_awakening" utility=94.2',
-];
-let _wsIdx = 0;
+/* SPLINE 3D SPATIAL WEBGL ENGINE IN CONSENSUS SCREEN */
+let splineRenderer, splineScene, splineCamera, splineOrb, splineSatellites = [], splineAnimId;
+
+function initSpline3D() {
+  const canvas = document.getElementById('spline-canvas');
+  if (!canvas || typeof THREE === 'undefined') return;
+
+  const w = canvas.parentElement.clientWidth || 600;
+  const h = canvas.parentElement.clientHeight || 260;
+
+  if (!splineRenderer) {
+    splineScene = new THREE.Scene();
+    splineCamera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+    splineCamera.position.set(0, 0, 8.5);
+
+    splineRenderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    splineRenderer.setSize(w, h);
+    splineRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // AMBIENT & DIRECTIONAL LIGHTING
+    const ambLight = new THREE.AmbientLight(0xff5500, 0.7);
+    splineScene.add(ambLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffaa00, 2.5);
+    dirLight.position.set(5, 5, 5);
+    splineScene.add(dirLight);
+
+    const cyanLight = new THREE.PointLight(0x00d4ff, 3, 15);
+    cyanLight.position.set(-4, -2, 3);
+    splineScene.add(cyanLight);
+
+    // CENTRAL CONSENSUS GEODESIC ORB
+    const orbGeo = new THREE.IcosahedronGeometry(1.8, 3);
+    const orbMat = new THREE.MeshStandardMaterial({
+      color: 0xff4400,
+      emissive: 0xff2200,
+      emissiveIntensity: 0.6,
+      roughness: 0.2,
+      metalness: 0.8,
+      wireframe: false
+    });
+    splineOrb = new THREE.Mesh(orbGeo, orbMat);
+    splineScene.add(splineOrb);
+
+    // OUTER ROTATING CELESTIAL WIREFRAME
+    const wireGeo = new THREE.IcosahedronGeometry(2.1, 2);
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0xffaa00,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.4
+    });
+    const wireMesh = new THREE.Mesh(wireGeo, wireMat);
+    splineOrb.add(wireMesh);
+
+    // CELESTIAL GIMBAL RINGS
+    const ringGeo1 = new THREE.TorusGeometry(2.7, 0.03, 16, 80);
+    const ringMat1 = new THREE.MeshBasicMaterial({ color: 0xff6600, transparent: true, opacity: 0.6 });
+    const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
+    ring1.rotation.x = Math.PI / 3;
+    splineOrb.add(ring1);
+
+    const ringGeo2 = new THREE.TorusGeometry(3.1, 0.02, 16, 80);
+    const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.5 });
+    const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
+    ring2.rotation.y = Math.PI / 4;
+    splineOrb.add(ring2);
+
+    // 4 ORBITING PARTICIPANT SATELLITES (RONAK, PRIYA, MEERA, SAM)
+    const satColors = [0xff6600, 0xffc700, 0x00d4ff, 0x00e676];
+    for (let i = 0; i < 4; i++) {
+      const satGeo = new THREE.SphereGeometry(0.2, 16, 16);
+      const satMat = new THREE.MeshStandardMaterial({
+        color: satColors[i],
+        emissive: satColors[i],
+        emissiveIntensity: 0.9,
+        roughness: 0.1
+      });
+      const sat = new THREE.Mesh(satGeo, satMat);
+      splineScene.add(sat);
+      splineSatellites.push({ mesh: sat, angle: (i * Math.PI) / 2, dist: 3.4 + i * 0.25, speed: 0.015 + i * 0.005 });
+    }
+  }
+
+  if (!splineAnimId) {
+    let clock = 0;
+    function anim() {
+      splineAnimId = requestAnimationFrame(anim);
+      clock += 0.015;
+      if (splineOrb) {
+        splineOrb.rotation.y += 0.01;
+        splineOrb.rotation.x = Math.sin(clock * 0.8) * 0.2;
+      }
+      splineSatellites.forEach(s => {
+        s.angle += s.speed;
+        s.mesh.position.x = Math.cos(s.angle) * s.dist;
+        s.mesh.position.z = Math.sin(s.angle) * s.dist;
+        s.mesh.position.y = Math.sin(s.angle * 2) * 0.6;
+      });
+      splineRenderer.render(splineScene, splineCamera);
+    }
+    anim();
+  }
+}
+
 function initConsensus() {
-  const list = document.getElementById('cons-ranking-list');
-  if (!list) return;
-  const sorted = [...CATALOG].sort((a,b) => b.m - a.m);
-  list.innerHTML = sorted.slice(0, 5).map((m, i) => `
-    <div class="res-card foc" onclick="launchPlayer(${m.id})">
-      <div class="res-rank ${i === 0 ? 'gold' : ''}">#${i + 1}</div>
-      <div class="res-poster-wrap">${m.posterSvg}</div>
-      <div class="res-info">
-        <h4>${m.t}</h4>
-        <div class="res-genres">${m.g.map(g => `<span class="rg-chip">${g}</span>`).join('')}</div>
-        <div class="res-desc">${m.d}</div>
-        <div class="res-stats"><span>★ ${m.rt} IMDb</span><span>🍅 ${Math.round(m.m * 0.98)}% RT</span><span>⏱ ${m.r}</span></div>
-      </div>
-      <div class="res-score-col">
-        <div class="res-score-num">${m.m}%</div>
-        <div class="res-score-lbl">Utility</div>
-      </div>
-    </div>`).join('');
+  initSpline3D();
+  renderConsensusRankings();
   startWsTicker();
 }
 
+function renderConsensusRankings() {
+  const l = document.getElementById('cons-ranking-list');
+  if (!l) return;
+  const sorted = [...CATALOG].sort((a,b) => b.m - a.m);
+  l.innerHTML = sorted.map((m, i) => `
+    <div class="res-card foc" onclick="launchPlayer(${m.id})">
+      <div class="res-rank ${i === 0 ? 'gold' : ''}">${i + 1}</div>
+      <div class="res-poster-wrap"><img src="${m.poster}" alt="${m.t}"></div>
+      <div class="res-info">
+        <h4>${m.t}</h4>
+        <div class="res-genres">
+          ${m.g.map(g => `<span class="rg-chip">${g}</span>`).join('')}
+          <span class="rg-chip" style="color:var(--fire-gold)">${m.y}</span>
+        </div>
+        <div class="res-desc">${m.d}</div>
+        <div class="res-stats">
+          <span>★ ${m.rt} IMDb</span>
+          <span>&middot;</span>
+          <span>Runtime: ${m.r}</span>
+          <span>&middot;</span>
+          <span style="color:var(--jade)">✓ 0 Conflicts</span>
+        </div>
+      </div>
+      <div class="res-score-col">
+        <div class="res-score-num">${m.m}%</div>
+        <div class="res-score-lbl">Utility Score</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+let wsTimer;
 function startWsTicker() {
-  const ticker = document.getElementById('ws-ticker');
-  if (!ticker) return;
-  ticker.innerHTML = '';
-  function addEvent() {
-    const msg = WS_EVENTS[_wsIdx % WS_EVENTS.length];
-    _wsIdx++;
-    const d = document.createElement('div');
-    d.className = 'ws-event';
-    d.innerHTML = `<span style="color:var(--t4)">[WS]</span> ${msg}`;
-    ticker.appendChild(d);
-    if (ticker.children.length > 5) ticker.removeChild(ticker.firstChild);
-    const cnt = document.getElementById('ws-events-counter');
-    if (cnt) cnt.textContent = (parseInt(cnt.textContent || '0', 10) + 1);
-    setTimeout(addEvent, 1900 + Math.random() * 1200);
-  }
-  addEvent();
+  const t = document.getElementById('ws-ticker');
+  if (!t || wsTimer) return;
+  const evts = [
+    'presence: ronak_jain connected (Fire TV Omni 65")',
+    'presence: priya joined couch session (iPhone 15 Pro)',
+    'presence: sam connected via Vega Remote',
+    'vote_received: ronak_jain -> "Dune: Awakening" (score=95)',
+    'vote_received: priya -> "Dune: Awakening" (score=92)',
+    'presence: meera joined live room (Supabase WebSocket)',
+    'heartbeat: room_state="evaluating" p95=12ms'
+  ];
+  let idx = 0;
+  wsTimer = setInterval(() => {
+    if (idx < evts.length) {
+      const d = document.createElement('div');
+      d.className = 'ws-event';
+      d.textContent = `[${new Date().toISOString().substring(11,19)}] ${evts[idx]}`;
+      t.appendChild(d);
+      t.scrollTop = t.scrollHeight;
+      idx++;
+    }
+  }, 2500);
 }
 
 function initPlayer() {
-  const wrap = document.getElementById('player-canvas-wrap');
-  if (!wrap) return;
-  wrap.innerHTML = `
-    <svg viewBox="0 0 1920 1080" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="pl-sun" cx="55%" cy="38%" r="45%">
-          <stop offset="0%" stop-color="#FFE680"/>
-          <stop offset="25%" stop-color="#FF7700" stop-opacity="0.9"/>
-          <stop offset="60%" stop-color="#8A1C00" stop-opacity="0.6"/>
-          <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
-        </radialGradient>
-        <linearGradient id="pl-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#0D0402"/>
-          <stop offset="45%" stop-color="#3D1204"/>
-          <stop offset="85%" stop-color="#B84204"/>
-          <stop offset="100%" stop-color="#FFA000"/>
-        </linearGradient>
-      </defs>
-      <rect width="1920" height="1080" fill="url(#pl-sky)"/>
-      <circle cx="1100" cy="420" r="320" fill="url(#pl-sun)"/>
-      <circle cx="820" cy="240" r="44" fill="#FFEAA7" opacity="0.65"/>
-      <circle cx="1320" cy="190" r="28" fill="#FFC500" opacity="0.45"/>
-      <path d="M-50 680 Q350 560 900 660 T1980 620 L1980 1080 L-50 1080 Z" fill="#6B2202"/>
-      <path d="M-50 780 Q450 660 1150 750 T1980 720 L1980 1080 L-50 1080 Z" fill="#471400"/>
-      <path d="M-50 880 Q550 780 1350 860 T1980 840 L1980 1080 L-50 1080 Z" fill="#240700"/>
-      <text x="960" y="320" text-anchor="middle" font-family="'Cinzel',serif" font-size="74" font-weight="900" letter-spacing="16" fill="#FFFFFF" opacity="0.92">DUNE : AWAKENING</text>
-      <text x="960" y="370" text-anchor="middle" font-family="'Inter',sans-serif" font-size="18" font-weight="800" letter-spacing="8" fill="#FFC500">DENIS VILLENEUVE · 4K ULTRA HD HDR10</text>
-    </svg>`;
-  startPlayerTick();
+  const bg = document.getElementById('player-bg');
+  const m = CATALOG.find(x => x.id === ST.heroId) || CATALOG[0];
+  if (bg && m.backdrop) {
+    bg.style.backgroundImage = `url('${m.backdrop}')`;
+  }
 }
 
 function launchPlayer(id) {
-  ST.heroId = id;
+  ST.heroId = id || 1;
   go('play');
+  toast('▶', 'Synchronized Playback', `Launching ${CATALOG.find(x => x.id === ST.heroId)?.t || '4K Stream'} on Vega OS...`, 4000);
 }
 window.launchPlayer = launchPlayer;
 
-let _playerInterval = null;
-function startPlayerTick() {
-  clearInterval(_playerInterval);
-  if (!ST.isPlaying) return;
-  _playerInterval = setInterval(() => {
-    if (!ST.isPlaying || ST.screen !== 'play') return;
-    ST.playPct = Math.min(100, ST.playPct + 0.04);
-    updateSeek(ST.playPct);
-    updatePlayerTime(ST.playPct);
-  }, 500);
-}
-
-function updateSeek(pct) {
-  const fill = document.getElementById('player-seek-fill');
-  const knob = document.getElementById('player-seek-knob');
-  if (fill) fill.style.width = pct + '%';
-  if (knob) knob.style.left = pct + '%';
-}
-
-function updatePlayerTime(pct) {
-  const totalSec = 166 * 60;
-  const cur = Math.floor(pct / 100 * totalSec);
-  const ch = String(Math.floor(cur / 3600)).padStart(2, '0');
-  const cm = String(Math.floor((cur % 3600) / 60)).padStart(2, '0');
-  const cs = String(cur % 60).padStart(2, '0');
-  const el = document.getElementById('player-time-display');
-  if (el) el.textContent = `${ch}:${cm}:${cs} / 02:46:00`;
-}
-
 function togglePlayback() {
   ST.isPlaying = !ST.isPlaying;
-  document.getElementById('play-pause-btn').textContent = ST.isPlaying ? '⏸' : '▶';
-  if (ST.isPlaying) startPlayerTick();
-  else clearInterval(_playerInterval);
-  toast('⏯', 'Player', ST.isPlaying ? 'Resumed 4K stream' : 'Paused stream');
+  toast(ST.isPlaying ? '▶' : '⏸', ST.isPlaying ? 'Resumed' : 'Paused', '4K Ultra HD Synchronized Stream', 2500);
 }
 window.togglePlayback = togglePlayback;
 
 function toggleXray() {
-  ST.xrayOpen = !ST.xrayOpen;
-  const xh = document.getElementById('xray-hud');
-  if (xh) xh.style.opacity = ST.xrayOpen ? '1' : '0';
+  const x = document.getElementById('xray-hud');
+  if (x) {
+    ST.xrayOpen = !ST.xrayOpen;
+    x.style.opacity = ST.xrayOpen ? '1' : '0';
+    x.style.pointerEvents = ST.xrayOpen ? 'auto' : 'none';
+  }
 }
 window.toggleXray = toggleXray;
 
 function seekBy(sec) {
-  ST.playPct = Math.max(0, Math.min(100, ST.playPct + sec * (100 / 166 / 60)));
-  updateSeek(ST.playPct);
-  updatePlayerTime(ST.playPct);
+  toast('⏩', 'Synchronized Timeline Scrub', `Scrubbed ${sec > 0 ? '+' : ''}${sec}s across living room viewers`, 2500);
 }
 window.seekBy = seekBy;
 
-function seekClick(e) {
-  const rect = e.currentTarget.getBoundingClientRect();
-  const pct = Math.max(0, Math.min(100, (e.clientX - rect.left) / rect.width * 100));
-  ST.playPct = pct;
-  updateSeek(pct);
-  updatePlayerTime(pct);
-}
-window.seekClick = seekClick;
-
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 function initAmbient() {
-  spawnEmbers('amb-embers', 45);
+  const clk = document.getElementById('amb-clock');
   function tick() {
-    if (ST.screen !== 'amb') return;
     const now = new Date();
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
-    const clk = document.getElementById('amb-clock');
-    if (clk) clk.textContent = `${h}:${m}:${s}`;
-    const dt = document.getElementById('amb-date');
-    if (dt) dt.textContent = `${DAYS[now.getDay()]}, ${MONTHS[now.getMonth()]} ${now.getDate()} · Living Room`;
-    setTimeout(tick, 1000);
+    if (clk) clk.textContent = now.toTimeString().substring(0, 5);
   }
   tick();
+  setInterval(tick, 10000);
 }
-
-function startLiveMetrics() {
-  setInterval(() => {
-    const base = [7, 14, 32, 2];
-    const jitter = base.map(v => v + Math.floor(Math.random() * 4 - 2));
-    const ll = document.getElementById('live-latency');
-    if (ll) ll.textContent = jitter[0] + 'ms';
-    const rps = document.getElementById('kpi-rps');
-    if (rps) rps.textContent = (14400 + Math.floor(Math.random() * 600)).toLocaleString();
-    const wsc = document.getElementById('ws-ms-counter');
-    if (wsc) wsc.textContent = jitter[1] + 'ms';
-  }, 2400);
-}
-
-function triggerAlexa() {
-  const btn = document.getElementById('alexa-btn');
-  btn.classList.add('active');
-  toast('🎙', 'Alexa Voice Search', '"Finding what everyone in the household agrees on…"', 3500);
-  setTimeout(() => {
-    btn.classList.remove('active');
-    go('cons');
-  }, 2000);
-}
-window.triggerAlexa = triggerAlexa;
-
-function toast(icon, title, text, dur = 3500) {
-  const w = document.getElementById('toast-wrap');
-  const b = document.createElement('div');
-  b.className = 'toast-box';
-  b.innerHTML = `<div class="tb-icon">${icon}</div><div class="tb-text"><h5>${title}</h5><p>${text}</p></div>`;
-  w.appendChild(b);
-  setTimeout(() => b.remove(), dur);
-}
-window.toast = toast;
-
-function toggleRemoteHud() {
-  const r = document.getElementById('fire-remote-hud');
-  r.classList.toggle('expanded');
-}
-window.toggleRemoteHud = toggleRemoteHud;
 
 function toggleHealthMatrix() {
   const m = document.getElementById('ahc-matrix');
-  if (m) {
-    m.style.display = m.style.display === 'none' ? 'block' : 'none';
-  }
+  if (m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
 }
 window.toggleHealthMatrix = toggleHealthMatrix;
 
+function toggleRemoteHud() {
+  const r = document.getElementById('remote-hud');
+  if (r) r.style.display = r.style.display === 'none' ? 'flex' : 'none';
+}
+window.toggleRemoteHud = toggleRemoteHud;
+
 function remoteKey(key) {
   const m = { ArrowUp: 'rmt-up', ArrowDown: 'rmt-down', ArrowLeft: 'rmt-left', ArrowRight: 'rmt-right', Enter: 'rmt-sel', Escape: 'rmt-back' };
-  if (m[key]) {
-    const el = document.getElementById(m[key]);
-    if (el) { el.classList.add('active'); setTimeout(() => el.classList.remove('active'), 200); }
-  }
-  handleSpatial(key);
+  toast('🎮', 'Fire TV Remote', `D-Pad Key Pressed: ${key}`, 1200);
 }
 window.remoteKey = remoteKey;
 
-document.addEventListener('keydown', e => {
-  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Escape'].includes(e.key)) {
-    e.preventDefault();
-    remoteKey(e.key);
-  }
-  if (e.key === 'r' || e.key === 'R') {
-    toggleRemoteHud();
-  }
-});
+let toastTimer;
+function toast(icon, title, msg, ms = 3500) {
+  const b = document.getElementById('toast-box');
+  const ti = document.getElementById('t-icon');
+  const tt = document.getElementById('t-title');
+  const tm = document.getElementById('t-msg');
+  if (!b) return;
+  if (ti) ti.textContent = icon;
+  if (tt) tt.textContent = title;
+  if (tm) tm.textContent = msg;
+  b.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => b.classList.remove('show'), ms);
+}
+window.toast = toast;
 
-function handleSpatial(dir) {
-  const sid = SCREENS[ST.screen];
-  if (!sid) return;
-  const focs = Array.from(document.querySelectorAll(`#${sid} .foc, .fire-topbar .foc`));
-  const cur  = document.querySelector('.focused');
-
-  if (dir === 'Enter') { if (cur) cur.click(); return; }
-  if (dir === 'Escape') { const p = ST.history.pop() || 'home'; go(p); return; }
-
-  let ni = 0;
-  if (cur) {
-    const ci = focs.indexOf(cur);
-    ni = (dir === 'ArrowRight' || dir === 'ArrowDown') ? (ci + 1) % focs.length : (ci - 1 + focs.length) % focs.length;
-    cur.classList.remove('focused');
-  }
-  const ne = focs[ni];
-  if (ne) {
-    ne.classList.add('focused');
-    ne.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    if (ne.hasAttribute('data-id')) {
-      previewCard(parseInt(ne.getAttribute('data-id'), 10));
-    }
-  }
+function wait(ms) {
+  return new Promise(r => setTimeout(r, ms));
 }
 
-const wait = ms => new Promise(r => setTimeout(r, ms));
-
-async function bootSequence() {
-  const fill = document.getElementById('sp-bar-fill');
-  const stat = document.getElementById('sp-status');
-  const steps = [
-    ['msc-1', 'Verifying Appwrite & Supabase Auth Tokens…', 20],
-    ['msc-2', 'Embedding 768-D Vector Mesh via Gemini 2.5 Flash…', 45],
-    ['msc-3', 'Opening Supabase Realtime WebSocket Presence Cluster…', 68],
-    ['msc-4', 'Warming AWS CloudFront 4K HDR Edge Nodes (250+ PoPs)…', 86],
-    ['msc-5', 'Compiling Deterministic Multi-Factor Consensus Engine…', 100],
-  ];
-  for (const [id, msg, pct] of steps) {
-    await wait(360);
-    if (stat) stat.textContent = msg;
-    if (fill) fill.style.width = pct + '%';
-    const el = document.getElementById(id);
-    if (el) el.classList.add('ok');
-  }
-  await wait(500);
-  go('home');
-  toast('🔥', 'Welcome, Ronak Jain!', 'Aura Vega OS ready · 4 household members connected · All microservices healthy', 5000);
-  startLiveMetrics();
-}
-
+/* SYNCHRONIZED DEMO AUTOMATION (< 3 MINS) */
 window.runDemoAutomation = async function() {
   console.log('[AuraVega Demo] Starting 173.7-second synchronized 7-act master demo (<3 min)...');
 
@@ -1604,14 +1435,8 @@ window.runDemoAutomation = async function() {
   await wait(2000);
   toast('🔥', 'Welcome, Ronak Jain!', 'Aura Vega OS ready · 4 household members connected', 4000);
   await wait(4500);
-  const cw = document.getElementById('hero-cw');
-  if (cw) {
-    cw.style.transform = 'scale(1.05)';
-    cw.style.boxShadow = '0 0 50px rgba(255, 102, 0, 0.7)';
-  }
   toast('🛋️', 'Living Room Co-Viewing Active', 'Ronak, Priya, Meera, Sam on Couch · Circadian Sunset Mode', 4000);
   await wait(7000);
-  if (cw) { cw.style.transform = ''; cw.style.boxShadow = ''; }
   previewCard(2);
   await wait(8000);
   previewCard(3);
@@ -1651,13 +1476,6 @@ window.runDemoAutomation = async function() {
   go('amb');
   toast('🌙', 'Fire TV Ambient Experience', 'Circadian Sunset Lighting · 28°C Mumbai · Living Room Presence', 4000);
   await wait(6000);
-  const ab = document.querySelector('.amb-info-pill');
-  if (ab) {
-    ab.style.boxShadow = '0 0 45px rgba(255, 102, 0, 0.7)';
-    ab.style.transform = 'scale(1.04)';
-  }
-  await wait(4000);
-  if (ab) { ab.style.boxShadow = ''; ab.style.transform = ''; }
   toggleHealthMatrix();
   await wait(6000);
   toggleHealthMatrix();
@@ -1712,8 +1530,87 @@ window.runDemoAutomation = async function() {
   return true;
 };
 
+/* RUNWAY & HIGGSFIELD GENERATIVE MOTION CANVAS SYSTEM */
+function initGenerativeMotionCanvas() {
+  const c = document.getElementById('generative-motion-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let w = c.width = 1920;
+  let h = c.height = 1080;
+
+  const particles = [];
+  for (let i = 0; i < 90; i++) {
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: -0.4 - Math.random() * 0.8,
+      size: 1 + Math.random() * 3,
+      alpha: 0.1 + Math.random() * 0.6,
+      hue: Math.random() > 0.3 ? 30 + Math.random() * 15 : 190 + Math.random() * 20
+    });
+  }
+
+  let t = 0;
+  function loop() {
+    t += 0.01;
+    ctx.clearRect(0, 0, w, h);
+
+    // Subtle volumetric sweeping light beam
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, 'rgba(255, 85, 0, 0.02)');
+    grad.addColorStop(0.5 + Math.sin(t * 0.5) * 0.2, 'rgba(255, 170, 0, 0.05)');
+    grad.addColorStop(1, 'rgba(0, 212, 255, 0.02)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Living floating embers
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.y < -10) p.y = h + 10;
+      if (p.x < -10) p.x = w + 10;
+      if (p.x > w + 10) p.x = -10;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 100%, 65%, ${p.alpha * (0.6 + Math.sin(t * 2 + p.x) * 0.4)})`;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = `hsl(${p.hue}, 100%, 50%)`;
+      ctx.fill();
+    });
+
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+/* BOOT SEQUENCE */
+function bootSequence() {
+  const bf = document.getElementById('sp-bar-fill');
+  const st = document.getElementById('sp-status-text');
+  let pct = 0;
+  const iv = setInterval(() => {
+    pct += 16;
+    if (bf) bf.style.width = Math.min(pct, 100) + '%';
+    if (st) {
+      if (pct === 32) st.textContent = 'Initializing Spline 3D Spatial Canvas...';
+      if (pct === 64) st.textContent = 'Pre-warming Runway & Higgsfield Generative Motion...';
+      if (pct === 96) st.textContent = 'Synchronizing Supabase Realtime & Xano Telemetry...';
+    }
+    if (pct >= 100) {
+      clearInterval(iv);
+      setTimeout(() => {
+        go('home');
+        toast('🔥', 'Welcome, Ronak Jain!', 'Aura Vega OS ready · 4 household members connected · All microservices healthy', 4500);
+      }, 500);
+    }
+  }, 180);
+}
+
 window.addEventListener('load', () => {
   resize();
+  initGenerativeMotionCanvas();
   bootSequence();
 });
 
