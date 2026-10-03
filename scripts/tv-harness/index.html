@@ -1598,124 +1598,117 @@ async function bootSequence() {
 }
 
 window.runDemoAutomation = async function() {
-  console.log('[AuraVega Demo] Starting 226.8-second synchronized 7-act master demo...');
+  console.log('[AuraVega Demo] Starting 173.7-second synchronized 7-act master demo (<3 min)...');
 
-  // ACT 1: Intro by Ronak Jain (0.00s - 45.55s)
-  await wait(2500);
-  toast('🔥', 'Welcome, Ronak Jain!', 'Aura Vega OS ready · 4 household members connected', 5000);
-  await wait(5500);
+  // ACT 1: Intro by Ronak Jain & Problem (0.00s - 30.91s)
+  await wait(2000);
+  toast('🔥', 'Welcome, Ronak Jain!', 'Aura Vega OS ready · 4 household members connected', 4000);
+  await wait(4500);
   const cw = document.getElementById('hero-cw');
   if (cw) {
     cw.style.transform = 'scale(1.05)';
     cw.style.boxShadow = '0 0 50px rgba(255, 102, 0, 0.7)';
   }
-  toast('🛋️', 'Living Room Co-Viewing Active', 'Ronak, Priya, Meera, Sam on Couch · Circadian Sunset Mode', 5000);
-  await wait(10000);
+  toast('🛋️', 'Living Room Co-Viewing Active', 'Ronak, Priya, Meera, Sam on Couch · Circadian Sunset Mode', 4000);
+  await wait(7000);
   if (cw) { cw.style.transform = ''; cw.style.boxShadow = ''; }
   previewCard(2);
-  await wait(12000);
+  await wait(8000);
   previewCard(3);
-  await wait(10000);
+  await wait(6000);
   previewCard(1);
-  await wait(5550);
+  await wait(3410);
 
-  // ACT 2: D-Pad Navigation & Smooth Shelf Scrolling (46.35s - 79.76s)
+  // ACT 2: D-Pad Navigation & Smooth Shelf Scrolling (30.91s - 55.96s)
   scrollHomeVertical(380);
-  await wait(2500);
+  await wait(2000);
   const fc = document.querySelector('#track-picks .fire-card');
   if (fc) {
     fc.classList.add('focused');
     fc.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   }
+  await wait(2500);
+  scrollShelf('track-picks', 540);
   await wait(3500);
   scrollShelf('track-picks', 540);
-  await wait(4000);
-  scrollShelf('track-picks', 540);
-  await wait(4000);
+  await wait(3500);
   const c3 = document.querySelectorAll('#track-picks .fire-card')[2];
   if (c3) {
     document.querySelectorAll('.focused').forEach(f => f.classList.remove('focused'));
     c3.classList.add('focused');
     previewCard(3);
   }
-  await wait(5000);
-  scrollShelf('track-picks', -1080);
-  await wait(3000);
-
-  scrollHomeVertical(760);
-  await wait(2500);
-  const ac = document.querySelector('#track-ai .fire-card');
-  if (ac) {
-    document.querySelectorAll('.focused').forEach(f => f.classList.remove('focused'));
-    ac.classList.add('focused');
-  }
-  scrollShelf('track-ai', 620);
   await wait(4000);
-  scrollShelf('track-ai', -620);
+  scrollShelf('track-picks', -1080);
+  await wait(2500);
+  scrollHomeVertical(760);
+  scrollShelf('track-ai', 500);
   await wait(3000);
-
   scrollHomeVertical(0);
-  await wait(1910);
+  await wait(4050);
 
-  // ACT 3: Fire TV Ambient Experience & Living Room Hub (80.56s - 104.66s)
+  // ACT 3: Fire TV Ambient Experience & Living Room Hub (55.96s - 77.27s)
   go('amb');
-  toast('🌙', 'Fire TV Ambient Experience', 'Circadian Sunset Lighting · 28°C Mumbai · Living Room Presence', 5000);
-  await wait(14000);
+  toast('🌙', 'Fire TV Ambient Experience', 'Circadian Sunset Lighting · 28°C Mumbai · Living Room Presence', 4000);
+  await wait(6000);
   const ab = document.querySelector('.amb-info-pill');
   if (ab) {
     ab.style.boxShadow = '0 0 45px rgba(255, 102, 0, 0.7)';
     ab.style.transform = 'scale(1.04)';
   }
-  await wait(8000);
-  if (ab) { ab.style.boxShadow = ''; ab.style.transform = ''; }
-  await wait(2100);
-
-  // ACT 4: Couch Consensus & Realtime Supabase WebSockets (105.46s - 130.66s)
-  go('cons');
-  toast('🛋️', 'Couch Consensus Room Active', 'Supabase Realtime WebSockets Connected · 4 Viewers on Couch', 5000);
-  await wait(6000);
-  toast('⚡', 'Supabase Realtime Event', 'Incoming WS: voter_id="meera_03", choice="dune_awakening", score=85', 5000);
   await wait(4000);
+  if (ab) { ab.style.boxShadow = ''; ab.style.transform = ''; }
+  toggleHealthMatrix();
+  await wait(6000);
+  toggleHealthMatrix();
+  await wait(5310);
+
+  // ACT 4: Couch Consensus & Realtime Supabase WebSockets (77.27s - 100.16s)
+  go('cons');
+  toast('🛋️', 'Couch Consensus Room Active', 'Supabase Realtime WebSockets Connected · 4 Viewers on Couch', 4000);
+  await wait(4000);
+  toast('⚡', 'Supabase Realtime Event', 'Incoming WS: voter_id="meera_03", choice="dune_awakening", score=85', 4000);
+  await wait(3000);
   const mb = document.getElementById('vbox-m');
   if (mb) { mb.classList.remove('active-voting'); mb.classList.add('voted'); }
   const ms = document.getElementById('meera-status-text');
   if (ms) ms.innerHTML = '<span style="color:var(--jade);font-weight:800">✓ Voted: Dune: Awakening</span>';
-  toast('🎉', 'Consensus Updated!', 'Meera voted YES! Group agreement: 100% unanimous — 4/4 voters', 5000);
-  await wait(15200);
+  toast('🎉', 'Consensus Updated!', 'Meera voted YES! Group agreement: 100% unanimous — 4/4 voters', 4000);
+  await wait(15890);
 
-  // ACT 5: Explainable AI Math & Winner Resolution (131.46s - 166.24s)
+  // ACT 5: Explainable AI Math & Winner Resolution (100.16s - 125.76s)
   const tr = document.querySelector('.res-card');
   if (tr) tr.classList.add('focused');
-  toast('📐', 'Gemini 2.5 Utility Matrix', 'Affinity: 35% · Acclaim: 25% · Context: 25% · Runtime: 15% · Vetoes: 0', 7000);
-  await wait(15000);
-  toast('🏆', 'Pareto-Optimal Result', 'Dune: Awakening achieves 94% composite utility — Global maximum resolved!', 7000);
-  await wait(12000);
+  toast('📐', 'Gemini AI Utility Matrix', 'Affinity: 35% · Acclaim: 25% · Context: 25% · Runtime: 15% · Vetoes: 0', 5000);
+  await wait(11000);
+  toast('🏆', 'Pareto-Optimal Result', 'Dune: Awakening achieves 94% composite utility — Global maximum resolved!', 5000);
+  await wait(9000);
   const wb = document.querySelector('#s-cons .btn-fire-play');
   if (wb) wb.classList.add('focused');
-  await wait(7780);
+  await wait(5600);
 
-  // ACT 6: Native Vega OS 4K Player & Fire TV X-Ray (167.04s - 193.78s)
+  // ACT 6: Native Vega OS 4K Player & Fire TV X-Ray (125.76s - 149.13s)
   launchPlayer(1);
-  await wait(5000);
+  await wait(3000);
   const xr = document.getElementById('xray-hud');
   if (xr) {
     xr.style.opacity = '1';
     xr.style.boxShadow = '0 0 45px rgba(0, 212, 255, 0.7)';
   }
-  toast('✦', 'Fire TV X-Ray Active', 'Timothée Chalamet · Zendaya · Hans Zimmer — Scene 14: Arrakis Sands', 6000);
-  await wait(12000);
+  toast('✦', 'Fire TV X-Ray Active', 'Timothée Chalamet · Zendaya · Hans Zimmer — Scene 14: Arrakis Sands', 5000);
+  await wait(9000);
   seekBy(120);
   toast('⏩', 'Synchronized Scrub', 'Living room timeline scrubbed +02:00 across all 4 viewers', 4000);
-  await wait(9740);
+  await wait(11370);
 
-  // ACT 7: Cloud Microservices Architecture & Outro (194.58s - 226.81s)
+  // ACT 7: Cloud Microservices Architecture & Outro (149.13s - 173.68s)
   go('arch');
-  toast('🏗️', 'Production Cloud Architecture', '8 microservices healthy · 97/97 tests · <15ms P95 · CloudFront 4K active', 7000);
-  await wait(16000);
-  toast('🏆', 'Amazon Developer Hackathon 2026', 'Aura Vega TV — Flagship Submission by Ronak Jain', 8000);
-  await wait(16230);
+  toast('🏗️', '16 Microservices Architecture', '16 microservices healthy · 22 test suites · 166/166 passing · Self-Healing active', 6000);
+  await wait(12000);
+  toast('🏆', 'Amazon Developer Hackathon 2026', 'Aura Vega TV — Flagship Submission by Ronak Jain', 7000);
+  await wait(12550);
 
-  console.log('[AuraVega Demo] 226.8-second 7-act demo successfully completed.');
+  console.log('[AuraVega Demo] 173.7-second 7-act demo successfully completed.');
   return true;
 };
 

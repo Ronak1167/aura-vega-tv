@@ -14,7 +14,7 @@ async function record() {
 
   console.log('====================================================');
   console.log('LAUNCHING PLAYWRIGHT FOR AURA FIRE TV DEMO RECORDING');
-  console.log('Target Duration: ~226.8 seconds (3.78 minutes)');
+  console.log('Target Duration: ~173.7 seconds (2.89 minutes - Strictly < 3 min)');
   console.log('Audio Track:', audioTrack);
   console.log('====================================================');
 
@@ -91,11 +91,16 @@ async function record() {
   console.log('Final Master Presentation Video Created:', finalMp4);
 
   // Copy to artifacts directory
-  const artifactDir = "C:\\Users\\Ronak Jain\\.gemini\\antigravity-ide\\brain\\34a72f41-9aaa-4e79-8b55-2235f32bd49d";
-  if (fs.existsSync(artifactDir)) {
-    const artifactDest = path.join(artifactDir, 'aura_vega_fire_tv_final_presentation.mp4');
-    fs.copyFileSync(finalMp4, artifactDest);
-    console.log('Master Video copied to artifacts:', artifactDest);
+  const artifactDirs = [
+    "C:\\Users\\Ronak Jain\\.gemini\\antigravity-ide\\brain\\a0fb659c-70cd-43ff-b7b3-4ccfb737ffdc",
+    "C:\\Users\\Ronak Jain\\.gemini\\antigravity-ide\\brain\\34a72f41-9aaa-4e79-8b55-2235f32bd49d"
+  ];
+  for (const dir of artifactDirs) {
+    if (fs.existsSync(dir)) {
+      const artifactDest = path.join(dir, 'aura_vega_fire_tv_final_presentation.mp4');
+      fs.copyFileSync(finalMp4, artifactDest);
+      console.log('Master Video copied to artifacts:', artifactDest);
+    }
   }
 
   console.log('ALL RECORDING & AUDIO MUXING COMPLETED SUCCESSFULLY!');

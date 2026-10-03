@@ -40,7 +40,7 @@ def merge():
         subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         wav_files.append(wav_path)
 
-    gap_sec = 0.8
+    gap_sec = 0.5
     silence_wav = os.path.join(audio_dir, 'silence.wav')
     cmd_silence = [ffmpeg, '-y', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', str(gap_sec), '-c:a', 'pcm_s16le', silence_wav]
     subprocess.run(cmd_silence, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
