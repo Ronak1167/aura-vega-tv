@@ -38,8 +38,11 @@ export interface ViewingContext {
   timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night';
   weatherCondition: string;
   temperature: number;
+  temperatureF?: number;
   targetMaxRuntimeMinutes?: number;
   sessionMood?: string;
+  ambientLight?: 'dark' | 'dim' | 'normal' | 'bright';
+  groupEnergy?: 'low' | 'medium' | 'high';
 }
 
 export interface ScoreBreakdown {

@@ -33,6 +33,8 @@ import { autonomousAIEngine, AutonomousAgentReport } from '../engine/AutonomousA
 import { insightReporter, InsightReport } from '../engine/AutonomousInsightReporter';
 import { notificationRouter, RoutedNotification } from './SmartNotificationRouter';
 import { healthMonitor, HealthSnapshot } from './VegaOSHealthMonitor';
+import { captionEngine, CaptionRenderConfig, CaptionPreferenceProfile } from '../engine/AdaptiveCaptionEngine';
+import { prefetchService, PrefetchReport, PrefetchCandidate } from './PredictivePrefetchService';
 import { DoorbellAlert } from '../types';
 
 // ---------------------------------------------------------------------------
@@ -53,6 +55,8 @@ export interface AppConfig {
   enableInsightReporter: boolean;
   enableHealthMonitor: boolean;
   enableSmartNotifications: boolean;
+  enableAdaptiveCaptions: boolean;
+  enablePredictivePrefetch: boolean;
 }
 
 const DEFAULT_CONFIG: AppConfig = {
@@ -70,6 +74,8 @@ const DEFAULT_CONFIG: AppConfig = {
   enableInsightReporter: true,
   enableHealthMonitor: true,
   enableSmartNotifications: true,
+  enableAdaptiveCaptions: true,
+  enablePredictivePrefetch: true,
 };
 
 // ---------------------------------------------------------------------------
@@ -155,6 +161,8 @@ export class MicroservicesOrchestrator {
     services['insight_reporter'] = this.config.enableInsightReporter;
     services['health_monitor'] = this.config.enableHealthMonitor;
     services['smart_notifications'] = this.config.enableSmartNotifications;
+    services['adaptive_captions'] = this.config.enableAdaptiveCaptions;
+    services['predictive_prefetch'] = this.config.enablePredictivePrefetch;
 
     // 8. Initial health snapshot (non-blocking)
     if (this.config.enableHealthMonitor) {
@@ -425,6 +433,44 @@ export class MicroservicesOrchestrator {
 
   recordServiceError(service: Parameters<typeof healthMonitor.recordError>[0], error: unknown): void {
     healthMonitor.recordError(service, error);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Adaptive Caption Engine
+  // ---------------------------------------------------------------------------
+  getCaptionRenderConfig(viewerId: string, contentGenre?: string): CaptionRenderConfig {
+    const context = mediaDataService.getViewingContext();
+    return captionEngine.getRenderConfig(viewerId, context, contentGenre);
+  }
+
+  getHouseholdCaptionConfigs(participants: VotingParticipant[], contentGenre?: string): CaptionRenderConfig[] {
+    const context = mediaDataService.getViewingContext();
+    return captionEngine.getHouseholdRenderConfigs(participants, context, contentGenre);
+  }
+
+  recordCaptionInteraction(viewerId: string, action: 'pause' | 'rewind') {
+    return action === 'pause' ? captionEngine.recordPause(viewerId) : captionEngine.recordRewind(viewerId);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Predictive CDN Prefetch Engine
+  // ---------------------------------------------------------------------------
+  async runPredictivePrefetch(
+    participants: VotingParticipant[],
+    skippedIds: Set<string> = new Set(),
+  ): Promise<PrefetchReport> {
+    const catalog = mediaDataService.getAllMedia();
+    const context = mediaDataService.getViewingContext();
+    const lastInsight = insightReporter.getLastReport();
+    return prefetchService.buildAndWarm(catalog, participants, context, skippedIds, lastInsight);
+  }
+
+  getPrefetchQueue(): PrefetchCandidate[] {
+    return prefetchService.getCurrentQueue();
+  }
+
+  getPrefetchReport(): PrefetchReport | null {
+    return prefetchService.getLatestReport();
   }
 
   isReady(): boolean {

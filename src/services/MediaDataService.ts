@@ -28,6 +28,19 @@ class MediaDataService {
   public getAvailableMoods(): string[] {
     return ['All', 'Sci-Fi', 'Blockbuster', 'Drama', 'Comedy', 'Oscar Winner'];
   }
+
+  public getViewingContext(): { timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night'; weatherCondition: string; temperature: number; ambientLight: 'dark' | 'dim' | 'normal' | 'bright'; groupEnergy: 'medium' } {
+    const hour = new Date().getHours();
+    const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
+    const ambientLight = timeOfDay === 'night' ? 'dark' : timeOfDay === 'evening' ? 'dim' : 'normal';
+    return {
+      timeOfDay,
+      weatherCondition: 'Clear',
+      temperature: 72,
+      ambientLight,
+      groupEnergy: 'medium',
+    };
+  }
 }
 
 export const mediaDataService = new MediaDataService();
