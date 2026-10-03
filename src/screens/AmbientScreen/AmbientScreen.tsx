@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { GlanceBar } from './GlanceBar';
 import { AmbientCanvas } from './AmbientCanvas';
 import { DoorbellPip } from './DoorbellPip';
+import { InsightTicker } from './InsightTicker';
+import { HealthPanel } from './HealthPanel';
 import { FocusGuide } from '../../components/FocusGuide';
-import { colors, tvSafeLayout } from '../../styles/tokens';
+import { colors, tvSafeLayout, spacing } from '../../styles/tokens';
 
 interface AmbientScreenProps {
   navigation: {
@@ -13,6 +15,8 @@ interface AmbientScreenProps {
 }
 
 export const AmbientScreen: React.FC<AmbientScreenProps> = ({ navigation }) => {
+  const [showHealthHud, setShowHealthHud] = useState(false);
+
   return (
     <View style={styles.container}>
       {/* 10-foot Safe Zone Container */}
@@ -25,6 +29,18 @@ export const AmbientScreen: React.FC<AmbientScreenProps> = ({ navigation }) => {
         </FocusGuide>
 
         <AmbientCanvas />
+
+        {/* Ambient Bottom Intelligence & Health Stack */}
+        <View style={styles.bottomIntelligenceStack}>
+          <FocusGuide>
+            <InsightTicker
+              onPressDetails={() => navigation.navigate('Consensus')}
+            />
+            <HealthPanel
+              onToggleExpand={() => setShowHealthHud(prev => !prev)}
+            />
+          </FocusGuide>
+        </View>
 
         {/* Smart doorbell overlay */}
         <DoorbellPip />
@@ -42,5 +58,13 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: tvSafeLayout.overscanHorizontal,
     paddingVertical: tvSafeLayout.overscanVertical,
+    justifyContent: 'space-between',
+  },
+  bottomIntelligenceStack: {
+    position: 'absolute',
+    bottom: tvSafeLayout.overscanVertical,
+    left: tvSafeLayout.overscanHorizontal,
+    right: tvSafeLayout.overscanHorizontal,
+    zIndex: 10,
   },
 });
