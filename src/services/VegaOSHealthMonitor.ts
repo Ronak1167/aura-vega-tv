@@ -240,16 +240,12 @@ class VegaOSHealthMonitor {
   private async publishToXano(snapshot: HealthSnapshot): Promise<void> {
     try {
       const t0 = Date.now();
-      // Probe Xano connectivity using the lightweight health-status getter.
-      // Full telemetry upload will be wired to a dedicated /health_snapshots
-      // endpoint once the Xano instance table is provisioned.
-      const xanoStatus = xanoBackend.getHealthStatus();
-      if (!xanoStatus.connected) {
-        throw new Error(`Xano offline — ${xanoStatus.pendingQueueLength} records in queue`);
-      }
+      const record = await xanoBackend.recordHealthSnapshot(snapshot);
       const latency = Date.now() - t0;
       this.recordSuccess('XanoBackend', latency);
-      console.log(`[VegaOS Health] ☁️ Snapshot ${snapshot.snapshotId} queued for Xano sync (latency: ${latency}ms)`);
+      console.log(
+        `[VegaOS Health] ☁️ Snapshot ${snapshot.snapshotId} synced to Xano (record: ${record.id}, status: ${record.syncStatus}, latency: ${latency}ms)`
+      );
     } catch (err) {
       this.recordError('XanoBackend', err);
       throw err;

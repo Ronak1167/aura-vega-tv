@@ -84,4 +84,33 @@ describe('XanoBackendService', () => {
     const count = await xanoBackend.flushPendingQueue();
     expect(count).toBeGreaterThanOrEqual(0);
   });
+
+  it('should record system health snapshots to /health_snapshots telemetry cache', async () => {
+    const healthRecord = await xanoBackend.recordHealthSnapshot({
+      snapshotId: 'health_snap_test_1',
+      compositeScore: 97,
+      overallStatus: 'HEALTHY',
+      services: [
+        { name: 'APIGateway', status: 'HEALTHY', avgLatencyMs: 12 },
+        { name: 'Supabase', status: 'HEALTHY', avgLatencyMs: 25 },
+        { name: 'XanoBackend', status: 'HEALTHY', avgLatencyMs: 18 },
+      ],
+      activeAlerts: [],
+      selfHealActions: ['Cleared cache for AutonomousEngine'],
+    });
+
+    expect(healthRecord).toBeDefined();
+    expect(healthRecord.snapshotId).toBe('health_snap_test_1');
+    expect(healthRecord.compositeScore).toBe(97);
+    expect(healthRecord.overallStatus).toBe('HEALTHY');
+    expect(healthRecord.healthyCount).toBe(3);
+    expect(healthRecord.details.selfHealActions).toContain('Cleared cache for AutonomousEngine');
+
+    const recentHealth = xanoBackend.getRecentHealthRecords(5);
+    expect(recentHealth.length).toBeGreaterThan(0);
+    expect(recentHealth.some(r => r.snapshotId === 'health_snap_test_1')).toBe(true);
+
+    const healthStatus = xanoBackend.getHealthStatus();
+    expect(healthStatus.healthRecordsCount).toBeGreaterThan(0);
+  });
 });
