@@ -1,0 +1,2269 @@
+const fs = require('fs');
+const path = require('path');
+
+// Generate 8 cinematic SVG posters for the catalog
+const POSTERS = {
+  1: `<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="dune-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#140602"/>
+        <stop offset="45%" stop-color="#4A1804"/>
+        <stop offset="75%" stop-color="#C24E08"/>
+        <stop offset="100%" stop-color="#FF9500"/>
+      </linearGradient>
+      <radialGradient id="dune-sun" cx="50%" cy="40%" r="40%">
+        <stop offset="0%" stop-color="#FFF2A3" stop-opacity="1"/>
+        <stop offset="35%" stop-color="#FF8A00" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#FF4500" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect width="320" height="480" fill="url(#dune-sky)"/>
+    <circle cx="160" cy="220" r="90" fill="url(#dune-sun)"/>
+    <circle cx="90" cy="140" r="16" fill="#FFEAA7" opacity="0.6"/>
+    <circle cx="230" cy="110" r="10" fill="#FFD580" opacity="0.4"/>
+    <!-- Dunes -->
+    <path d="M-20 320 Q60 270 160 300 T340 280 L340 480 L-20 480 Z" fill="#7A2803"/>
+    <path d="M-20 360 Q100 310 220 350 T340 330 L340 480 L-20 480 Z" fill="#521700"/>
+    <path d="M-20 410 Q140 370 260 410 T340 390 L340 480 L-20 480 Z" fill="#2E0B00"/>
+    <!-- Silhouettes -->
+    <path d="M152 350 L158 335 L164 350 Z M158 333 A3 3 0 1 0 158 327 A3 3 0 1 0 158 333 Z" fill="#0A0300"/>
+    <path d="M170 352 L175 340 L180 352 Z M175 338 A2.5 2.5 0 1 0 175 333 A2.5 2.5 0 1 0 175 338 Z" fill="#0A0300"/>
+    <!-- Vignette -->
+    <rect width="320" height="480" fill="none" stroke="rgba(255,140,0,0.3)" stroke-width="2"/>
+    <rect width="320" height="480" fill="url(#dune-sky)" opacity="0.1"/>
+    <!-- Typography -->
+    <text x="160" y="60" text-anchor="middle" font-family="'Cinzel',serif,system-ui" font-size="11" font-weight="700" letter-spacing="4" fill="#FFA500" opacity="0.9">AMAZON ORIGINAL</text>
+    <text x="160" y="440" text-anchor="middle" font-family="'Cinzel',serif,system-ui" font-size="28" font-weight="900" letter-spacing="6" fill="#FFFFFF" filter="url(#glow)">DUNE</text>
+    <text x="160" y="462" text-anchor="middle" font-family="'Inter',sans-serif" font-size="10" font-weight="800" letter-spacing="5" fill="#FFB800">AWAKENING</text>
+  </svg>`,
+
+  2: `<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="space-bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#02040A"/>
+        <stop offset="60%" stop-color="#050C1F"/>
+        <stop offset="100%" stop-color="#001438"/>
+      </linearGradient>
+      <radialGradient id="gargantua" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#000000"/>
+        <stop offset="40%" stop-color="#000000"/>
+        <stop offset="48%" stop-color="#FFD700"/>
+        <stop offset="65%" stop-color="#FF8C00"/>
+        <stop offset="85%" stop-color="#00D4FF" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="sglow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect width="320" height="480" fill="url(#space-bg)"/>
+    <!-- Stars -->
+    <g fill="#FFF" opacity="0.8">
+      <circle cx="30" cy="50" r="1"/><circle cx="80" cy="120" r="1.5"/><circle cx="140" cy="40" r="1"/><circle cx="280" cy="90" r="1.2"/>
+      <circle cx="45" cy="220" r="1.2"/><circle cx="290" cy="270" r="1.5"/><circle cx="210" cy="380" r="1"/><circle cx="70" cy="410" r="1.5"/>
+      <circle cx="260" cy="440" r="1"/>
+    </g>
+    <!-- Black Hole Accretion Disk -->
+    <circle cx="160" cy="220" r="110" fill="url(#gargantua)"/>
+    <ellipse cx="160" cy="220" rx="130" ry="24" fill="none" stroke="#FFC700" stroke-width="6" opacity="0.85" filter="url(#sglow)"/>
+    <ellipse cx="160" cy="220" rx="140" ry="12" fill="none" stroke="#00D4FF" stroke-width="2" opacity="0.9"/>
+    <circle cx="160" cy="220" r="42" fill="#000000"/>
+    <!-- Endurance Silhouette -->
+    <circle cx="160" cy="330" r="14" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-dasharray="4 2"/>
+    <text x="160" y="60" text-anchor="middle" font-family="'Inter',sans-serif" font-size="10" font-weight="800" letter-spacing="4" fill="#00D4FF">PARAMOUNT · 4K HDR</text>
+    <text x="160" y="438" text-anchor="middle" font-family="'Inter',sans-serif" font-size="22" font-weight="900" letter-spacing="4" fill="#FFFFFF" filter="url(#sglow)">INTERSTELLAR</text>
+    <text x="160" y="460" text-anchor="middle" font-family="'Inter',sans-serif" font-size="11" font-weight="700" letter-spacing="6" fill="#00D4FF">BEYOND TIME</text>
+  </svg>`,
+
+  3: `<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="empress-bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1F0402"/>
+        <stop offset="60%" stop-color="#4A0804"/>
+        <stop offset="100%" stop-color="#140201"/>
+      </linearGradient>
+      <linearGradient id="gold-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#FFEAA7"/><stop offset="50%" stop-color="#FFC500"/><stop offset="100%" stop-color="#B8860B"/>
+      </linearGradient>
+      <filter id="eglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect width="320" height="480" fill="url(#empress-bg)"/>
+    <!-- Moon -->
+    <circle cx="160" cy="180" r="85" fill="#FFEAA7" opacity="0.15"/>
+    <!-- Palace Silhouette -->
+    <path d="M60 300 Q160 260 260 300 L250 330 Q160 300 70 330 Z" fill="url(#gold-grad)"/>
+    <path d="M80 250 Q160 220 240 250 L230 275 Q160 250 90 275 Z" fill="url(#gold-grad)"/>
+    <path d="M110 200 Q160 180 210 200 L205 220 Q160 205 115 220 Z" fill="url(#gold-grad)"/>
+    <rect x="156" y="160" width="8" height="25" fill="url(#gold-grad)"/>
+    <!-- Dragon Curve -->
+    <path d="M40 380 Q100 320 160 360 T280 340" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.4"/>
+    <text x="160" y="60" text-anchor="middle" font-family="'Cinzel',serif" font-size="10" font-weight="700" letter-spacing="4" fill="#FFC500">HISTORICAL EPIC</text>
+    <text x="160" y="438" text-anchor="middle" font-family="'Cinzel',serif" font-size="24" font-weight="900" letter-spacing="3" fill="#FFFFFF" filter="url(#eglow)">THE LAST EMPRESS</text>
+    <text x="160" y="460" text-anchor="middle" font-family="'Inter',sans-serif" font-size="10" font-weight="700" letter-spacing="5" fill="#FFC500">DYNASTY &amp; BLOOD</text>
+  </svg>`,
+
+  4: `<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="neon-bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#080014"/>
+        <stop offset="50%" stop-color="#15002E"/>
+        <stop offset="100%" stop-color="#030008"/>
+      </linearGradient>
+      <filter id="nglow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect width="320" height="480" fill="url(#neon-bg)"/>
+    <!-- Cyber City Skyscrapers -->
+    <rect x="20" y="180" width="45" height="250" fill="#0D0022"/>
+    <rect x="75" y="140" width="55" height="290" fill="#140033"/>
+    <rect x="140" y="100" width="50" height="330" fill="#0A001A"/>
+    <rect x="200" y="160" width="60" height="270" fill="#150036"/>
+    <rect x="270" y="200" width="40" height="230" fill="#0C0020"/>
+    <!-- Neon Grids & Windows -->
+    <g fill="#00D4FF" opacity="0.6">
+      <rect x="85" y="160" width="3" height="8"/><rect x="95" y="160" width="3" height="8"/><rect x="85" y="180" width="3" height="8"/>
+      <rect x="150" y="120" width="4" height="6"/><rect x="165" y="140" width="4" height="6"/><rect x="150" y="160" width="4" height="6"/>
+      <rect x="215" y="180" width="3" height="12"/><rect x="230" y="200" width="3" height="12"/>
+    </g>
+    <!-- Neon billboard lines -->
+    <path d="M0 360 L320 360" stroke="#FF007F" stroke-width="2" filter="url(#nglow)"/>
+    <path d="M0 380 L320 380" stroke="#00D4FF" stroke-width="1.5" filter="url(#nglow)"/>
+    <!-- Flying Vehicle Silhouette -->
+    <path d="M120 220 L160 215 L190 222 L150 224 Z" fill="#00D4FF" filter="url(#nglow)"/>
+    <circle cx="130" cy="223" r="2" fill="#FF0055"/>
+    <circle cx="180" cy="223" r="2" fill="#00FFFF"/>
+    <text x="160" y="60" text-anchor="middle" font-family="'Inter',sans-serif" font-size="10" font-weight="800" letter-spacing="4" fill="#FF007F">NEO-NOIR THRILLER</text>
+    <text x="160" y="438" text-anchor="middle" font-family="'Inter',sans-serif" font-size="24" font-weight="900" letter-spacing="4" fill="#00FFFF" filter="url(#nglow)">NEON HORIZON</text>
+    <text x="160" y="460" text-anchor="middle" font-family="'Inter',sans-serif" font-size="10" font-weight="800" letter-spacing="6" fill="#FF007F">CYBERPUNK 2088</text>
+  </svg>`,
+
+  5: `<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="zp-bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#021415"/><stop offset="50%" stop-color="#042C2E"/><stop offset="100%" stop-color="#010A0A"/>
+      </linearGradient>
+      <filter id="zglow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect width="320" height="480" fill="url(#zp-bg)"/>
+    <!-- Earth Limb Glow -->
+    <path d="M-60 480 Q160 280 380 480 Z" fill="#005252" opacity="0.4"/>
+    <path d="M-60 480 Q160 290 380 480 Z" fill="none" stroke="#00FFE0" stroke-width="4" filter="url(#zglow)"/>
+    <!-- Orbital AI Satellite Core -->
+    <polygon points="160,150 195,210 160,270 125,210" fill="none" stroke="#00FFE0" stroke-width="3" filter="url(#zglow)"/>
+    <circle cx="160" cy="210" r="18" fill="#00FFE0" opacity="0.8" filter="url(#zglow)"/>
+    <!-- Solar Panels -->
+    <rect x="70" y="205" width="45" height="10" fill="#008080" stroke="#00FFE0"/>
+    <rect x="205" y="205" width="45" height="10" fill="#008080" stroke="#00FFE0"/>
+    <text x="160" y="60" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="10" font-weight="700" letter-spacing="3" fill="#00FFE0">AUTONOMOUS AI // VEGA OS</text>
+    <text x="160" y="438" text-anchor="middle" font-family="'Inter',sans-serif" font-size="26" font-weight="900" letter-spacing="5" fill="#FFFFFF" filter="url(#zglow)">ZERO POINT</text>
+    <text x="160" y="460" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="10" font-weight="700" letter-spacing="4" fill="#00FFE0">ORBITAL DEFENSE</text>
+  </svg>`,
+
+  6: `<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="cosmic-bg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#050114"/><stop offset="50%" stop-color="#1A0033"/><stop offset="100%" stop-color="#001428"/>
+      </linearGradient>
+      <radialGradient id="nebula1" cx="30%" cy="40%" r="50%">
+        <stop offset="0%" stop-color="#FF00AA" stop-opacity="0.6"/>
+        <stop offset="60%" stop-color="#7700FF" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="nebula2" cx="70%" cy="60%" r="50%">
+        <stop offset="0%" stop-color="#00FFAA" stop-opacity="0.5"/>
+        <stop offset="50%" stop-color="#0088FF" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="cglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect width="320" height="480" fill="url(#cosmic-bg)"/>
+    <circle cx="100" cy="190" r="120" fill="url(#nebula1)"/>
+    <circle cx="220" cy="270" r="130" fill="url(#nebula2)"/>
+    <!-- Gravitational Lensing Arcs -->
+    <path d="M120 180 A50 50 0 0 1 200 180" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.8"/>
+    <path d="M100 240 A70 70 0 0 1 220 240" fill="none" stroke="#00FFFF" stroke-width="1.5" opacity="0.7"/>
+    <!-- JWST Hexagon Mirror icon -->
+    <polygon points="160,80 174,88 174,104 160,112 146,104 146,88" fill="#FFC500" opacity="0.8"/>
+    <text x="160" y="60" text-anchor="middle" font-family="'Inter',sans-serif" font-size="10" font-weight="700" letter-spacing="3" fill="#FFD700">JAMES WEBB 4K HDR</text>
+    <text x="160" y="438" text-anchor="middle" font-family="'Inter',sans-serif" font-size="24" font-weight="900" letter-spacing="3" fill="#FFFFFF" filter="url(#cglow)">THE COSMIC WEB</text>
+    <text x="160" y="460" text-anchor="middle" font-family="'Inter',sans-serif" font-size="10" font-weight="700" letter-spacing="5" fill="#00FFFF">DEEP FIELD DISCOVERY</text>
+  </svg>`,
+
+  7: `<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="monsoon-bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#02140D"/><stop offset="50%" stop-color="#043322"/><stop offset="100%" stop-color="#00120B"/>
+      </linearGradient>
+      <linearGradient id="street-glow" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#FF9900" stop-opacity="0.8"/><stop offset="100%" stop-color="#FF3300" stop-opacity="0.2"/>
+      </linearGradient>
+      <filter id="mglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect width="320" height="480" fill="url(#monsoon-bg)"/>
+    <!-- Rain Streaks -->
+    <g stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round">
+      <line x1="40" y1="100" x2="25" y2="170"/><line x1="120" y1="60" x2="105" y2="140"/><line x1="220" y1="110" x2="205" y2="180"/>
+      <line x1="80" y1="200" x2="65" y2="280"/><line x1="180" y1="180" x2="165" y2="260"/><line x1="280" y1="220" x2="265" y2="300"/>
+    </g>
+    <!-- Mumbai Marine Drive Arc Curve -->
+    <path d="M-20 380 Q140 320 340 400" fill="none" stroke="url(#street-glow)" stroke-width="8" filter="url(#mglow)"/>
+    <path d="M-20 395 Q140 335 340 415" fill="none" stroke="#FFD000" stroke-width="2" opacity="0.9"/>
+    <!-- Gateway of India Silhouette -->
+    <path d="M130 330 L130 280 Q160 250 190 280 L190 330 Z" fill="#02140D" stroke="#00E676" stroke-width="1.5"/>
+    <text x="160" y="60" text-anchor="middle" font-family="'Inter',sans-serif" font-size="10" font-weight="700" letter-spacing="3" fill="#00E676">MUMBAI STORIES</text>
+    <text x="160" y="438" text-anchor="middle" font-family="'Inter',sans-serif" font-size="23" font-weight="900" letter-spacing="3" fill="#FFFFFF" filter="url(#mglow)">MONSOON RHYTHM</text>
+    <text x="160" y="460" text-anchor="middle" font-family="'Inter',sans-serif" font-size="10" font-weight="700" letter-spacing="5" fill="#FFC500">HEARTBEAT OF THE CITY</text>
+  </svg>`,
+
+  8: `<svg viewBox="0 0 320 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="black-bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0A0A0A"/><stop offset="50%" stop-color="#1A1A1A"/><stop offset="100%" stop-color="#050505"/>
+      </linearGradient>
+      <filter id="bglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect width="320" height="480" fill="url(#black-bg)"/>
+    <!-- Radar Sweep Grid -->
+    <circle cx="160" cy="220" r="100" fill="none" stroke="rgba(255,50,0,0.2)" stroke-width="1"/>
+    <circle cx="160" cy="220" r="60" fill="none" stroke="rgba(255,50,0,0.3)" stroke-width="1"/>
+    <circle cx="160" cy="220" r="20" fill="none" stroke="rgba(255,50,0,0.4)" stroke-width="1"/>
+    <line x1="160" y1="120" x2="160" y2="320" stroke="rgba(255,50,0,0.2)"/>
+    <line x1="60" y1="220" x2="260" y2="220" stroke="rgba(255,50,0,0.2)"/>
+    <!-- Operative Silhouette -->
+    <path d="M145 270 L150 200 L170 200 L175 270 Z M160 195 A10 10 0 1 0 160 175 A10 10 0 1 0 160 195 Z" fill="#FF3300" opacity="0.8"/>
+    <!-- Target Lock Crosshairs -->
+    <circle cx="160" cy="185" r="18" fill="none" stroke="#FF3300" stroke-width="2" stroke-dasharray="6 3" filter="url(#bglow)"/>
+    <text x="160" y="60" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="10" font-weight="700" letter-spacing="3" fill="#FF3300">[CLASSIFIED // TOP SECRET]</text>
+    <text x="160" y="438" text-anchor="middle" font-family="'Inter',sans-serif" font-size="22" font-weight="900" letter-spacing="3" fill="#FFFFFF" filter="url(#bglow)">BLACK SITE</text>
+    <text x="160" y="460" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="10" font-weight="800" letter-spacing="5" fill="#FF3300">PROTOCOL OMEGA</text>
+  </svg>`
+};
+
+console.log('Generating production Fire TV harness...');
+
+const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Aura Vega TV — Amazon Fire TV Co-Viewing Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cinzel:wght@700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ══════════════════════════════════════════════════════════════
+       AMAZON FIRE TV — FIRE EMBERS DESIGN SYSTEM v3.5
+       ══════════════════════════════════════════════════════════════ */
+    :root {
+      --bg: #070403;
+      --bg2: #0F0806;
+      --bg3: #180D09;
+      --bg4: #23120C;
+      --bg-card: rgba(24, 13, 9, 0.85);
+
+      --fire-orange: #FF6600;
+      --fire-amber:  #FF9900;
+      --fire-gold:   #FFC500;
+      --fire-flame:  #FF3300;
+      --fire-glow:   rgba(255, 102, 0, 0.35);
+      --fire-gi:     rgba(255, 153, 0, 0.7);
+
+      --alexa:   #00D4FF;
+      --alexa-g: rgba(0, 212, 255, 0.25);
+      --jade:    #00E676;
+      --jade-g:  rgba(0, 230, 118, 0.25);
+
+      --t1: #FFFFFF;
+      --t2: #E8DDD8;
+      --t3: #A6948C;
+      --t4: #66534B;
+
+      --border:  rgba(255, 120, 40, 0.16);
+      --border2: rgba(255, 153, 0, 0.42);
+
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --hh: 76px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    html, body {
+      background: #000;
+      color: var(--t1);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* ── 1920×1080 10-FOOT STAGE ── */
+    #stage {
+      width: 1920px;
+      height: 1080px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      overflow: hidden;
+      transform-origin: top left;
+      background: var(--bg);
+    }
+
+    /* ── SCREENS ── */
+    .scr {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+      transform: scale(0.985) translateY(6px);
+      display: flex;
+      flex-direction: column;
+    }
+    .scr.on {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+    }
+
+    /* ── TV SCANLINE & EMBER OVERLAYS ── */
+    .scanline {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.028) 2px, rgba(0,0,0,0.028) 4px);
+    }
+
+    /* ── FIRE TV FOCUS HIGHLIGHT RING ── */
+    .focused {
+      outline: 3.5px solid var(--fire-amber) !important;
+      box-shadow: 0 0 0 5px rgba(255, 102, 0, 0.35), 0 0 35px var(--fire-gi), 0 0 75px rgba(255, 51, 0, 0.4) !important;
+      transform: scale(1.06) translateY(-4px) !important;
+      z-index: 50 !important;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       TOP NAVIGATION BAR
+       ══════════════════════════════════════════════════════════════ */
+    .fire-topbar {
+      height: var(--hh);
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      background: linear-gradient(180deg, rgba(7, 4, 3, 0.98) 0%, rgba(7, 4, 3, 0.85) 75%, transparent 100%);
+      backdrop-filter: blur(28px);
+      display: flex;
+      align-items: center;
+      padding: 0 56px;
+      gap: 32px;
+      z-index: 200;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .fire-brand { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .fire-logo-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: linear-gradient(135deg, #FF3300, #FF9900);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 4px 22px rgba(255, 100, 0, 0.5);
+      animation: firePulse 3.5s ease-in-out infinite;
+    }
+    @keyframes firePulse {
+      0%, 100% { box-shadow: 0 4px 22px rgba(255, 100, 0, 0.45); }
+      50%      { box-shadow: 0 4px 42px rgba(255, 153, 0, 0.88), 0 0 70px rgba(255, 50, 0, 0.55); }
+    }
+    .fire-brand-text { display: flex; flex-direction: column; }
+    .fire-title {
+      font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #FFFFFF 65%, #FFB800 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .fire-title em { font-style: normal; color: var(--fire-amber); -webkit-text-fill-color: var(--fire-amber); }
+    .fire-sub { font-size: 9.5px; font-weight: 800; letter-spacing: 2px; color: var(--fire-amber); text-transform: uppercase; }
+
+    .fire-nav-links { display: flex; align-items: center; gap: 8px; margin-left: 20px; }
+    .nav-btn {
+      padding: 10px 18px; border-radius: 12px; background: transparent;
+      border: 1.5px solid transparent; color: var(--t2); font-family: inherit;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 8px; transition: all 0.22s var(--ease);
+    }
+    .nav-btn:hover { background: rgba(255, 102, 0, 0.1); border-color: var(--border); color: #fff; }
+    .nav-btn.a {
+      background: linear-gradient(135deg, rgba(255, 102, 0, 0.22), rgba(255, 51, 0, 0.12));
+      border-color: var(--fire-amber); color: #fff;
+      box-shadow: 0 0 20px var(--fire-glow);
+    }
+    .nav-badge-pill {
+      font-size: 10px; font-weight: 900; padding: 2px 7px; border-radius: 10px;
+      background: var(--fire-flame); color: #fff;
+    }
+
+    .fire-top-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+    .sys-health-bar {
+      display: flex; align-items: center; gap: 8px; font-size: 11.5px;
+      font-weight: 700; color: var(--jade); background: rgba(0, 230, 118, 0.08);
+      border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 20px; padding: 7px 15px;
+    }
+    .health-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 8px var(--jade); animation: healthPulse 1.4s infinite; }
+    @keyframes healthPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+    .alexa-pill {
+      display: flex; align-items: center; gap: 9px; padding: 8px 18px; border-radius: 22px;
+      background: rgba(0, 212, 255, 0.09); border: 1px solid rgba(0, 212, 255, 0.36);
+      color: var(--alexa); font-size: 12.5px; font-weight: 700; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .alexa-pill:hover, .alexa-pill.active { background: rgba(0, 212, 255, 0.22); box-shadow: 0 0 24px var(--alexa-g); }
+    .alexa-waveform { display: flex; gap: 2.5px; align-items: center; height: 16px; }
+    .alexa-bar { width: 3px; border-radius: 2px; background: var(--alexa); animation: wavebar 0.9s ease-in-out infinite; }
+    .alexa-bar:nth-child(2){animation-delay:0.1s;height:6px}
+    .alexa-bar:nth-child(3){animation-delay:0.2s;height:13px}
+    .alexa-bar:nth-child(4){animation-delay:0.3s;height:8px}
+    .alexa-bar:nth-child(5){animation-delay:0.15s;height:5px}
+    @keyframes wavebar { 0%,100%{transform:scaleY(0.4)} 50%{transform:scaleY(1)} }
+
+    .user-avatar-chip {
+      display: flex; align-items: center; gap: 9px; padding: 5px 15px 5px 6px;
+      border-radius: 30px; background: var(--bg3); border: 1px solid var(--border); cursor: pointer;
+    }
+    .user-circle {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, #FF6600, #FFC700);
+      color: #000; font-weight: 900; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .user-name-label { font-size: 13px; font-weight: 700; }
+
+    /* ══════════════════════════════════════════════════════════════
+       SCREEN 1: SPLASH BOOT
+       ══════════════════════════════════════════════════════════════ */
+    #s-splash {
+      align-items: center; justify-content: center;
+      background: radial-gradient(ellipse 80% 70% at 50% 55%, #240C04 0%, var(--bg) 75%);
+      gap: 32px;
+    }
+    .sp-ring { position: relative; width: 130px; height: 130px; }
+    .sp-ring-svg { position: absolute; inset: 0; animation: spinRing 2s linear infinite; }
+    @keyframes spinRing { to { transform: rotate(360deg); } }
+    .sp-flame-wrap {
+      position: absolute; inset: 10px; border-radius: 50%;
+      background: linear-gradient(135deg, #FF3300, #FF9900);
+      display: flex; align-items: center; justify-content: center; font-size: 52px;
+      box-shadow: 0 0 80px rgba(255, 100, 0, 0.7);
+      animation: flameFloat 3.5s ease-in-out infinite;
+    }
+    @keyframes flameFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-12px) scale(1.04)} }
+    .sp-brand-main { font-size: 72px; font-weight: 900; letter-spacing: -2px; line-height: 1; text-align: center; }
+    .sp-brand-main em { font-style: normal; background: linear-gradient(90deg, #FF5500, #FFB800); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sp-brand-tag { font-size: 14px; color: var(--t3); letter-spacing: 5px; text-transform: uppercase; margin-top: 10px; text-align: center; }
+    .sp-bar-outer { width: 420px; height: 6px; background: var(--bg4); border-radius: 6px; overflow: hidden; }
+    .sp-bar-fill { height: 100%; background: linear-gradient(90deg, #FF3300, #FF9900, #FFD000); width: 0%; transition: width 0.35s ease; box-shadow: 0 0 16px var(--fire-amber); }
+    .sp-status-text { font-size: 13.5px; color: var(--t2); font-weight: 600; letter-spacing: 0.5px; }
+    .sp-service-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 6px; }
+    .ms-chk { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: var(--t4); font-weight: 700; transition: all 0.35s; }
+    .ms-chk.ok { color: var(--jade); }
+    .ms-icon { font-size: 24px; }
+    .ms-chk-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    /* ══════════════════════════════════════════════════════════════
+       SCREEN 2: HOME (FIRE TV 10-FOOT INTERFACE)
+       ══════════════════════════════════════════════════════════════ */
+    #s-home {
+      overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth;
+      background: var(--bg); height: 1080px; position: relative;
+    }
+    #s-home::-webkit-scrollbar { display: none; }
+
+    /* HERO */
+    .hero-container {
+      position: relative; height: 570px; flex-shrink: 0;
+      overflow: hidden; margin-top: var(--hh);
+    }
+    .hero-bg-layer {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #1C0A04 0%, #120603 45%, #070403 100%);
+    }
+    .hero-flame-glow {
+      position: absolute; width: 1050px; height: 1050px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 80, 0, 0.25) 0%, transparent 70%);
+      top: -240px; left: 80px; filter: blur(95px);
+      animation: fgPulse 6.5s ease-in-out infinite;
+    }
+    @keyframes fgPulse { 0%,100%{transform:scale(1);opacity:0.65} 50%{transform:scale(1.18);opacity:1} }
+
+    /* Floating Embers */
+    .ember-container { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .ember {
+      position: absolute; border-radius: 50%;
+      background: #FFA500; box-shadow: 0 0 8px #FF6600, 0 0 16px #FF3300;
+      animation: emberRise linear infinite;
+    }
+    @keyframes emberRise {
+      0%   { transform: translateY(105%) translateX(0); opacity: 0; }
+      15%  { opacity: 0.95; }
+      85%  { opacity: 0.45; }
+      100% { transform: translateY(-160px) translateX(60px); opacity: 0; }
+    }
+
+    /* Hero backdrop visual canvas */
+    .hero-backdrop-poster {
+      position: absolute; right: 0; top: 0; bottom: 0; width: 1100px;
+      overflow: hidden; pointer-events: none;
+    }
+    .hero-poster-embed {
+      width: 100%; height: 100%; object-fit: cover; opacity: 0.65;
+      mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,1) 100%);
+      transition: all 0.6s var(--ease);
+    }
+    .hero-vignette {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(90deg, var(--bg) 0%, rgba(7,4,3,0.95) 45%, rgba(7,4,3,0.4) 75%, transparent 100%),
+        linear-gradient(0deg, var(--bg) 0%, transparent 40%);
+    }
+
+    .hero-info { position: absolute; bottom: 44px; left: 64px; max-width: 820px; z-index: 10; }
+    .fire-exclusive-tag {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 20px;
+      background: linear-gradient(90deg, #FF3300, #FF8800);
+      color: #fff; margin-bottom: 12px;
+      box-shadow: 0 2px 18px rgba(255, 50, 0, 0.45);
+    }
+    .hero-title {
+      font-size: 78px; font-weight: 900; line-height: 0.95; letter-spacing: -2.5px; margin-bottom: 14px;
+      background: linear-gradient(160deg, #FFFFFF 60%, rgba(255, 210, 170, 0.85) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-meta-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .h-badge { display: flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+    .badge-match { background: rgba(0, 230, 118, 0.12); color: var(--jade); border: 1px solid rgba(0, 230, 118, 0.35); }
+    .badge-imdb  { background: rgba(255, 197, 0, 0.12); color: var(--fire-gold); border: 1px solid rgba(255, 197, 0, 0.35); }
+    .badge-fmt   { background: rgba(255, 255, 255, 0.08); color: var(--t2); border: 1px solid rgba(255, 255, 255, 0.12); }
+    .hero-synopsis { font-size: 16.5px; line-height: 1.6; color: var(--t2); margin-bottom: 24px; max-width: 680px; }
+
+    .hero-actions { display: flex; gap: 14px; align-items: center; }
+    .btn-fire-play {
+      display: flex; align-items: center; gap: 12px; padding: 15px 36px;
+      border-radius: 14px; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #FF3300 0%, #FF7700 100%);
+      color: #fff; font-family: inherit; font-size: 17px; font-weight: 800;
+      box-shadow: 0 8px 36px rgba(255, 70, 0, 0.45); transition: all 0.22s var(--ease);
+    }
+    .btn-fire-play:hover, .btn-fire-play.focused { box-shadow: 0 12px 52px rgba(255, 102, 0, 0.8) !important; transform: scale(1.05); }
+    .btn-outline {
+      display: flex; align-items: center; gap: 10px; padding: 15px 28px;
+      border-radius: 14px; border: 1.5px solid var(--border2); cursor: pointer;
+      background: rgba(255, 102, 0, 0.08); color: #fff; backdrop-filter: blur(18px);
+      font-family: inherit; font-size: 16px; font-weight: 700; transition: all 0.22s var(--ease);
+    }
+    .btn-outline:hover, .btn-outline.focused { background: rgba(255, 102, 0, 0.2); border-color: var(--fire-amber); }
+
+    /* Consensus HUD Widget in Hero */
+    .hero-consensus-widget {
+      position: absolute; top: 40px; right: 64px;
+      background: rgba(18, 10, 7, 0.92); backdrop-filter: blur(36px);
+      border: 1.5px solid rgba(255, 120, 40, 0.25); border-radius: 26px;
+      padding: 20px 24px; min-width: 330px;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.8), 0 0 32px rgba(255, 80, 0, 0.15);
+      z-index: 10;
+    }
+    .cw-header { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; }
+    .cw-flame-icon { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #FF3300, #FF9900); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .cw-title-block h4 { font-size: 15px; font-weight: 800; }
+    .cw-title-block span { font-size: 10.5px; color: var(--fire-amber); font-weight: 600; }
+    .cw-live-badge { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; color: var(--jade); margin-bottom: 12px; }
+    .cw-live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 7px var(--jade); animation: healthPulse 1.4s infinite; }
+    .cw-avatars-row { display: flex; gap: 9px; margin-bottom: 12px; }
+    .cw-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; border: 2px solid; position: relative; }
+    .cw-av-r { border-color: #FF6600; color: #FF6600; background: rgba(255, 102, 0, 0.12); }
+    .cw-av-p { border-color: #FFC700; color: #FFC700; background: rgba(255, 199, 0, 0.12); }
+    .cw-av-m { border-color: #00D4FF; color: #00D4FF; background: rgba(0, 212, 255, 0.12); }
+    .cw-av-s { border-color: #00E676; color: #00E676; background: rgba(0, 230, 118, 0.12); }
+    .cw-dot { position: absolute; bottom: -1px; right: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--jade); border: 2px solid var(--bg2); }
+    .cw-score-area { display: flex; align-items: center; gap: 14px; }
+    .cw-big-pct { font-size: 46px; font-weight: 900; color: var(--jade); line-height: 1; }
+    .cw-meter { flex: 1; }
+    .cw-meter-lbl { font-size: 11px; color: var(--t3); margin-bottom: 6px; font-weight: 600; }
+    .cw-track { height: 7px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+    .cw-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #FF6600, var(--jade)); transition: width 0.9s var(--ease); }
+
+    /* ══════════════════════════════════════════════════════════════
+       SHELVES & SMOOTH SCROLL TRACKS
+       ══════════════════════════════════════════════════════════════ */
+    .shelves-area {
+      padding: 16px 0 120px;
+      display: flex; flex-direction: column; gap: 36px;
+    }
+
+    .shelf-block { position: relative; width: 100%; }
+    .shelf-header-row { display: flex; align-items: center; justify-content: space-between; padding: 0 64px; margin-bottom: 12px; }
+    .shelf-title { font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+    .shelf-hint { font-size: 12.5px; color: var(--fire-amber); font-weight: 600; }
+
+    .shelf-viewport { position: relative; width: 100%; }
+    .shelf-track {
+      display: flex; gap: 24px; overflow-x: auto; overflow-y: hidden;
+      scroll-behavior: smooth;
+      padding: 16px 64px 24px; scrollbar-width: none;
+    }
+    .shelf-track::-webkit-scrollbar { display: none; }
+
+    .shelf-paddle {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 44px; height: 76px; border-radius: 12px;
+      background: rgba(18, 9, 6, 0.92); border: 1.5px solid var(--border2);
+      color: #fff; font-size: 24px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 30; backdrop-filter: blur(18px); transition: all 0.22s;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+    .paddle-left  { left: 14px; }
+    .paddle-right { right: 14px; }
+    .shelf-paddle:hover, .shelf-paddle.focused { background: var(--fire-flame); border-color: #FFA500; box-shadow: 0 0 28px var(--fire-gi); transform: translateY(-50%) scale(1.1); }
+
+    /* REAL CINEMATIC POSTER CARD */
+    .fire-card {
+      flex: 0 0 240px; height: 360px; border-radius: 18px;
+      position: relative; overflow: hidden; cursor: pointer;
+      border: 2px solid transparent; background: var(--bg3);
+      transition: all 0.28s var(--ease); flex-shrink: 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+    }
+    .fire-card.lg { flex: 0 0 300px; height: 420px; }
+
+    .fc-poster-img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      transition: transform 0.45s ease;
+    }
+    .fc-vignette {
+      position: absolute; inset: 0;
+      background: linear-gradient(0deg, rgba(7, 4, 3, 0.96) 0%, rgba(7, 4, 3, 0.35) 50%, transparent 100%);
+    }
+    .fc-badge-match {
+      position: absolute; top: 12px; right: 12px;
+      font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 8px;
+      background: var(--jade); color: #000; box-shadow: 0 2px 10px rgba(0, 230, 118, 0.4);
+    }
+    .fc-badge-tag {
+      position: absolute; top: 12px; left: 12px;
+      font-size: 10px; font-weight: 800; letter-spacing: 1px; padding: 4px 10px; border-radius: 8px;
+      text-transform: uppercase; background: rgba(255, 102, 0, 0.92); color: #fff;
+    }
+    .fc-info { position: absolute; bottom: 14px; left: 16px; right: 16px; z-index: 5; }
+    .fc-title { font-size: 17px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fc-meta { font-size: 12px; color: var(--t3); display: flex; align-items: center; gap: 8px; }
+
+    .fire-card:hover, .fire-card.focused {
+      border-color: var(--fire-amber) !important;
+      transform: scale(1.08) translateY(-6px) !important;
+      box-shadow: 0 16px 50px rgba(255, 102, 0, 0.5), 0 0 35px var(--fire-glow) !important;
+      z-index: 20;
+    }
+    .fire-card:hover .fc-poster-img, .fire-card.focused .fc-poster-img { transform: scale(1.08); }
+
+    /* ══════════════════════════════════════════════════════════════
+       SCREEN 3: COUCH CONSENSUS ENGINE
+       ══════════════════════════════════════════════════════════════ */
+    #s-cons {
+      background: var(--bg); padding-top: var(--hh);
+      height: 1080px; box-sizing: border-box;
+    }
+    .cons-layout {
+      flex: 1; display: grid; grid-template-columns: 360px 1fr 390px;
+      overflow: hidden; height: calc(1080px - var(--hh));
+    }
+    .cons-left-col, .cons-right-col {
+      border-right: 1px solid var(--border); padding: 24px 22px;
+      display: flex; flex-direction: column; gap: 14px; overflow-y: auto;
+    }
+    .cons-right-col { border-right: none; border-left: 1px solid var(--border); }
+    .cons-center-col { padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+    .col-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--fire-amber); margin-bottom: 2px; }
+
+    .voter-box {
+      background: var(--bg3); border: 1.5px solid var(--border); border-radius: 18px;
+      padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; transition: all 0.26s;
+    }
+    .voter-box.voted { border-color: rgba(0, 230, 118, 0.35); background: rgba(0, 230, 118, 0.05); }
+    .voter-box.active-voting { border-color: var(--fire-amber); background: rgba(255, 153, 0, 0.08); box-shadow: 0 0 24px rgba(255, 102, 0, 0.22); }
+    .vb-top { display: flex; align-items: center; gap: 12px; }
+    .vb-av { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; border: 2px solid; }
+    .vb-meta h5 { font-size: 16px; font-weight: 800; }
+    .vb-meta span { font-size: 11px; color: var(--t3); }
+    .vb-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .v-chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: var(--t2); }
+    .vb-status { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; }
+    .vb-status.done { color: var(--jade); }
+    .vb-status.live { color: var(--fire-amber); }
+
+    .ws-ticker {
+      background: #000; border-radius: 12px; padding: 12px 14px;
+      font-family: 'Roboto Mono', monospace; font-size: 11px; line-height: 1.6;
+      border: 1px solid var(--border); height: 140px; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;
+    }
+    .ws-event { color: var(--jade); opacity: 0.92; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Ranking cards with real poster thumbnail */
+    .res-card {
+      background: var(--bg3); border: 1.5px solid var(--border); border-radius: 20px;
+      padding: 16px 20px; display: grid; grid-template-columns: 44px 90px 1fr 100px;
+      gap: 16px; align-items: center; cursor: pointer; position: relative; overflow: hidden;
+      transition: all 0.28s var(--ease);
+    }
+    .res-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+      background: linear-gradient(180deg, #FF3300, #FFC700);
+      opacity: 0; transition: opacity 0.22s;
+    }
+    .res-card:hover, .res-card.focused { border-color: var(--fire-amber); background: rgba(255, 102, 0, 0.08); transform: translateX(6px); }
+    .res-card:hover::before, .res-card.focused::before { opacity: 1; }
+    .res-rank { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; background: rgba(255, 102, 0, 0.12); color: var(--fire-amber); }
+    .res-rank.gold { background: rgba(255, 197, 0, 0.18); color: var(--fire-gold); }
+    .res-poster-wrap { width: 90px; height: 125px; border-radius: 12px; overflow: hidden; }
+    .res-info h4 { font-size: 19px; font-weight: 800; margin-bottom: 5px; }
+    .res-genres { display: flex; gap: 6px; margin-bottom: 6px; }
+    .rg-chip { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: rgba(255, 255, 255, 0.06); color: var(--t2); }
+    .res-desc { font-size: 12.5px; color: var(--t2); line-height: 1.5; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .res-stats { font-size: 11.5px; color: var(--t3); display: flex; gap: 12px; }
+    .res-score-col { text-align: right; }
+    .res-score-num { font-size: 34px; font-weight: 900; color: var(--jade); line-height: 1; }
+    .res-score-lbl { font-size: 10px; color: var(--t3); font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+
+    /* Scoring Math Card */
+    .math-card {
+      background: var(--bg3); border: 1.5px solid var(--border); border-radius: 20px;
+      padding: 18px 20px;
+    }
+    .math-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .math-title { font-size: 15px; font-weight: 800; }
+    .math-formula {
+      font-family: 'Roboto Mono', monospace; font-size: 11px; font-weight: 700;
+      background: #000; padding: 8px 12px; border-radius: 8px; color: var(--fire-amber);
+      margin-bottom: 14px; border: 1px solid var(--border);
+    }
+    .math-factor { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; margin-bottom: 8px; }
+    .mf-label { color: var(--t2); width: 140px; }
+    .mf-bar-wrap { flex: 1; height: 5px; background: rgba(255, 255, 255, 0.08); border-radius: 3px; overflow: hidden; margin: 0 10px; }
+    .mf-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #FF6600, var(--jade)); }
+    .mf-val { font-weight: 700; font-size: 11.5px; width: 95px; text-align: right; }
+
+    /* ══════════════════════════════════════════════════════════════
+       SCREEN 4: 4K HDR STREAMING PLAYER (FULLY STYLED!)
+       ══════════════════════════════════════════════════════════════ */
+    #s-play {
+      background: #000; height: 1080px; position: relative; overflow: hidden;
+    }
+    .player-cinematic-stage {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 60% 40%, #301004 0%, #150602 50%, #000000 100%);
+      overflow: hidden;
+    }
+    .player-arrakis-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0.9;
+    }
+    .player-vignette-overlay {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.85) 100%);
+      pointer-events: none;
+    }
+
+    /* X-Ray HUD (Top Left) */
+    .xray-panel {
+      position: absolute; top: var(--hh); left: 56px; margin-top: 24px;
+      width: 440px; background: rgba(14, 8, 6, 0.9); backdrop-filter: blur(28px);
+      border: 1.5px solid var(--border2); border-radius: 24px; padding: 22px 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 30px var(--fire-glow);
+      z-index: 100; transition: all 0.35s var(--ease);
+    }
+    .xray-badge-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .xray-tag {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 12px; background: var(--alexa); color: #000;
+    }
+    .xray-scene-info { font-size: 12px; color: var(--fire-amber); font-weight: 700; }
+    .xray-cast-list { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+    .xray-actor { display: flex; align-items: center; gap: 12px; }
+    .xray-av { width: 38px; height: 38px; border-radius: 50%; background: var(--bg4); display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--border); }
+    .xray-name { font-size: 14.5px; font-weight: 800; color: #fff; }
+    .xray-role { font-size: 11px; color: var(--t3); }
+    .xray-note { font-size: 11.5px; color: var(--fire-amber); background: rgba(255, 102, 0, 0.1); border-radius: 10px; padding: 8px 12px; border: 1px solid rgba(255, 102, 0, 0.25); }
+
+    /* Co-Watch Panel (Top Right) */
+    .cowatch-panel {
+      position: absolute; top: var(--hh); right: 56px; margin-top: 24px;
+      width: 380px; background: rgba(14, 8, 6, 0.9); backdrop-filter: blur(28px);
+      border: 1.5px solid var(--border2); border-radius: 24px; padding: 22px 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85); z-index: 100;
+    }
+    .cwp-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .cwp-members { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .cwp-member { display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; }
+    .cwp-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; border: 1.5px solid; }
+    .cwp-sync { font-size: 11px; font-weight: 800; color: var(--jade); }
+    .cwp-prog-track { height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 3px; overflow: hidden; margin: 6px 0; }
+    .cwp-prog-fill { height: 100%; background: linear-gradient(90deg, #FF3300, var(--jade)); border-radius: 3px; }
+
+    /* Player Controls Dock (Bottom) */
+    .player-controls-dock {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(0deg, rgba(7, 4, 3, 0.98) 0%, rgba(7, 4, 3, 0.85) 70%, transparent 100%);
+      padding: 30px 64px 38px; z-index: 120;
+    }
+    .seek-container {
+      position: relative; width: 100%; height: 10px; background: rgba(255, 255, 255, 0.12);
+      border-radius: 5px; cursor: pointer; margin-bottom: 18px;
+    }
+    .seek-buffered { position: absolute; left: 0; top: 0; height: 100%; width: 55%; background: rgba(255, 255, 255, 0.25); border-radius: 5px; }
+    .seek-active-fill { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, #FF3300, #FFA500); border-radius: 5px; box-shadow: 0 0 14px var(--fire-amber); }
+    .seek-knob {
+      position: absolute; top: 50%; transform: translate(-50%, -50%);
+      width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF;
+      box-shadow: 0 0 16px var(--fire-amber); border: 3px solid var(--fire-flame);
+    }
+    .player-buttons-row { display: flex; align-items: center; justify-content: space-between; }
+    .ctrl-grp { display: flex; align-items: center; gap: 14px; }
+    .cbtn {
+      width: 48px; height: 48px; border-radius: 14px; background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid var(--border); color: #fff; font-size: 18px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: all 0.2s var(--ease); font-family: inherit; font-weight: 700;
+    }
+    .cbtn.main { width: 56px; height: 56px; background: linear-gradient(135deg, #FF3300, #FF9900); font-size: 22px; box-shadow: 0 4px 24px rgba(255, 80, 0, 0.5); }
+    .cbtn:hover, .cbtn.focused { background: var(--fire-flame); border-color: #FFA500; transform: scale(1.1); box-shadow: 0 0 24px var(--fire-gi); }
+    .player-time { font-family: 'Roboto Mono', monospace; font-size: 15px; font-weight: 700; color: var(--t2); margin-left: 10px; }
+    .player-quality-badge { font-size: 12px; font-weight: 800; padding: 6px 14px; border-radius: 20px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); color: var(--fire-gold); }
+
+    /* ══════════════════════════════════════════════════════════════
+       SCREEN 5: MICROSERVICES ARCHITECTURE (FULLY STYLED!)
+       ══════════════════════════════════════════════════════════════ */
+    #s-arch {
+      background: var(--bg); padding-top: var(--hh);
+      height: 1080px; box-sizing: border-box; overflow-y: auto;
+    }
+    .arch-wrapper { padding: 32px 56px 60px; display: flex; flex-direction: column; gap: 24px; }
+    .arch-headline { display: flex; align-items: center; justify-content: space-between; }
+    .arch-headline h2 { font-size: 34px; font-weight: 900; letter-spacing: -0.5px; }
+    .arch-headline p { font-size: 14.5px; color: var(--t3); margin-top: 4px; }
+
+    .arch-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .kpi-card {
+      background: var(--bg3); border: 1.5px solid var(--border); border-radius: 18px;
+      padding: 18px 22px; position: relative; overflow: hidden;
+    }
+    .kpi-val { font-size: 36px; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 6px; }
+    .kpi-label { font-size: 12px; color: var(--t3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-trend { position: absolute; top: 18px; right: 20px; font-size: 12px; font-weight: 800; color: var(--jade); }
+
+    .arch-micro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .svc-tile {
+      background: var(--bg3); border: 1.5px solid var(--border); border-radius: 18px;
+      padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; transition: all 0.24s;
+    }
+    .svc-tile:hover, .svc-tile.focused { border-color: var(--fire-amber); transform: translateY(-4px); box-shadow: 0 10px 30px rgba(255, 102, 0, 0.25); }
+    .svc-icon-badge { font-size: 26px; }
+    .svc-title-text { font-size: 17px; font-weight: 800; }
+    .svc-tech-stack { font-size: 11.5px; color: var(--t3); line-height: 1.4; min-height: 32px; }
+    .svc-live-status { font-size: 11px; font-weight: 800; color: var(--jade); display: flex; align-items: center; gap: 6px; }
+    .svc-live-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 6px var(--jade); }
+    .svc-metrics-duo { display: flex; gap: 8px; margin-top: 4px; }
+    .metric-pill { flex: 1; background: rgba(0, 0, 0, 0.4); border-radius: 8px; padding: 6px 10px; border: 1px solid var(--border); }
+    .metric-num { font-size: 15px; font-weight: 800; color: var(--fire-amber); font-family: 'Roboto Mono', monospace; }
+    .metric-label { font-size: 9.5px; color: var(--t4); text-transform: uppercase; font-weight: 700; margin-top: 2px; }
+
+    /* Network Flow Row */
+    .arch-flow-row {
+      background: #000; border: 1.5px solid var(--border); border-radius: 20px;
+      padding: 24px 28px; display: flex; align-items: center; justify-content: space-between;
+      position: relative; overflow: hidden;
+    }
+    .flow-node { display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 5; }
+    .flow-node-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--bg4); border: 1.5px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+    .flow-node-label { font-size: 11px; font-weight: 800; color: var(--t2); }
+    .flow-arrow { flex: 1; position: relative; height: 28px; display: flex; align-items: center; justify-content: center; }
+    .flow-arrow-line { position: absolute; left: 0; right: 0; height: 2px; background: rgba(255, 120, 40, 0.35); }
+    .flow-packet {
+      position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--fire-amber);
+      box-shadow: 0 0 10px var(--fire-amber); animation: flowTravel 2.4s linear infinite;
+    }
+    .flow-packet:nth-child(2) { animation-delay: 1.2s; background: var(--jade); box-shadow: 0 0 10px var(--jade); }
+    @keyframes flowTravel { 0%{left:0%;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{left:100%;opacity:0} }
+    .flow-latency { position: absolute; bottom: -2px; font-size: 9.5px; font-family: 'Roboto Mono', monospace; font-weight: 700; color: var(--jade); }
+
+    /* ══════════════════════════════════════════════════════════════
+       SCREEN 6: FIRE TV AMBIENT MODE (FULLY STYLED!)
+       ══════════════════════════════════════════════════════════════ */
+    #s-amb {
+      background: radial-gradient(ellipse 90% 80% at 50% 60%, #260C03 0%, #0A0402 65%, #000 100%);
+      align-items: center; justify-content: center; height: 1080px; position: relative;
+    }
+    .amb-center { display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 10; }
+    .amb-brand { font-size: 13px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; color: var(--fire-amber); }
+    .amb-clock { font-size: 130px; font-weight: 200; font-family: 'Inter', sans-serif; letter-spacing: -4px; line-height: 1; text-shadow: 0 0 40px rgba(255, 100, 0, 0.4); }
+    .amb-date { font-size: 20px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--fire-amber); }
+    .amb-info-pill {
+      display: flex; align-items: center; gap: 32px; background: rgba(20, 10, 7, 0.85);
+      backdrop-filter: blur(28px); border: 1.5px solid var(--border2); border-radius: 28px;
+      padding: 20px 36px; box-shadow: 0 14px 50px rgba(0,0,0,0.8); margin-top: 10px;
+    }
+    .amb-weather { display: flex; align-items: center; gap: 16px; }
+    .amb-temp { font-size: 34px; font-weight: 900; line-height: 1; }
+    .amb-city { font-size: 12.5px; color: var(--t3); margin-top: 2px; }
+    .amb-divider { width: 1px; height: 44px; background: var(--border); }
+    .amb-house-info { font-size: 13px; color: var(--t2); line-height: 1.7; font-weight: 600; }
+    .amb-resume-btn {
+      padding: 12px 32px; border-radius: 22px; background: transparent;
+      border: 1.5px solid var(--border2); color: var(--t2); cursor: pointer;
+      font-family: inherit; font-size: 14.5px; font-weight: 700; transition: all 0.2s;
+    }
+    .amb-resume-btn:hover, .amb-resume-btn.focused { background: rgba(255, 102, 0, 0.2); border-color: var(--fire-amber); color: #fff; box-shadow: 0 0 24px var(--fire-glow); }
+
+    /* ══════════════════════════════════════════════════════════════
+       DOCKED MINIMAL FIRE TV REMOTE (NEVER OVERLAPS CONTENT!)
+       ══════════════════════════════════════════════════════════════ */
+    #fire-remote-hud {
+      position: fixed; bottom: 18px; right: 24px;
+      background: rgba(16, 8, 6, 0.95); backdrop-filter: blur(32px);
+      border: 1.5px solid var(--border2); border-radius: 36px;
+      padding: 12px 14px 16px;
+      box-shadow: 0 14px 50px rgba(0, 0, 0, 0.85), 0 0 20px rgba(255, 102, 0, 0.2);
+      z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 8px;
+      transform: translateY(220px); transition: transform 0.35s var(--ease);
+    }
+    #fire-remote-hud.expanded { transform: translateY(0); }
+    .rmt-toggle-tab {
+      position: absolute; top: -32px; right: 12px;
+      background: rgba(24, 12, 8, 0.96); border: 1.5px solid var(--border2);
+      border-bottom: none; border-radius: 12px 12px 0 0;
+      padding: 4px 14px; font-size: 10px; font-weight: 800; color: var(--fire-amber);
+      cursor: pointer; letter-spacing: 1px; text-transform: uppercase;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
+    }
+    .rmt-label { font-size: 9px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--t4); }
+    .rmt-alexa-ring {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(0, 212, 255, 0.12); border: 2px solid var(--alexa);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--alexa); font-size: 15px;
+      box-shadow: 0 0 12px var(--alexa-g); transition: all 0.2s;
+    }
+    .rmt-alexa-ring:hover, .rmt-alexa-ring.active { background: var(--alexa); color: #000; box-shadow: 0 0 26px var(--alexa); }
+    .rmt-dpad {
+      width: 104px; height: 104px; border-radius: 50%;
+      background: #201008; border: 2px solid rgba(255, 120, 40, 0.35);
+      position: relative; display: flex; align-items: center; justify-content: center;
+    }
+    .d-btn { position: absolute; width: 30px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--t4); font-size: 12px; font-weight: 900; }
+    .d-btn:hover, .d-btn.active { color: var(--fire-amber); text-shadow: 0 0 8px var(--fire-amber); }
+    .d-up{top:3px;left:37px} .d-down{bottom:3px;left:37px} .d-left{left:3px;top:39px} .d-right{right:3px;top:39px}
+    .d-center {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, #FF3300, #FF9900);
+      color: #fff; font-size: 9px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 0 14px rgba(255, 102, 0, 0.6);
+    }
+    .d-center:hover, .d-center.active { transform: scale(0.92); box-shadow: 0 0 24px rgba(255, 153, 0, 0.9); }
+    .rmt-nav-row { display: flex; gap: 8px; }
+    .rmt-pill-btn { width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); color: var(--t2); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
+    .rmt-pill-btn:hover, .rmt-pill-btn.active { background: var(--fire-flame); color: #fff; border-color: #FFA500; }
+
+    /* ══════════════════════════════════════════════════════════════
+       TOASTS
+       ══════════════════════════════════════════════════════════════ */
+    #toast-wrap { position: fixed; top: 90px; right: 36px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+    .toast-box {
+      background: rgba(16, 8, 6, 0.96); backdrop-filter: blur(32px);
+      border: 1.5px solid var(--border2); border-radius: 16px; padding: 14px 20px;
+      min-width: 320px; max-width: 420px;
+      display: flex; align-items: center; gap: 14px;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.8), 0 0 28px var(--fire-glow);
+      animation: toastIn 0.35s var(--ease);
+    }
+    @keyframes toastIn { from{transform:translateX(36px);opacity:0} to{transform:translateX(0);opacity:1} }
+    .tb-icon { font-size: 24px; flex-shrink: 0; }
+    .tb-text h5 { font-size: 14px; font-weight: 800; color: #fff; }
+    .tb-text p { font-size: 12px; color: var(--t3); margin-top: 2px; line-height: 1.45; }
+  </style>
+</head>
+<body>
+<div class="scanline"></div>
+
+<div id="stage">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="fire-topbar">
+    <div class="fire-brand" onclick="go('home')">
+      <div class="fire-logo-icon">🔥</div>
+      <div class="fire-brand-text">
+        <div class="fire-title">amazon <em>firetv</em></div>
+        <div class="fire-sub">AURA VEGA OS 1.2 · RONAK JAIN</div>
+      </div>
+    </div>
+
+    <nav class="fire-nav-links">
+      <button class="nav-btn a foc" id="nb-home" onclick="go('home')"><span>🏠</span> Home</button>
+      <button class="nav-btn foc" id="nb-cons" onclick="go('cons')"><span>🔥</span> Group Consensus <span class="nav-badge-pill">94%</span></button>
+      <button class="nav-btn foc" id="nb-play" onclick="launchPlayer(1)"><span>▶</span> 4K Player</button>
+      <button class="nav-btn foc" id="nb-arch" onclick="go('arch')"><span>⚙️</span> Microservices</button>
+      <button class="nav-btn foc" id="nb-amb" onclick="go('amb')"><span>🌋</span> Ambient</button>
+    </nav>
+
+    <div class="fire-top-right">
+      <div class="sys-health-bar" id="sys-health-topbar">
+        <div class="health-dot"></div>
+        <span>All Systems Operational</span>
+        <span style="color:var(--t4)">|</span>
+        <span id="live-latency">7ms</span>
+      </div>
+      <div class="alexa-pill foc" id="alexa-btn" onclick="triggerAlexa()">
+        <div class="alexa-waveform">
+          <div class="alexa-bar" style="height:4px"></div>
+          <div class="alexa-bar" style="height:9px"></div>
+          <div class="alexa-bar" style="height:14px"></div>
+          <div class="alexa-bar" style="height:7px"></div>
+          <div class="alexa-bar" style="height:5px"></div>
+        </div>
+        <span>"Alexa, what should we watch?"</span>
+      </div>
+      <div class="user-avatar-chip foc" onclick="go('cons')">
+        <div class="user-circle">R</div>
+        <div class="user-name-label">Ronak Jain</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 1: SPLASH BOOT
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="scr on" id="s-splash">
+    <div class="sp-ring">
+      <svg class="sp-ring-svg" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="48" fill="none" stroke="rgba(255,102,0,0.2)" stroke-width="3"/>
+        <circle cx="55" cy="55" r="48" fill="none" stroke="url(#rg)" stroke-width="3" stroke-linecap="round" stroke-dasharray="240 62"/>
+        <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF3300"/><stop offset="100%" stop-color="#FF9900"/></linearGradient></defs>
+      </svg>
+      <div class="sp-flame-wrap">🔥</div>
+    </div>
+    <div>
+      <div class="sp-brand-main">AURA <em>FIRE</em> TV</div>
+      <div class="sp-brand-tag">Intelligent Co-Viewing · Amazon Vega OS · Ronak Jain</div>
+    </div>
+    <div class="sp-bar-outer">
+      <div class="sp-bar-fill" id="sp-bar-fill"></div>
+    </div>
+    <div class="sp-status-text" id="sp-status">Initializing Amazon Vega Media Runtime…</div>
+    <div class="sp-service-grid">
+      <div class="ms-chk" id="msc-1"><div class="ms-icon">🔐</div><div class="ms-chk-dot"></div>Appwrite Auth</div>
+      <div class="ms-chk" id="msc-2"><div class="ms-icon">🧠</div><div class="ms-chk-dot"></div>Gemini 2.5 AI</div>
+      <div class="ms-chk" id="msc-3"><div class="ms-icon">⚡</div><div class="ms-chk-dot"></div>Supabase WS</div>
+      <div class="ms-chk" id="msc-4"><div class="ms-icon">🎬</div><div class="ms-chk-dot"></div>CloudFront CDN</div>
+      <div class="ms-chk" id="msc-5"><div class="ms-icon">🤝</div><div class="ms-chk-dot"></div>Consensus Core</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 2: HOME (FIRE TV 10-FOOT INTERFACE)
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="scr" id="s-home">
+    <div class="hero-container" id="hero-box">
+      <div class="hero-bg-layer" id="hero-bg">
+        <div class="hero-flame-glow"></div>
+        <div class="ember-container" id="ember-container"></div>
+        <div class="hero-backdrop-poster" id="hero-backdrop-poster"></div>
+      </div>
+      <div class="hero-vignette"></div>
+
+      <div class="hero-info">
+        <div class="fire-exclusive-tag">✦ FIRE TV · #1 HOUSEHOLD MATCH</div>
+        <h1 class="hero-title" id="h-title">Dune: Awakening</h1>
+        <div class="hero-meta-row">
+          <div class="h-badge badge-match" id="h-match-badge">★ 94% Group Match</div>
+          <div class="h-badge badge-imdb" id="h-imdb-badge">IMDb 9.1 · 🍅 94%</div>
+          <div class="h-badge badge-fmt" id="h-fmt-badge">2h 46m · 2025 · 4K HDR10 · Dolby Atmos</div>
+        </div>
+        <p class="hero-synopsis" id="h-desc">
+          Epic struggle across Arrakis where destiny, power, and spice converge. All 4 active household members voted yes with zero genre conflicts.
+        </p>
+        <div class="hero-actions">
+          <button class="btn-fire-play foc" id="hero-play-btn" onclick="launchPlayer(ST.heroId||1)">▶&nbsp;&nbsp;Play on Fire TV</button>
+          <button class="btn-outline foc" onclick="go('cons')">🤝&nbsp;Inspect Consensus</button>
+          <button class="btn-outline foc" onclick="triggerAlexa()">🎙&nbsp;Ask Alexa</button>
+        </div>
+      </div>
+
+      <!-- Live Consensus HUD Widget -->
+      <div class="hero-consensus-widget" id="hero-cw">
+        <div class="cw-header">
+          <div class="cw-flame-icon">🔥</div>
+          <div class="cw-title-block">
+            <h4>Living Room Consensus</h4>
+            <span>4 Voters · Supabase WebSockets</span>
+          </div>
+        </div>
+        <div class="cw-live-badge"><div class="cw-live-dot"></div>LIVE SYNC ACTIVE</div>
+        <div class="cw-avatars-row">
+          <div class="cw-avatar cw-av-r">R<div class="cw-dot"></div></div>
+          <div class="cw-avatar cw-av-p">P<div class="cw-dot"></div></div>
+          <div class="cw-avatar cw-av-m">M<div class="cw-dot"></div></div>
+          <div class="cw-avatar cw-av-s">S<div class="cw-dot"></div></div>
+        </div>
+        <div class="cw-score-area">
+          <div class="cw-big-pct" id="live-pct-val">94%</div>
+          <div class="cw-meter">
+            <div class="cw-meter-lbl">Deterministic Utility Score</div>
+            <div class="cw-track">
+              <div class="cw-fill" id="live-fill-bar" style="width:94%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shelves with Real Movie Posters -->
+    <div class="shelves-area">
+      <!-- SHELF 1 -->
+      <div class="shelf-block" id="shelf-block-1">
+        <div class="shelf-header-row">
+          <div class="shelf-title">🔥 Hot on Fire TV · Top Household Matches</div>
+          <div class="shelf-hint">Scroll with Remote ‹ ›</div>
+        </div>
+        <div class="shelf-viewport">
+          <button class="shelf-paddle paddle-left foc" onclick="scrollShelf('track-picks',-540)">‹</button>
+          <div class="shelf-track" id="track-picks"></div>
+          <button class="shelf-paddle paddle-right foc" onclick="scrollShelf('track-picks',540)">›</button>
+        </div>
+      </div>
+
+      <!-- SHELF 2 -->
+      <div class="shelf-block" id="shelf-block-2">
+        <div class="shelf-header-row">
+          <div class="shelf-title">🎯 Gemini 2.5 Multi-Profile AI Recommendations</div>
+          <div class="shelf-hint">768-Dim Vector Space</div>
+        </div>
+        <div class="shelf-viewport">
+          <button class="shelf-paddle paddle-left foc" onclick="scrollShelf('track-ai',-620)">‹</button>
+          <div class="shelf-track" id="track-ai"></div>
+          <button class="shelf-paddle paddle-right foc" onclick="scrollShelf('track-ai',620)">›</button>
+        </div>
+      </div>
+
+      <!-- SHELF 3 -->
+      <div class="shelf-block" id="shelf-block-3">
+        <div class="shelf-header-row">
+          <div class="shelf-title">🍿 Prime Video &amp; Vega Originals in 4K HDR</div>
+          <div class="shelf-hint">Included with Prime</div>
+        </div>
+        <div class="shelf-viewport">
+          <button class="shelf-paddle paddle-left foc" onclick="scrollShelf('track-prime',-540)">‹</button>
+          <div class="shelf-track" id="track-prime"></div>
+          <button class="shelf-paddle paddle-right foc" onclick="scrollShelf('track-prime',540)">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 3: COUCH CONSENSUS ENGINE
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="scr" id="s-cons">
+    <div class="cons-layout">
+      <!-- LEFT: Household Voters -->
+      <div class="cons-left-col">
+        <div class="col-title">Active Household Voters</div>
+
+        <div class="voter-box voted" id="vbox-r">
+          <div class="vb-top">
+            <div class="vb-av" style="border-color:#FF6600;color:#FF6600;background:rgba(255,102,0,0.12)">R</div>
+            <div class="vb-meta"><h5>Ronak Jain</h5><span>Admin · Profile 1 · Mumbai</span></div>
+          </div>
+          <div class="vb-tags"><span class="v-chip">Sci-Fi</span><span class="v-chip">Thriller</span><span class="v-chip">Docs</span></div>
+          <div class="vb-status done">✓ Voted: Dune: Awakening</div>
+        </div>
+
+        <div class="voter-box voted" id="vbox-p">
+          <div class="vb-top">
+            <div class="vb-av" style="border-color:#FFC700;color:#FFC700;background:rgba(255,199,0,0.12)">P</div>
+            <div class="vb-meta"><h5>Priya</h5><span>Profile 2 · Connected via Phone</span></div>
+          </div>
+          <div class="vb-tags"><span class="v-chip">Drama</span><span class="v-chip">Sci-Fi</span><span class="v-chip">Mystery</span></div>
+          <div class="vb-status done">✓ Voted: Dune: Awakening</div>
+        </div>
+
+        <div class="voter-box active-voting" id="vbox-m">
+          <div class="vb-top">
+            <div class="vb-av" style="border-color:#00D4FF;color:#00D4FF;background:rgba(0,212,255,0.12)">M</div>
+            <div class="vb-meta"><h5>Meera</h5><span>Streaming Live via Supabase…</span></div>
+          </div>
+          <div class="vb-tags"><span class="v-chip">Comedy</span><span class="v-chip">Adventure</span></div>
+          <div class="vb-status live" id="meera-status-text">⚡ Deciding via Phone App…</div>
+        </div>
+
+        <div class="voter-box voted" id="vbox-s">
+          <div class="vb-top">
+            <div class="vb-av" style="border-color:#00E676;color:#00E676;background:rgba(0,230,118,0.12)">S</div>
+            <div class="vb-meta"><h5>Sam</h5><span>Profile 4 · Fire TV Stick</span></div>
+          </div>
+          <div class="vb-tags"><span class="v-chip">Action</span><span class="v-chip">Sci-Fi</span></div>
+          <div class="vb-status done">✓ Voted: Dune: Awakening</div>
+        </div>
+
+        <!-- Live WS Ticker -->
+        <div class="col-title" style="margin-top:6px">Live WebSocket Events</div>
+        <div class="ws-ticker" id="ws-ticker">
+          <div style="color:var(--t4)">Connecting to Supabase Realtime…</div>
+        </div>
+      </div>
+
+      <!-- CENTER: Ranked List -->
+      <div class="cons-center-col">
+        <div class="col-title">Live Candidate Ranking (Pareto-Optimal Utility Score)</div>
+        <div id="cons-ranking-list"></div>
+      </div>
+
+      <!-- RIGHT: Scoring Math & Action -->
+      <div class="cons-right-col">
+        <div class="col-title">Explainable Scoring Math</div>
+        <div class="math-card">
+          <div class="math-header">
+            <span style="font-size:22px">🧠</span>
+            <div class="math-title">Deterministic Utility Formula</div>
+          </div>
+          <div class="math-formula">U(m) = 0.35·A + 0.25·Q + 0.25·C + 0.15·R − ΣVeto</div>
+          <div class="math-factor">
+            <span class="mf-label">Voter Affinity (A) · 35%</span>
+            <div class="mf-bar-wrap"><div class="mf-bar" style="width:100%"></div></div>
+            <span class="mf-val">4/4 Agree</span>
+          </div>
+          <div class="math-factor">
+            <span class="mf-label">Critical Quality (Q) · 25%</span>
+            <div class="mf-bar-wrap"><div class="mf-bar" style="width:91%"></div></div>
+            <span class="mf-val">IMDb 9.1 · RT 94%</span>
+          </div>
+          <div class="math-factor">
+            <span class="mf-label">Context Mode (C) · 25%</span>
+            <div class="mf-bar-wrap"><div class="mf-bar" style="width:88%"></div></div>
+            <span class="mf-val">Evening · Sunset</span>
+          </div>
+          <div class="math-factor">
+            <span class="mf-label">Runtime Fit (R) · 15%</span>
+            <div class="mf-bar-wrap"><div class="mf-bar" style="width:82%"></div></div>
+            <span class="mf-val">Within 3h Bedtime</span>
+          </div>
+          <div class="math-factor">
+            <span class="mf-label">Veto Penalty</span>
+            <div class="mf-bar-wrap"><div class="mf-bar" style="width:0%"></div></div>
+            <span class="mf-val" style="color:var(--jade)">0 Conflicts</span>
+          </div>
+        </div>
+
+        <div class="math-card" style="margin-top:12px">
+          <div class="math-header">
+            <span style="font-size:22px">⚡</span>
+            <div class="math-title">Supabase Realtime Sync</div>
+          </div>
+          <p style="font-size:11.5px;color:var(--t2);line-height:1.6">
+            Multi-client WebSocket presence cluster reconciles votes across Fire TV and mobile companion apps in &lt;15ms P95 latency. CRDT-based merge for conflict-free concurrent updates.
+          </p>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <div style="flex:1;background:rgba(0,0,0,0.4);border-radius:8px;padding:8px 10px;border:1px solid var(--border)">
+              <div style="font-size:18px;font-weight:900;color:var(--jade)" id="ws-ms-counter">14ms</div>
+              <div style="font-size:10px;color:var(--t4);margin-top:2px">WS Latency</div>
+            </div>
+            <div style="flex:1;background:rgba(0,0,0,0.4);border-radius:8px;padding:8px 10px;border:1px solid var(--border)">
+              <div style="font-size:18px;font-weight:900;color:var(--fire-amber)" id="ws-events-counter">8</div>
+              <div style="font-size:10px;color:var(--t4);margin-top:2px">Events/min</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-fire-play foc" style="margin-top:auto;width:100%;justify-content:center" onclick="launchPlayer(1)">
+          ▶ Launch Synchronized Stream
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 4: 4K HDR STREAMING PLAYER + X-RAY + CO-WATCH
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="scr" id="s-play">
+    <div class="player-cinematic-stage">
+      <div class="player-arrakis-canvas" id="player-canvas-wrap"></div>
+      <div class="player-vignette-overlay"></div>
+    </div>
+
+    <!-- Fire TV X-Ray Panel -->
+    <div class="xray-panel" id="xray-hud">
+      <div class="xray-badge-row">
+        <div class="xray-tag">✦ FIRE TV X-RAY</div>
+        <div class="xray-scene-info">Scene 14 · Arrakis Sands</div>
+      </div>
+      <div style="font-size:13.5px;font-weight:700;color:#fff">Now On Screen:</div>
+      <div class="xray-cast-list">
+        <div class="xray-actor">
+          <div class="xray-av">🎭</div>
+          <div><div class="xray-name">Timothée Chalamet</div><div class="xray-role">Paul Atreides · Lead</div></div>
+        </div>
+        <div class="xray-actor">
+          <div class="xray-av">🎭</div>
+          <div><div class="xray-name">Zendaya</div><div class="xray-role">Chani · Supporting</div></div>
+        </div>
+        <div class="xray-actor">
+          <div class="xray-av">🎵</div>
+          <div><div class="xray-name">Hans Zimmer</div><div class="xray-role">OST: "Herald of the Change"</div></div>
+        </div>
+      </div>
+      <div class="xray-note">
+        🔥 Consensus Note: Ronak &amp; Sam matched director Denis Villeneuve. 4/4 voters agreed on Sci-Fi.
+      </div>
+    </div>
+
+    <!-- Co-Watch Panel (right) -->
+    <div class="cowatch-panel" id="cowatch-hud">
+      <div class="cwp-title">👥 Co-Watch Party · Live</div>
+      <div class="cwp-members">
+        <div class="cwp-member">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="cwp-av" style="border-color:#FF6600;color:#FF6600;background:rgba(255,102,0,0.12)">R</div>
+            <span style="font-weight:700">Ronak Jain</span>
+          </div>
+          <span class="cwp-sync">🟢 SYNC</span>
+        </div>
+        <div class="cwp-member">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="cwp-av" style="border-color:#FFC700;color:#FFC700;background:rgba(255,199,0,0.12)">P</div>
+            <span style="font-weight:700">Priya</span>
+          </div>
+          <span class="cwp-sync">🟢 SYNC</span>
+        </div>
+        <div class="cwp-member">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="cwp-av" style="border-color:#00D4FF;color:#00D4FF;background:rgba(0,212,255,0.12)">M</div>
+            <span style="font-weight:700">Meera</span>
+          </div>
+          <span class="cwp-sync" style="color:var(--fire-amber)">📱 Mobile</span>
+        </div>
+        <div class="cwp-member">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="cwp-av" style="border-color:#00E676;color:#00E676;background:rgba(0,230,118,0.12)">S</div>
+            <span style="font-weight:700">Sam</span>
+          </div>
+          <span class="cwp-sync">🟢 SYNC</span>
+        </div>
+      </div>
+      <div class="cwp-progress">
+        <div style="font-size:11px;color:var(--t3);display:flex;justify-content:space-between">
+          <span>Group Sync Position</span>
+          <span style="color:var(--jade);font-weight:800">100% Synced</span>
+        </div>
+        <div class="cwp-prog-track"><div class="cwp-prog-fill" style="width:28%"></div></div>
+        <div style="font-size:10px;color:var(--t4);font-family:'Roboto Mono',monospace">00:42:15 / 02:46:00</div>
+      </div>
+    </div>
+
+    <!-- Player Controls Dock -->
+    <div class="player-controls-dock">
+      <div class="seek-container" onclick="seekClick(event)">
+        <div class="seek-buffered"></div>
+        <div class="seek-active-fill" id="player-seek-fill" style="width:28%"></div>
+        <div class="seek-knob" id="player-seek-knob" style="left:28%"></div>
+      </div>
+      <div class="player-buttons-row">
+        <div class="ctrl-grp">
+          <button class="cbtn foc" onclick="seekBy(-10)">⏮</button>
+          <button class="cbtn main foc" id="play-pause-btn" onclick="togglePlayback()">⏸</button>
+          <button class="cbtn foc" onclick="seekBy(10)">⏭</button>
+          <span class="player-time" id="player-time-display">00:42:15 / 02:46:00</span>
+        </div>
+        <div class="ctrl-grp">
+          <div class="player-quality-badge">4K ULTRA HD · HDR10 · DOLBY ATMOS · 60 FPS</div>
+          <button class="cbtn foc" style="width:auto;padding:0 18px" onclick="toggleXray()">X-Ray</button>
+          <button class="cbtn foc">CC</button>
+          <button class="cbtn foc">🔊</button>
+          <button class="cbtn foc" onclick="go('home')">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 5: MICROSERVICES ARCHITECTURE
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="scr" id="s-arch">
+    <div class="arch-wrapper">
+      <div class="arch-headline">
+        <div>
+          <h2>8-Microservice Distributed Cloud Architecture</h2>
+          <p>Production Infrastructure · Supabase + Appwrite + AWS CloudFront + Google Gemini 2.5 + OpenTelemetry · Vega OS</p>
+        </div>
+        <button class="btn-outline foc" onclick="go('home')">← Back to Fire TV</button>
+      </div>
+
+      <!-- KPI Row -->
+      <div class="arch-kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-val" id="kpi-rps">14,483</div>
+          <div class="kpi-label">Requests / min</div>
+          <div class="kpi-trend">+12% ↑</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val" id="kpi-latency">7ms</div>
+          <div class="kpi-label">P50 Latency (API Gateway)</div>
+          <div class="kpi-trend" style="color:var(--jade)">Healthy</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val">97/97</div>
+          <div class="kpi-label">Jest Test Suites Passed</div>
+          <div class="kpi-trend" style="color:var(--jade)">100% ✓</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val">99.9%</div>
+          <div class="kpi-label">Uptime (30-day rolling)</div>
+          <div class="kpi-trend" style="color:var(--jade)">SLA Met</div>
+        </div>
+      </div>
+
+      <!-- Service tiles -->
+      <div class="arch-micro-grid">
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🌐</div>
+          <div class="svc-title-text">API Gateway</div>
+          <div class="svc-tech-stack">Kong · JWT Auth · Rate Limiting · mTLS · Edge Anycast</div>
+          <div class="svc-live-status">Operational · Anycast Edge</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num" id="m-rps">14.5K</div><div class="metric-label">req/min</div></div>
+            <div class="metric-pill"><div class="metric-num">7ms</div><div class="metric-label">P50</div></div>
+          </div>
+        </div>
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🔐</div>
+          <div class="svc-title-text">Auth &amp; Sessions</div>
+          <div class="svc-tech-stack">Appwrite · OAuth2 PKCE · Multi-Profile · JWT Refresh</div>
+          <div class="svc-live-status">Operational · 4 Sessions Active</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">99.9%</div><div class="metric-label">Uptime</div></div>
+            <div class="metric-pill"><div class="metric-num">0.00%</div><div class="metric-label">Error Rate</div></div>
+          </div>
+        </div>
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🧠</div>
+          <div class="svc-title-text">AI Recommender</div>
+          <div class="svc-tech-stack">Gemini 2.5 Flash · Supabase pgvector HNSW Index · 768-D</div>
+          <div class="svc-live-status">Operational · Cache Warmed</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">768-D</div><div class="metric-label">Vectors</div></div>
+            <div class="metric-pill"><div class="metric-num">32ms</div><div class="metric-label">Inference</div></div>
+          </div>
+        </div>
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🤝</div>
+          <div class="svc-title-text">Consensus Core</div>
+          <div class="svc-tech-stack">Deterministic Utility Engine · Veto Penalization · CRDT Merge</div>
+          <div class="svc-live-status">97/97 Jest Tests Passed</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">97/97</div><div class="metric-label">Suites ✓</div></div>
+            <div class="metric-pill"><div class="metric-num">3ms</div><div class="metric-label">Resolution</div></div>
+          </div>
+        </div>
+        <div class="svc-tile">
+          <div class="svc-icon-badge">⚡</div>
+          <div class="svc-title-text">Realtime State</div>
+          <div class="svc-tech-stack">Supabase Realtime WS · CRDT Presence · Cluster Broadcast</div>
+          <div class="svc-live-status">Connected · 4 Clients</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">&lt;15ms</div><div class="metric-label">Sync Lag</div></div>
+            <div class="metric-pill"><div class="metric-num">60fps</div><div class="metric-label">Broadcast</div></div>
+          </div>
+        </div>
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🎬</div>
+          <div class="svc-title-text">Adaptive 4K CDN</div>
+          <div class="svc-tech-stack">AWS CloudFront · HLS Adaptive Ladder · Dolby Atmos · DRM</div>
+          <div class="svc-live-status">Active · 250+ Edge PoPs</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">4K HDR</div><div class="metric-label">Stream</div></div>
+            <div class="metric-pill"><div class="metric-num">99.8%</div><div class="metric-label">Cache Hit</div></div>
+          </div>
+        </div>
+        <div class="svc-tile">
+          <div class="svc-icon-badge">📊</div>
+          <div class="svc-title-text">Observability</div>
+          <div class="svc-tech-stack">OpenTelemetry · Grafana · Prometheus · P95 Distributed Tracing</div>
+          <div class="svc-live-status">Streaming Traces</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">247h</div><div class="metric-label">Logged</div></div>
+            <div class="metric-pill"><div class="metric-num">0</div><div class="metric-label">Dropped</div></div>
+          </div>
+        </div>
+        <div class="svc-tile">
+          <div class="svc-icon-badge">🔔</div>
+          <div class="svc-title-text">Fire TV Push Hub</div>
+          <div class="svc-tech-stack">Amazon SNS · Fire TV ADM · Multi-Device Push · Sync Alerts</div>
+          <div class="svc-live-status">Operational</div>
+          <div class="svc-metrics-duo">
+            <div class="metric-pill"><div class="metric-num">34</div><div class="metric-label">Alerts Sent</div></div>
+            <div class="metric-pill"><div class="metric-num">100%</div><div class="metric-label">Delivered</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Network Flow Diagram -->
+      <div class="arch-flow-row">
+        <div class="flow-node">
+          <div class="flow-node-icon">📺</div>
+          <div class="flow-node-label">Fire TV App</div>
+        </div>
+        <div class="flow-arrow">
+          <div class="flow-arrow-line"></div>
+          <div class="flow-packet"></div><div class="flow-packet"></div>
+          <div class="flow-latency">mTLS · 7ms</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🌐</div>
+          <div class="flow-node-label">Kong Gateway</div>
+        </div>
+        <div class="flow-arrow">
+          <div class="flow-arrow-line"></div>
+          <div class="flow-packet"></div><div class="flow-packet"></div>
+          <div class="flow-latency">JWT · 3ms</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🔐</div>
+          <div class="flow-node-label">Appwrite Auth</div>
+        </div>
+        <div class="flow-arrow">
+          <div class="flow-arrow-line"></div>
+          <div class="flow-packet"></div><div class="flow-packet"></div>
+          <div class="flow-latency">WS · &lt;15ms</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-icon">⚡</div>
+          <div class="flow-node-label">Supabase RT</div>
+        </div>
+        <div class="flow-arrow">
+          <div class="flow-arrow-line"></div>
+          <div class="flow-packet"></div><div class="flow-packet"></div>
+          <div class="flow-latency">Embed · 32ms</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🧠</div>
+          <div class="flow-node-label">Gemini 2.5</div>
+        </div>
+        <div class="flow-arrow">
+          <div class="flow-arrow-line"></div>
+          <div class="flow-packet"></div><div class="flow-packet"></div>
+          <div class="flow-latency">Score · 3ms</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🤝</div>
+          <div class="flow-node-label">Consensus Core</div>
+        </div>
+        <div class="flow-arrow">
+          <div class="flow-arrow-line"></div>
+          <div class="flow-packet"></div><div class="flow-packet"></div>
+          <div class="flow-latency">HLS · &lt;2ms</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🎬</div>
+          <div class="flow-node-label">CloudFront CDN</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 6: FIRE TV AMBIENT MODE
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="scr" id="s-amb">
+    <div class="ember-container" id="amb-embers"></div>
+    <div class="amb-center">
+      <div class="amb-brand">AMAZON FIRE TV · AMBIENT LIVING ROOM MODE</div>
+      <div class="amb-clock" id="amb-clock">18:42:05</div>
+      <div class="amb-date" id="amb-date">Saturday, October 3 · Living Room</div>
+      <div class="amb-info-pill">
+        <div class="amb-weather">
+          <span style="font-size:44px" id="amb-weather-icon">🌇</span>
+          <div>
+            <div class="amb-temp" id="amb-temp">24°C</div>
+            <div class="amb-city">Mumbai, India · Circadian Sunset</div>
+          </div>
+        </div>
+        <div class="amb-divider"></div>
+        <div class="amb-house-info">
+          🏠 Front Door Camera: Secure &amp; Locked<br>
+          👨‍👩‍👧‍👦 Household: 4 Members Present (Ronak, Priya, Meera, Sam)<br>
+          🔥 Ronak Jain · Fire TV Omni 65"
+        </div>
+      </div>
+      <button class="amb-resume-btn foc" onclick="go('home')">Press Any Remote Button to Resume</button>
+    </div>
+  </div>
+
+</div><!-- /stage -->
+
+<!-- DOCKED FIRE TV REMOTE HUD (COLLAPSIBLE / NON-OBTRUSIVE) -->
+<div id="fire-remote-hud">
+  <div class="rmt-toggle-tab" onclick="toggleRemoteHud()">🎮 Remote (R)</div>
+  <div class="rmt-label">Fire TV Remote</div>
+  <div class="rmt-alexa-ring" id="rmt-alexa" onclick="triggerAlexa()">🎙</div>
+  <div class="rmt-dpad">
+    <div class="d-btn d-up"    id="rmt-up"    onclick="remoteKey('ArrowUp')">▲</div>
+    <div class="d-btn d-down"  id="rmt-down"  onclick="remoteKey('ArrowDown')">▼</div>
+    <div class="d-btn d-left"  id="rmt-left"  onclick="remoteKey('ArrowLeft')">◀</div>
+    <div class="d-btn d-right" id="rmt-right" onclick="remoteKey('ArrowRight')">▶</div>
+    <div class="d-center"      id="rmt-sel"   onclick="remoteKey('Enter')">SELECT</div>
+  </div>
+  <div class="rmt-nav-row">
+    <div class="rmt-pill-btn" id="rmt-back" onclick="remoteKey('Escape')">↩</div>
+    <div class="rmt-pill-btn" id="rmt-home" onclick="go('home')">🏠</div>
+  </div>
+  <div class="rmt-nav-row">
+    <div class="rmt-pill-btn" id="rmt-play" onclick="togglePlayback()">⏯</div>
+    <div class="rmt-pill-btn" id="rmt-xray" onclick="toggleXray()">ℹ</div>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   CATALOG DATA & EMBEDDED HIGH-RES POSTER ARTWORK
+   ══════════════════════════════════════════════════════════════ */
+const CATALOG = [
+  {
+    id: 1,
+    t: 'Dune: Awakening',
+    y: 2025,
+    r: '2h 46m',
+    g: ['Sci-Fi', 'Action', 'Adventure'],
+    rt: 9.1,
+    m: 94,
+    d: 'Epic struggle across Arrakis where destiny, power, and spice converge. All 4 active household members voted yes with zero genre conflicts.',
+    posterSvg: \`${POSTERS[1].replace(/\\n/g, '').replace(/\\s+/g, ' ')}\`
+  },
+  {
+    id: 2,
+    t: 'Interstellar: Beyond',
+    y: 2025,
+    r: '3h 02m',
+    g: ['Sci-Fi', 'Drama', 'Mystery'],
+    rt: 8.9,
+    m: 89,
+    d: 'Love transcends spacetime in this breathtaking odyssey through uncharted wormholes. Re-evaluated in under 15ms for all viewers.',
+    posterSvg: \`${POSTERS[2].replace(/\\n/g, '').replace(/\\s+/g, ' ')}\`
+  },
+  {
+    id: 3,
+    t: 'The Last Empress',
+    y: 2025,
+    r: '1h 54m',
+    g: ['Drama', 'History', 'Action'],
+    rt: 8.5,
+    m: 85,
+    d: 'Imperial court intrigue and ruthless ambition at the edge of dynastic collapse. Fits early-evening 2-hour household window.',
+    posterSvg: \`${POSTERS[3].replace(/\\n/g, '').replace(/\\s+/g, ' ')}\`
+  },
+  {
+    id: 4,
+    t: 'Neon Horizon',
+    y: 2025,
+    r: '2h 12m',
+    g: ['Neo-Noir', 'Action', 'Sci-Fi'],
+    rt: 8.3,
+    m: 82,
+    d: 'A futuristic detective untangles corporate conspiracies across a rain-slicked mega-city. 768-D vector affinity match for Ronak and Sam.',
+    posterSvg: \`${POSTERS[4].replace(/\\n/g, '').replace(/\\s+/g, ' ')}\`
+  },
+  {
+    id: 5,
+    t: 'Zero Point',
+    y: 2025,
+    r: '1h 58m',
+    g: ['Sci-Fi', 'Thriller'],
+    rt: 8.6,
+    m: 80,
+    d: 'Autonomous AI emerges on orbital defense station, rewriting global deterrence protocols. High critical acclaim consensus.',
+    posterSvg: \`${POSTERS[5].replace(/\\n/g, '').replace(/\\s+/g, ' ')}\`
+  },
+  {
+    id: 6,
+    t: 'The Cosmic Web',
+    y: 2025,
+    r: '1h 42m',
+    g: ['Documentary', 'Space'],
+    rt: 9.2,
+    m: 78,
+    d: 'Deep-field James Webb imagery unveiling the ancient architecture of cosmic reality. 4K Ultra HD HDR10 master.',
+    posterSvg: \`${POSTERS[6].replace(/\\n/g, '').replace(/\\s+/g, ' ')}\`
+  },
+  {
+    id: 7,
+    t: 'Monsoon Rhythm',
+    y: 2025,
+    r: '2h 05m',
+    g: ['Drama', 'Romance'],
+    rt: 8.1,
+    m: 74,
+    d: 'A modern Mumbai family navigating tradition and aspiration across generations. Circadian mood alignment.',
+    posterSvg: \`${POSTERS[7].replace(/\\n/g, '').replace(/\\s+/g, ' ')}\`
+  },
+  {
+    id: 8,
+    t: 'Black Site: Protocol',
+    y: 2025,
+    r: '2h 20m',
+    g: ['Action', 'Espionage'],
+    rt: 8.4,
+    m: 72,
+    d: 'Undercover operatives execute an impossible mission under complete global blackout. Vega OS native player certified.',
+    posterSvg: \`${POSTERS[8].replace(/\\n/g, '').replace(/\\s+/g, ' ')}\`
+  }
+];
+
+/* ── STATE ── */
+const ST = { screen: 'splash', heroId: 1, isPlaying: true, playPct: 28, xrayOpen: true, history: [] };
+
+/* ── SCALE STAGE ── */
+function resize() {
+  const s = document.getElementById('stage');
+  const sc = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  s.style.transform = \`scale(\${sc})\`;
+  s.style.marginLeft = \`\${(window.innerWidth - 1920 * sc) / 2}px\`;
+  s.style.marginTop  = \`\${(window.innerHeight - 1080 * sc) / 2}px\`;
+}
+window.addEventListener('resize', resize);
+resize();
+
+/* ── NAVIGATION ── */
+const SCREENS = { splash: 's-splash', home: 's-home', cons: 's-cons', play: 's-play', arch: 's-arch', amb: 's-amb' };
+function go(name) {
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+  const el = document.getElementById(SCREENS[name]);
+  if (el) el.classList.add('on');
+  ST.history.push(ST.screen);
+  ST.screen = name;
+
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('a'));
+  const nb = document.getElementById(\`nb-\${name}\`);
+  if (nb) nb.classList.add('a');
+
+  if (name === 'home') initHome();
+  if (name === 'cons') initConsensus();
+  if (name === 'play') initPlayer();
+  if (name === 'amb')  initAmbient();
+}
+window.go = go;
+
+/* ── FLOATING EMBER PARTICLES ── */
+function spawnEmbers(containerId, count = 28) {
+  const w = document.getElementById(containerId);
+  if (!w) return;
+  w.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const e = document.createElement('div');
+    e.className = 'ember';
+    const sz = 2.5 + Math.random() * 4.5;
+    e.style.cssText = \`width:\${sz}px;height:\${sz}px;left:\${Math.random() * 100}%;animation-duration:\${6 + Math.random() * 8}s;animation-delay:\${-Math.random() * 10}s\`;
+    w.appendChild(e);
+  }
+}
+
+/* ── BUILD SHELVES WITH HIGH-RES CINEMATIC POSTERS ── */
+function buildShelves() {
+  const p1 = document.getElementById('track-picks');
+  const p2 = document.getElementById('track-ai');
+  const p3 = document.getElementById('track-prime');
+
+  if (p1) p1.innerHTML = CATALOG.map(m => cardHTML(m, false)).join('');
+  if (p2) p2.innerHTML = [...CATALOG].sort((a,b) => b.rt - a.rt).map(m => cardHTML(m, true)).join('');
+  if (p3) p3.innerHTML = [...CATALOG].reverse().map(m => cardHTML(m, false)).join('');
+}
+
+function cardHTML(m, lg) {
+  const cls = lg ? 'fire-card lg foc' : 'fire-card foc';
+  return \`<div class="\${cls}" data-id="\${m.id}" onclick="onCardSelect(\${m.id})" onmouseenter="previewCard(\${m.id})">
+    <div class="fc-poster-img">\${m.posterSvg}</div>
+    <div class="fc-vignette"></div>
+    <div class="fc-badge-match">\${m.m}% Match</div>
+    <div class="fc-badge-tag">\${m.g[0]}</div>
+    <div class="fc-info">
+      <div class="fc-title">\${m.t}</div>
+      <div class="fc-meta">★ \${m.rt} · \${m.r} · 4K HDR</div>
+    </div>
+  </div>\`;
+}
+
+function scrollShelf(id, dx) {
+  const t = document.getElementById(id);
+  if (t) t.scrollBy({ left: dx, behavior: 'smooth' });
+}
+window.scrollShelf = scrollShelf;
+
+function scrollHomeVertical(topY) {
+  const home = document.getElementById('s-home');
+  if (home) home.scrollTo({ top: topY, behavior: 'smooth' });
+}
+window.scrollHomeVertical = scrollHomeVertical;
+
+function onCardSelect(id) {
+  launchPlayer(id);
+}
+window.onCardSelect = onCardSelect;
+
+function previewCard(id) {
+  const m = CATALOG.find(x => x.id === id);
+  if (!m) return;
+  ST.heroId = id;
+  const t = document.getElementById('h-title');
+  const d = document.getElementById('h-desc');
+  const mb = document.getElementById('h-match-badge');
+  const ib = document.getElementById('h-imdb-badge');
+  const fb = document.getElementById('h-fmt-badge');
+  const lp = document.getElementById('live-pct-val');
+  const lf = document.getElementById('live-fill-bar');
+  const bp = document.getElementById('hero-backdrop-poster');
+
+  if (t) t.textContent = m.t;
+  if (d) d.textContent = m.d;
+  if (mb) mb.textContent = \`★ \${m.m}% Group Match\`;
+  if (ib) ib.textContent = \`IMDb \${m.rt} · 🍅 \${Math.round(m.m * 0.98)}%\`;
+  if (fb) fb.textContent = \`\${m.r} · \${m.y} · 4K HDR10 · Dolby Atmos\`;
+  if (lp) lp.textContent = m.m + '%';
+  if (lf) lf.style.width = m.m + '%';
+  if (bp) bp.innerHTML = \`<div class="hero-poster-embed">\${m.posterSvg}</div>\`;
+}
+window.previewCard = previewCard;
+
+function initHome() {
+  spawnEmbers('ember-container', 28);
+  buildShelves();
+  previewCard(ST.heroId || 1);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CONSENSUS ENGINE
+   ══════════════════════════════════════════════════════════════ */
+const WS_EVENTS = [
+  'voter_id="ronak_01" choice="dune_awakening" score=94',
+  'voter_id="priya_02" choice="dune_awakening" score=89',
+  'voter_id="sam_04" choice="dune_awakening" score=87',
+  'broadcast: consensus_update utility=94.2',
+  'voter_id="meera_03" typing=true',
+  'presence: 4 clients online channel=household_ronak',
+  'broadcast: score_recalculation triggered',
+  'voter_id="meera_03" choice="dune_awakening" score=85',
+  'broadcast: consensus_resolved winner="dune_awakening" utility=94.2',
+];
+let _wsIdx = 0;
+function initConsensus() {
+  const list = document.getElementById('cons-ranking-list');
+  if (!list) return;
+  const sorted = [...CATALOG].sort((a,b) => b.m - a.m);
+  list.innerHTML = sorted.slice(0, 5).map((m, i) => \`
+    <div class="res-card foc" onclick="launchPlayer(\${m.id})">
+      <div class="res-rank \${i === 0 ? 'gold' : ''}">#\${i + 1}</div>
+      <div class="res-poster-wrap">\${m.posterSvg}</div>
+      <div class="res-info">
+        <h4>\${m.t}</h4>
+        <div class="res-genres">\${m.g.map(g => \`<span class="rg-chip">\${g}</span>\`).join('')}</div>
+        <div class="res-desc">\${m.d}</div>
+        <div class="res-stats"><span>★ \${m.rt} IMDb</span><span>🍅 \${Math.round(m.m * 0.98)}% RT</span><span>⏱ \${m.r}</span></div>
+      </div>
+      <div class="res-score-col">
+        <div class="res-score-num">\${m.m}%</div>
+        <div class="res-score-lbl">Utility</div>
+      </div>
+    </div>\`).join('');
+  startWsTicker();
+}
+
+function startWsTicker() {
+  const ticker = document.getElementById('ws-ticker');
+  if (!ticker) return;
+  ticker.innerHTML = '';
+  function addEvent() {
+    const msg = WS_EVENTS[_wsIdx % WS_EVENTS.length];
+    _wsIdx++;
+    const d = document.createElement('div');
+    d.className = 'ws-event';
+    d.innerHTML = \`<span style="color:var(--t4)">[WS]</span> \${msg}\`;
+    ticker.appendChild(d);
+    if (ticker.children.length > 5) ticker.removeChild(ticker.firstChild);
+    const cnt = document.getElementById('ws-events-counter');
+    if (cnt) cnt.textContent = (parseInt(cnt.textContent || '0', 10) + 1);
+    setTimeout(addEvent, 1900 + Math.random() * 1200);
+  }
+  addEvent();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   4K HDR PLAYER (ANIMATED ARRAKIS CINEMATIC CANVAS)
+   ══════════════════════════════════════════════════════════════ */
+function initPlayer() {
+  const wrap = document.getElementById('player-canvas-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = \`
+    <svg viewBox="0 0 1920 1080" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="pl-sun" cx="55%" cy="38%" r="45%">
+          <stop offset="0%" stop-color="#FFE680"/>
+          <stop offset="25%" stop-color="#FF7700" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#8A1C00" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="pl-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0D0402"/>
+          <stop offset="45%" stop-color="#3D1204"/>
+          <stop offset="85%" stop-color="#B84204"/>
+          <stop offset="100%" stop-color="#FFA000"/>
+        </linearGradient>
+      </defs>
+      <rect width="1920" height="1080" fill="url(#pl-sky)"/>
+      <circle cx="1100" cy="420" r="320" fill="url(#pl-sun)"/>
+      <circle cx="820" cy="240" r="44" fill="#FFEAA7" opacity="0.65"/>
+      <circle cx="1320" cy="190" r="28" fill="#FFC500" opacity="0.45"/>
+      <!-- Sand Dunes -->
+      <path d="M-50 680 Q350 560 900 660 T1980 620 L1980 1080 L-50 1080 Z" fill="#6B2202"/>
+      <path d="M-50 780 Q450 660 1150 750 T1980 720 L1980 1080 L-50 1080 Z" fill="#471400"/>
+      <path d="M-50 880 Q550 780 1350 860 T1980 840 L1980 1080 L-50 1080 Z" fill="#240700"/>
+      <!-- Film Title & Atmosphere -->
+      <text x="960" y="320" text-anchor="middle" font-family="'Cinzel',serif" font-size="74" font-weight="900" letter-spacing="16" fill="#FFFFFF" opacity="0.92">DUNE : AWAKENING</text>
+      <text x="960" y="370" text-anchor="middle" font-family="'Inter',sans-serif" font-size="18" font-weight="800" letter-spacing="8" fill="#FFC500">DENIS VILLENEUVE · 4K ULTRA HD HDR10</text>
+    </svg>\`;
+  startPlayerTick();
+}
+
+function launchPlayer(id) {
+  ST.heroId = id;
+  go('play');
+}
+window.launchPlayer = launchPlayer;
+
+let _playerInterval = null;
+function startPlayerTick() {
+  clearInterval(_playerInterval);
+  if (!ST.isPlaying) return;
+  _playerInterval = setInterval(() => {
+    if (!ST.isPlaying || ST.screen !== 'play') return;
+    ST.playPct = Math.min(100, ST.playPct + 0.04);
+    updateSeek(ST.playPct);
+    updatePlayerTime(ST.playPct);
+  }, 500);
+}
+
+function updateSeek(pct) {
+  const fill = document.getElementById('player-seek-fill');
+  const knob = document.getElementById('player-seek-knob');
+  if (fill) fill.style.width = pct + '%';
+  if (knob) knob.style.left = pct + '%';
+}
+
+function updatePlayerTime(pct) {
+  const totalSec = 166 * 60;
+  const cur = Math.floor(pct / 100 * totalSec);
+  const ch = String(Math.floor(cur / 3600)).padStart(2, '0');
+  const cm = String(Math.floor((cur % 3600) / 60)).padStart(2, '0');
+  const cs = String(cur % 60).padStart(2, '0');
+  const el = document.getElementById('player-time-display');
+  if (el) el.textContent = \`\${ch}:\${cm}:\${cs} / 02:46:00\`;
+}
+
+function togglePlayback() {
+  ST.isPlaying = !ST.isPlaying;
+  document.getElementById('play-pause-btn').textContent = ST.isPlaying ? '⏸' : '▶';
+  if (ST.isPlaying) startPlayerTick();
+  else clearInterval(_playerInterval);
+  toast('⏯', 'Player', ST.isPlaying ? 'Resumed 4K stream' : 'Paused stream');
+}
+window.togglePlayback = togglePlayback;
+
+function toggleXray() {
+  ST.xrayOpen = !ST.xrayOpen;
+  const xh = document.getElementById('xray-hud');
+  if (xh) xh.style.opacity = ST.xrayOpen ? '1' : '0';
+}
+window.toggleXray = toggleXray;
+
+function seekBy(sec) {
+  ST.playPct = Math.max(0, Math.min(100, ST.playPct + sec * (100 / 166 / 60)));
+  updateSeek(ST.playPct);
+  updatePlayerTime(ST.playPct);
+}
+window.seekBy = seekBy;
+
+function seekClick(e) {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(100, (e.clientX - rect.left) / rect.width * 100));
+  ST.playPct = pct;
+  updateSeek(pct);
+  updatePlayerTime(pct);
+}
+window.seekClick = seekClick;
+
+/* ══════════════════════════════════════════════════════════════
+   AMBIENT MODE
+   ══════════════════════════════════════════════════════════════ */
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function initAmbient() {
+  spawnEmbers('amb-embers', 45);
+  function tick() {
+    if (ST.screen !== 'amb') return;
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const clk = document.getElementById('amb-clock');
+    if (clk) clk.textContent = \`\${h}:\${m}:\${s}\`;
+    const dt = document.getElementById('amb-date');
+    if (dt) dt.textContent = \`\${DAYS[now.getDay()]}, \${MONTHS[now.getMonth()]} \${now.getDate()} · Living Room\`;
+    setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+/* ── METRICS PULSE ── */
+function startLiveMetrics() {
+  setInterval(() => {
+    const base = [7, 14, 32, 2];
+    const jitter = base.map(v => v + Math.floor(Math.random() * 4 - 2));
+    const ll = document.getElementById('live-latency');
+    if (ll) ll.textContent = jitter[0] + 'ms';
+    const rps = document.getElementById('kpi-rps');
+    if (rps) rps.textContent = (14400 + Math.floor(Math.random() * 600)).toLocaleString();
+    const wsc = document.getElementById('ws-ms-counter');
+    if (wsc) wsc.textContent = jitter[1] + 'ms';
+  }, 2400);
+}
+
+/* ── ALEXA ── */
+function triggerAlexa() {
+  const btn = document.getElementById('alexa-btn');
+  btn.classList.add('active');
+  toast('🎙', 'Alexa Voice Search', '"Finding what everyone in the household agrees on…"', 3500);
+  setTimeout(() => {
+    btn.classList.remove('active');
+    go('cons');
+  }, 2000);
+}
+window.triggerAlexa = triggerAlexa;
+
+/* ── TOASTS ── */
+function toast(icon, title, text, dur = 3500) {
+  const w = document.getElementById('toast-wrap');
+  const b = document.createElement('div');
+  b.className = 'toast-box';
+  b.innerHTML = \`<div class="tb-icon">\${icon}</div><div class="tb-text"><h5>\${title}</h5><p>\${text}</p></div>\`;
+  w.appendChild(b);
+  setTimeout(() => b.remove(), dur);
+}
+window.toast = toast;
+
+/* ── REMOTE HUD & SPATIAL NAVIGATION ── */
+function toggleRemoteHud() {
+  const r = document.getElementById('fire-remote-hud');
+  r.classList.toggle('expanded');
+}
+window.toggleRemoteHud = toggleRemoteHud;
+
+function remoteKey(key) {
+  const m = { ArrowUp: 'rmt-up', ArrowDown: 'rmt-down', ArrowLeft: 'rmt-left', ArrowRight: 'rmt-right', Enter: 'rmt-sel', Escape: 'rmt-back' };
+  if (m[key]) {
+    const el = document.getElementById(m[key]);
+    if (el) { el.classList.add('active'); setTimeout(() => el.classList.remove('active'), 200); }
+  }
+  handleSpatial(key);
+}
+window.remoteKey = remoteKey;
+
+document.addEventListener('keydown', e => {
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Escape'].includes(e.key)) {
+    e.preventDefault();
+    remoteKey(e.key);
+  }
+  if (e.key === 'r' || e.key === 'R') {
+    toggleRemoteHud();
+  }
+});
+
+function handleSpatial(dir) {
+  const sid = SCREENS[ST.screen];
+  if (!sid) return;
+  const focs = Array.from(document.querySelectorAll(\`#\${sid} .foc, .fire-topbar .foc\`));
+  const cur  = document.querySelector('.focused');
+
+  if (dir === 'Enter') { if (cur) cur.click(); return; }
+  if (dir === 'Escape') { const p = ST.history.pop() || 'home'; go(p); return; }
+
+  let ni = 0;
+  if (cur) {
+    const ci = focs.indexOf(cur);
+    ni = (dir === 'ArrowRight' || dir === 'ArrowDown') ? (ci + 1) % focs.length : (ci - 1 + focs.length) % focs.length;
+    cur.classList.remove('focused');
+  }
+  const ne = focs[ni];
+  if (ne) {
+    ne.classList.add('focused');
+    ne.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    if (ne.hasAttribute('data-id')) {
+      previewCard(parseInt(ne.getAttribute('data-id'), 10));
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BOOT SEQUENCE
+   ══════════════════════════════════════════════════════════════ */
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+async function bootSequence() {
+  const fill = document.getElementById('sp-bar-fill');
+  const stat = document.getElementById('sp-status');
+  const steps = [
+    ['msc-1', 'Verifying Appwrite & Supabase Auth Tokens…', 20],
+    ['msc-2', 'Embedding 768-D Vector Mesh via Gemini 2.5 Flash…', 45],
+    ['msc-3', 'Opening Supabase Realtime WebSocket Presence Cluster…', 68],
+    ['msc-4', 'Warming AWS CloudFront 4K HDR Edge Nodes (250+ PoPs)…', 86],
+    ['msc-5', 'Compiling Deterministic Multi-Factor Consensus Engine…', 100],
+  ];
+  for (const [id, msg, pct] of steps) {
+    await wait(360);
+    if (stat) stat.textContent = msg;
+    if (fill) fill.style.width = pct + '%';
+    const el = document.getElementById(id);
+    if (el) el.classList.add('ok');
+  }
+  await wait(500);
+  go('home');
+  toast('🔥', 'Welcome, Ronak Jain!', 'Aura Vega OS ready · 4 household members connected · All microservices healthy', 5000);
+  startLiveMetrics();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   AUTOMATED DEMO AUTOMATION (SYNCHRONIZED TO 213-SECOND NARRATION)
+   ══════════════════════════════════════════════════════════════ */
+window.runDemoAutomation = async function() {
+  console.log('[AuraVega Demo] Starting 213-second synchronized master demo...');
+
+  // PHASE 1: Intro by Ronak Jain (0s - 44s)
+  // Let the boot sequence shine and transition to Home
+  await wait(4000);
+  previewCard(1);
+  await wait(14000);
+  previewCard(2);
+  await wait(12000);
+  previewCard(1);
+  await wait(14000);
+
+  // PHASE 2: Ambient Living Room Hub & Household Setup (44s - 76s)
+  go('amb');
+  await wait(16000);
+  go('home');
+  await wait(3000);
+  const cw = document.getElementById('hero-cw');
+  if (cw) {
+    cw.style.transform = 'scale(1.05)';
+    cw.style.boxShadow = '0 0 50px rgba(255, 102, 0, 0.7)';
+  }
+  toast('🔥', 'Household Presences Active', 'Ronak, Priya, Meera, Sam connected · Circadian Sunset Mode', 5000);
+  await wait(13000);
+  if (cw) { cw.style.transform = ''; cw.style.boxShadow = ''; }
+
+  // PHASE 3: D-Pad Navigation & Smooth Shelf Scrolling (76s - 108s)
+  // Scroll down smoothly so Shelf 1 is centered in the 1080p viewport!
+  scrollHomeVertical(380);
+  await wait(2500);
+  const fc = document.querySelector('#track-picks .fire-card');
+  if (fc) {
+    fc.classList.add('focused');
+    fc.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+  await wait(3500);
+  // Scroll shelf horizontally
+  scrollShelf('track-picks', 540);
+  await wait(4500);
+  scrollShelf('track-picks', 540);
+  const c3 = document.querySelectorAll('#track-picks .fire-card')[2];
+  if (c3) {
+    document.querySelectorAll('.focused').forEach(f => f.classList.remove('focused'));
+    c3.classList.add('focused');
+    previewCard(3);
+  }
+  await wait(5000);
+  scrollShelf('track-picks', -1080);
+  await wait(3500);
+
+  // Scroll down to Shelf 2 (Gemini AI Multi-Profile Recommendations)
+  scrollHomeVertical(760);
+  await wait(2500);
+  const ac = document.querySelector('#track-ai .fire-card');
+  if (ac) {
+    document.querySelectorAll('.focused').forEach(f => f.classList.remove('focused'));
+    ac.classList.add('focused');
+  }
+  scrollShelf('track-ai', 620);
+  await wait(4500);
+  scrollShelf('track-ai', -620);
+  await wait(4000);
+
+  // Scroll back to top
+  scrollHomeVertical(0);
+  await wait(2000);
+
+  // PHASE 4: Couch Consensus & Realtime Supabase WebSockets (108s - 148s)
+  go('cons');
+  await wait(6000);
+  toast('⚡', 'Supabase Realtime Event', 'Incoming WS: voter_id="meera_03", choice="dune_awakening", score=85', 5000);
+  await wait(5000);
+  const mb = document.getElementById('vbox-m');
+  if (mb) { mb.classList.remove('active-voting'); mb.classList.add('voted'); }
+  const ms = document.getElementById('meera-status-text');
+  if (ms) ms.innerHTML = '<span style="color:var(--jade);font-weight:800">✓ Voted: Dune: Awakening</span>';
+  toast('🎉', 'Consensus Updated!', 'Meera voted YES! Group agreement: 100% unanimous — 4/4 voters', 5000);
+  await wait(12000);
+  const tr = document.querySelector('.res-card');
+  if (tr) tr.classList.add('focused');
+  await wait(17000);
+
+  // PHASE 5: Winner Resolution & Explainable Math (148s - 176s)
+  toast('🏆', 'Pareto-Optimal Result', 'Dune: Awakening achieves 94% composite utility — Global maximum resolved!', 7000);
+  await wait(14000);
+  const wb = document.querySelector('#s-cons .btn-fire-play');
+  if (wb) wb.classList.add('focused');
+  await wait(5000);
+  launchPlayer(1);
+  await wait(9000);
+
+  // PHASE 6: 4K HDR Player, X-Ray & Microservices Outro (176s - 213s)
+  const xr = document.getElementById('xray-hud');
+  if (xr) xr.style.boxShadow = '0 0 45px rgba(0, 212, 255, 0.7)';
+  toast('✦', 'Fire TV X-Ray Active', 'Timothée Chalamet · Zendaya · Hans Zimmer — Scene 14: Arrakis Sands', 6000);
+  await wait(14000);
+  if (xr) xr.style.boxShadow = '';
+  go('arch');
+  toast('🏗️', 'Production Cloud Architecture', '8 microservices healthy · 97/97 tests · <15ms P95 · CloudFront 4K active', 7000);
+  await wait(23000);
+
+  console.log('[AuraVega Demo] 213-second demo successfully completed.');
+  return true;
+};
+
+window.addEventListener('load', () => {
+  resize();
+  bootSequence();
+});
+</script>
+</body>
+</html>\`;
+
+const targetPath = path.join(__dirname, 'tv-harness', 'index.html');
+fs.writeFileSync(targetPath, htmlContent, 'utf8');
+console.log('Successfully wrote pristine Fire TV harness to:', targetPath);

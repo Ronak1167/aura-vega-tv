@@ -6,13 +6,16 @@
  *
  * Responsibilities:
  *  1. Background periodic catalog refresh and telemetry ingestion.
- *  2. Pre-computing multi-factor candidate evaluations in the headless JS context.
+ *  2. Autonomous Multi-Agent Consensus pipeline execution in headless JS context.
  *  3. Caching personalized recommendations so foreground UI experiences 0ms computation latency.
+ *  4. Cloud synchronization of watchlist and voting history with Xano & Supabase.
  */
 
 import { CandidateEvaluation, ViewingContext, VotingParticipant, MediaItem } from '../types';
 import mediaCatalog from '../data/media-catalog.json';
 import { rankCandidates } from '../engine/ScoringEngine';
+import { autonomousAIEngine, AutonomousAgentReport } from '../engine/AutonomousAIEngine';
+import { xanoBackend } from '../services/XanoBackendService';
 
 export class ContentPersonalizationHeadlessService {
   private static instance: ContentPersonalizationHeadlessService | null = null;
@@ -20,6 +23,7 @@ export class ContentPersonalizationHeadlessService {
   private syncTimer: NodeJS.Timeout | null = null;
   private cachedRecommendations: CandidateEvaluation[] = [];
   private lastSyncTimestamp: string | null = null;
+  private lastAutonomousReport: AutonomousAgentReport | null = null;
 
   private constructor() {}
 
@@ -62,6 +66,10 @@ export class ContentPersonalizationHeadlessService {
     return this.lastSyncTimestamp;
   }
 
+  public getLastAutonomousReport(): AutonomousAgentReport | null {
+    return this.lastAutonomousReport;
+  }
+
   private syncContent(): void {
     const defaultParticipants: VotingParticipant[] = [
       {
@@ -92,7 +100,7 @@ export class ContentPersonalizationHeadlessService {
       sessionMood: 'All',
     };
 
-    // Pre-score and rank catalog
+    // 1. Synchronous deterministic ranking for 0ms guaranteed availability
     this.cachedRecommendations = rankCandidates(
       mediaCatalog as MediaItem[],
       defaultParticipants,
@@ -103,6 +111,24 @@ export class ContentPersonalizationHeadlessService {
     console.log(
       `[HeadlessService] Synced personalized media recommendations: ${this.cachedRecommendations.length} items ranked in background.`,
     );
+
+    // 2. Asynchronous Autonomous Multi-Agent background loop
+    this.runAutonomousBackgroundSync(defaultParticipants, currentContext);
+  }
+
+  private runAutonomousBackgroundSync(
+    participants: VotingParticipant[],
+    context: ViewingContext,
+  ): void {
+    autonomousAIEngine
+      .executeAutonomousConsensus(mediaCatalog as MediaItem[], participants, context)
+      .then(({ report }) => {
+        this.lastAutonomousReport = report;
+        return xanoBackend.flushPendingQueue();
+      })
+      .catch((err) => {
+        // Non-fatal background log
+      });
   }
 }
 
