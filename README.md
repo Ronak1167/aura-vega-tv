@@ -92,7 +92,7 @@ aura-vega-tv/
 │   ├── services/       # MediaDataService, WeatherService
 │   ├── styles/         # 10-Foot Design Tokens (colors, typography, safe zones)
 │   └── types/          # Strict TypeScript Contracts
-└── tst/                # 11 Jest Test Suites (55 automated tests)
+└── tst/                # 22 Jest Test Suites (166 automated tests)
 ```
 
 ---

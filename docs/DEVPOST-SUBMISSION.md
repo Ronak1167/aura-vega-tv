@@ -74,7 +74,7 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
 - **Microservices Stack**: Node.js / TypeScript, Supabase PostgreSQL with `pgvector`, Appwrite, AWS CloudFront, and Kong Gateway.
 - **Manifest Architecture**: Strict `manifest.toml` declaring permissions, capabilities, categories, and dual runtime configurations.
 - **Build Pipeline**: Metro v0.83 with Kepler compatibility configuration, emitting standalone JS bundles, source maps, and compiled Static Hermes bytecode.
-- **Test Engineering**: 12 automated Jest test suites with 74 unit tests verifying scoring math across 7 distinct conflict scenarios and 15 adversarial QA edge-case boundary tests.
+- **Test Engineering**: 22 automated Jest test suites with 166 unit tests verifying scoring math across 7 distinct conflict scenarios, 15 adversarial QA edge-case boundary tests, generative motion, and microservices orchestration.
 
 ---
 
@@ -105,7 +105,7 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
 ## Accomplishments We're Proud Of
 
 - **100% Deterministic & Honest**: We built a genuine multi-viewer consensus engine with zero fabricated metrics, zero fake AI wrappers, and zero hallucinations.
-- **Rigorous Scenario Testing**: 74 automated tests across 12 test suites verifying complex living room dynamics, including majority vetoes, tie-breaking, and late-night bedtime constraints.
+- **Rigorous Scenario Testing**: 166 automated tests across 22 test suites verifying complex living room dynamics, including majority vetoes, tie-breaking, and late-night bedtime constraints.
 - **Production-Grade Release Pipeline**: Clean Metro release bundling, Static Hermes bytecode compilation, native Vega SDK VPT packaging, and zero-warning TypeScript verification.
 
 ---
