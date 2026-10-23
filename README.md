@@ -6,6 +6,7 @@
 [![Framework](https://img.shields.io/badge/Framework-React%20Native%200.83%20Kepler-61DAFB?style=for-the-badge&logo=react)](https://reactnative.dev)
 [![Engine](https://img.shields.io/badge/Engine-Static%20Hermes%20v96-764ABC?style=for-the-badge)](https://hermesengine.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Demo Video](https://img.shields.io/badge/Demo%20Video-YouTube-FF0000?style=for-the-badge&logo=youtube)](https://youtu.be/vGrzGhmHNW4)
 
 > **"Build, Ship, Shape: Amazon Developer Hackathon 2026"**  
 > **Target Platform:** Amazon Fire TV running **Vega OS**  
@@ -171,6 +172,7 @@ Generates release artifacts in `build/lib/rn-bundles/Release/`:
 ---
 
 ## 11. 3-Minute Demo Sequence
+🎥 **Watch Master Demo Video (02:53)**: [https://youtu.be/vGrzGhmHNW4](https://youtu.be/vGrzGhmHNW4)
 
 1. **[0:00–0:20] Ambient Hub:** Showcases idle TV state with circadian time-of-day clock, simulated rainy weather, and household voter presence.
 2. **[0:20–0:40] Enter Couch Consensus:** Press **Select** to enter the recommendation interface.

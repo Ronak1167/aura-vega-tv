@@ -123,7 +123,8 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
 - **Repository**: [https://github.com/Ronak1167/aura-vega-tv](https://github.com/Ronak1167/aura-vega-tv)
 - **License**: MIT Open Source License
 - **Documentation**: Full architecture, API contracts, design system, and scenario validations available in `/docs`.
-- **Demo Video (Local Artifact)**: `docs/demo-video/aura-vega-tv-demo.mp4`
+- **Demo Video (YouTube)**: [https://youtu.be/vGrzGhmHNW4](https://youtu.be/vGrzGhmHNW4)
+- **Local Artifact**: `docs/demo-video/aura-vega-tv-demo.mp4`
   - **Resolution**: 1920x1080 (1080p Full HD, 30 fps)
   - **Duration**: `00:02:53.32` (2.888 minutes — strictly fulfilling the ≥2.7-minute requirement while adhering to the ≤3.0-minute ceiling)
   - **Audio Narration**: Full spoken narration explaining every screen, math formula, and interaction, featuring a personalized introduction by creator **Ronak Jain** (`en-IN-PrabhatNeural` + `en-US-AndrewNeural`, 24kHz studio-quality AAC audio)
@@ -131,7 +132,6 @@ Aura Vega transforms the living room TV into an intelligent, ambient command hub
   - **File Size**: 19.19 MB (20,127,105 bytes)
   - **SHA-256**: `284392E61E5D1F0D58141B66E5F0E8FB852D94EA32A157DAEE0E69560BDFE052`
   - **Visual Thumbnails**: `docs/demo-video/thumbnails/` (Ambient Mode, Couch Consensus, Multi-Factor Scoring Modal, Video Player with Closed Captions)
-  - **Devpost Submission Link**: *Upload this file (`docs/demo-video/aura-vega-tv-demo.mp4`) directly to YouTube or Vimeo and paste the public link into the Devpost submission form under "Video Demo Link".*
 
 ---
 
